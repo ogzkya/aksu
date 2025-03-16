@@ -1,4 +1,4 @@
-
+<!-- admin/templates/header.php -->
 <?php
 if (!isset($auth)) {
     require_once '../includes/init.php';
@@ -25,20 +25,31 @@ if (!isset($activePage)) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
     
     <!-- Admin CSS -->
     <link rel="stylesheet" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/css/admin.css">
+    
+    <!-- Custom styles override -->
+    <style>
+        /* Hide PHP warnings */
+        .warning, div[class*="warning"] {
+            display: none !important;
+        }
+    </style>
 </head>
 <body id="page-top">
     <div id="wrapper">
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <div class="sidebar">
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
                 <div class="sidebar-brand-icon">
-                    <i class="bi bi-house"></i>
+                    <i class="bi bi-building"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">Emlak Admin</div>
             </a>
@@ -47,12 +58,14 @@ if (!isset($activePage)) {
             <hr class="sidebar-divider my-0">
             
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item <?= $activePage === 'dashboard' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
+            <ul class="navbar-nav">
+                <li class="nav-item <?= $activePage === 'dashboard' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            </ul>
             
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -61,12 +74,26 @@ if (!isset($activePage)) {
             <div class="sidebar-heading">İçerik Yönetimi</div>
             
             <!-- Nav Item - İlanlar -->
-            <li class="nav-item <?= $activePage === 'listings' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/index.php">
-                    <i class="bi bi-house-door"></i>
-                    <span>İlanlar</span>
-                </a>
-            </li>
+            <ul class="navbar-nav">
+                <li class="nav-item <?= $activePage === 'listings' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/index.php">
+                        <i class="bi bi-houses"></i>
+                        <span>İlanlar</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/add.php">
+                        <i class="bi bi-plus-circle"></i>
+                        <span>Yeni İlan Ekle</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/blog/index.php">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Blog</span>
+                    </a>
+                </li>
+            </ul>
             
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -75,12 +102,20 @@ if (!isset($activePage)) {
             <div class="sidebar-heading">Kullanıcı Yönetimi</div>
             
             <!-- Nav Item - Kullanıcılar -->
-            <li class="nav-item <?= $activePage === 'users' ? 'active' : '' ?>">
-                <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/index.php">
-                    <i class="bi bi-people"></i>
-                    <span>Kullanıcılar</span>
-                </a>
-            </li>
+            <ul class="navbar-nav">
+                <li class="nav-item <?= $activePage === 'users' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/index.php">
+                        <i class="bi bi-people"></i>
+                        <span>Kullanıcılar</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/profile.php">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Profil</span>
+                    </a>
+                </li>
+            </ul>
             
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -91,7 +126,7 @@ if (!isset($activePage)) {
                     <i class="bi bi-chevron-left"></i>
                 </button>
             </div>
-        </ul>
+        </div>
         <!-- End of Sidebar -->
         
         <!-- Content Wrapper -->
@@ -105,6 +140,9 @@ if (!isset($activePage)) {
                         <i class="bi bi-list"></i>
                     </button>
                     
+                    <!-- Page Title -->
+                    <h1 class="h3 mb-0 text-gray-800 d-none d-md-inline-block"><?= htmlspecialchars($pageTitle) ?></h1>
+                    
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Nav Item - User Information -->
@@ -114,7 +152,7 @@ if (!isset($activePage)) {
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">
                                     <?= htmlspecialchars($_SESSION['username']) ?>
                                 </span>
-                                <i class="bi bi-person-circle"></i>
+                                <i class="bi bi-person-circle fs-5"></i>
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
@@ -135,7 +173,4 @@ if (!isset($activePage)) {
                 <!-- End of Topbar -->
                 
                 <!-- Begin Page Content -->
-                <div class="container-fluid">
-
-
-
+                <div class="container-fluid px-4">

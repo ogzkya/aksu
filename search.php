@@ -356,18 +356,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const markers = [];
     
     propertyData.forEach(function(property) {
-        // Fiyat bilgisi ve renk ayarlama
+     
         let priceText    = '';
-        let markerColor  = '#e74c3c'; // Default: satılık için kırmızı
+        let markerColor  = '#e74c3c'; // 
         
         if (property.rent_price && property.rent_price > 0) {
             priceText   = `${formatPrice(property.rent_price)} ₺/ay`;
-            markerColor = '#2ecc71'; // Kiralık için yeşil
+            markerColor = '#2ecc71'; // 
         } else {
             priceText   = `${formatPrice(property.sale_price)} ₺`;
         }
         
-        // Marker ikon stilini güncelle
+      
         const propertyIcon = L.divIcon({
             className: 'property-marker',
             html: `<div class="marker-price" style="background-color: ${markerColor};">${priceText}</div>`,
@@ -375,12 +375,12 @@ document.addEventListener('DOMContentLoaded', function() {
             iconAnchor: [40, 15]
         });
         
-        // Marker ekle
+    
         const marker = L.marker([property.latitude, property.longitude], {
             icon: propertyIcon
         }).addTo(map);
         
-        // Popup içeriği - kiralık/satılık durumunu da ekleyin
+        
         const popupContent = `
             <div class="map-popup">
                 <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" class="popup-image" alt="${property.title}">

@@ -1,11 +1,12 @@
 <?php
+// admin/index.php
 require_once '../includes/init.php';
 
 $auth = new Auth();
 $auth->requireLogin();
 
 $listing = new Listing();
-$message = new Message(); // Mesaj sınıfını oluşturun
+$message = new Message();
 
 // İstatistikler
 $totalListings = $listing->countListings();
@@ -39,69 +40,45 @@ require_once 'templates/header.php';
     <!-- İstatistik Kartları Satırı -->
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card status-card status-card-primary h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Toplam İlan</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $totalListings ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-house fs-2 text-gray-300"></i>
-                        </div>
-                    </div>
+                    <h5 class="status-title">Toplam İlan</h5>
+                    <div class="status-value"><?= $totalListings ?></div>
+                    <p class="mb-0 small">Sistemdeki tüm ilanlar</p>
+                    <i class="bi bi-house status-icon"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
+            <div class="card status-card status-card-danger h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Satılık İlanlar</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $saleListings ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-currency-dollar fs-2 text-gray-300"></i>
-                        </div>
-                    </div>
+                    <h5 class="status-title">Satılık İlanlar</h5>
+                    <div class="status-value"><?= $saleListings ?></div>
+                    <p class="mb-0 small">Toplam satılık mülkler</p>
+                    <i class="bi bi-currency-dollar status-icon"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
+            <div class="card status-card status-card-success h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Kiralık İlanlar</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $rentListings ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-calendar3 fs-2 text-gray-300"></i>
-                        </div>
-                    </div>
+                    <h5 class="status-title">Kiralık İlanlar</h5>
+                    <div class="status-value"><?= $rentListings ?></div>
+                    <p class="mb-0 small">Toplam kiralık mülkler</p>
+                    <i class="bi bi-calendar3 status-icon"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card status-card status-card-warning h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Öne Çıkan İlanlar</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800"><?= $featuredListings ?></div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="bi bi-star fs-2 text-gray-300"></i>
-                        </div>
-                    </div>
+                    <h5 class="status-title">Öne Çıkan İlanlar</h5>
+                    <div class="status-value"><?= $featuredListings ?></div>
+                    <p class="mb-0 small">Ana sayfada görüntülenenler</p>
+                    <i class="bi bi-star status-icon"></i>
                 </div>
             </div>
         </div>
@@ -113,7 +90,7 @@ require_once 'templates/header.php';
         <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Son Eklenen İlanlar</h6>
+                    <h6 class="card-title">Son Eklenen İlanlar</h6>
                     <a href="listings/index.php" class="btn btn-sm btn-primary">
                         Tüm İlanlar
                     </a>
@@ -121,7 +98,7 @@ require_once 'templates/header.php';
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Başlık</th>
@@ -136,7 +113,7 @@ require_once 'templates/header.php';
                                     <tr>
                                         <td><?= $item['id'] ?></td>
                                         <td>
-                                            <a href="../listing.php?id=<?= $item['id'] ?>" target="_blank">
+                                            <a href="../listing.php?id=<?= $item['id'] ?>" target="_blank" class="text-decoration-none">
                                                 <?= htmlspecialchars($item['title']) ?>
                                             </a>
                                             <?php if ($item['featured']): ?>
@@ -159,11 +136,11 @@ require_once 'templates/header.php';
                                         </td>
                                         <td><?= date('d.m.Y', strtotime($item['created_at'])) ?></td>
                                         <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <a href="listings/edit.php?id=<?= $item['id'] ?>" class="btn btn-info" title="Düzenle">
+                                            <div class="btn-group">
+                                                <a href="listings/edit.php?id=<?= $item['id'] ?>" class="btn btn-sm btn-icon btn-primary" title="Düzenle">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
-                                                <a href="listings/delete.php?id=<?= $item['id'] ?>" class="btn btn-danger" title="Sil" onclick="return confirm('Bu ilanı silmek istediğinize emin misiniz?');">
+                                                <a href="listings/delete.php?id=<?= $item['id'] ?>" class="btn btn-sm btn-icon btn-danger" title="Sil" onclick="return confirm('Bu ilanı silmek istediğinize emin misiniz?');">
                                                     <i class="bi bi-trash"></i>
                                                 </a>
                                             </div>
@@ -188,7 +165,7 @@ require_once 'templates/header.php';
             <!-- Son Mesajlar -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Son Mesajlar</h6>
+                    <h6 class="card-title">Son Mesajlar</h6>
                     <a href="messages/index.php" class="btn btn-sm btn-primary">
                         Tümü
                     </a>
@@ -215,45 +192,10 @@ require_once 'templates/header.php';
                 </div>
             </div>
 
-            <!-- Hızlı Erişim -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Hızlı Erişim</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <a href="listings/add.php" class="btn btn-primary w-100 py-3">
-                                <i class="bi bi-house-add d-block fs-3"></i>
-                                İlan Ekle
-                            </a>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <a href="users/index.php" class="btn btn-info w-100 py-3">
-                                <i class="bi bi-people d-block fs-3"></i>
-                                Kullanıcılar
-                            </a>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <a href="blog/posts.php" class="btn btn-success w-100 py-3">
-                                <i class="bi bi-file-earmark-text d-block fs-3"></i>
-                                Blog
-                            </a>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <a href="../index.php" target="_blank" class="btn btn-warning w-100 py-3">
-                                <i class="bi bi-globe d-block fs-3"></i>
-                                Siteyi Gör
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Admin Kullanıcıları -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Admin Kullanıcıları</h6>
+                    <h6 class="card-title">Admin Kullanıcıları</h6>
                     <?php if (count($users) < 5): ?>
                         <a href="users/add.php" class="btn btn-sm btn-primary">
                             <i class="bi bi-person-plus"></i> Ekle
@@ -263,7 +205,7 @@ require_once 'templates/header.php';
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-sm">
-                            <thead class="table-light">
+                            <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Kullanıcı Adı</th>
@@ -280,6 +222,41 @@ require_once 'templates/header.php';
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hızlı Erişim Kartı -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="card-title">Hızlı Erişim</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <a href="listings/add.php" class="btn btn-primary w-100 py-3">
+                                <i class="bi bi-house-add d-block fs-3 mb-2"></i>
+                                İlan Ekle
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="users/index.php" class="btn btn-info w-100 py-3 text-white">
+                                <i class="bi bi-people d-block fs-3 mb-2"></i>
+                                Kullanıcılar
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="blog/posts.php" class="btn btn-success w-100 py-3">
+                                <i class="bi bi-file-earmark-text d-block fs-3 mb-2"></i>
+                                Blog
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="../index.php" target="_blank" class="btn btn-warning w-100 py-3">
+                                <i class="bi bi-globe d-block fs-3 mb-2"></i>
+                                Siteyi Gör
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
