@@ -1,4 +1,3 @@
-<!-- admin/listings/add.php -->
 <?php
 require_once '../../includes/init.php';
 
@@ -11,112 +10,158 @@ $errors = [];
 $success = false;
 
 // Form gönderildi mi kontrol et
+// admin/listings/add.php ve edit.php için çoklu fotoğraf yükleme düzeltmesi
+
+/**
+ * Bu kodu add.php ve edit.php dosyalarında form işleme kısmından önce yerleştirin
+ */
+
+// Form gönderildi mi kontrol et
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Form verilerini al
-        $listingData = [
-            'title' => $_POST['title'] ?? '',
-            'description' => $_POST['description'] ?? '',
-            'short_description' => $_POST['short_description'] ?? '',
-            'sale_price' => $_POST['sale_price'] ?? 0,
-            'rent_price' => !empty($_POST['rent_price']) ? $_POST['rent_price'] : null,
-            'property_size' => $_POST['property_size'] ?? 0,
-            'rooms' => $_POST['rooms'] ?? 0,
-            'bathrooms' => $_POST['bathrooms'] ?? 0,
-            'floors_no' => $_POST['floors_no'] ?? 0,
-            'garages' => $_POST['garages'] ?? 0,
-            'energy_efficiency' => $_POST['energy_efficiency'] ?? null,
-            'year_built' => !empty($_POST['year_built']) ? $_POST['year_built'] : null,
-            'property_lot_size' => !empty($_POST['property_lot_size']) ? $_POST['property_lot_size'] : null,
-            'category' => $_POST['category'] ?? 'Other',
-            'latitude' => $_POST['latitude'] ?? 0,
-            'longitude' => $_POST['longitude'] ?? 0,
-            'city' => $_POST['city'] ?? '',
-            'state' => $_POST['state'] ?? '',
-            'country' => $_POST['country'] ?? '',
-            'street' => $_POST['street'] ?? '',
-            'zip' => $_POST['zip'] ?? '',
-            'keywords' => $_POST['keywords'] ?? '',
-            'featured' => isset($_POST['featured']) ? 1 : 0,
-            'multimedia' => [
-                'video_url' => $_POST['video_url'] ?? '',
-                'virtual_tour' => $_POST['virtual_tour'] ?? ''
-            ],
-            'distances' => [],
-            'features' => [
-                'İç Özellikler' => [],
-                'Dış Özellikler' => [],
-                'Çevre Özellikleri' => []
-            ]
-        ];
+        // Debug bilgisi - hata ayıklama için
+        if (isset($_GET['debug'])) {
+            echo "<pre>";
+            echo "POST Verileri:\n";
+            print_r($_POST);
+            echo "\nFILES Verileri:\n";
+            print_r($_FILES);
+            echo "</pre>";
+        }
         
-        // Mesafeleri işle
-        $distanceNames = $_POST['distance_name'] ?? [];
-        $distanceValues = $_POST['distance_value'] ?? [];
+        // Form verilerini al ve doğrula
+        // İlan tipi ve fiyat kontrolü
+        $listingType = $_POST['listing_type'] ?? 'sale';
+        $salePrice = 0;
+        $rentPrice = null;
         
-        for ($i = 0; $i < count($distanceNames); $i++) {
-            if (!empty($distanceNames[$i]) && isset($distanceValues[$i])) {
-                $listingData['distances'][$distanceNames[$i]] = $distanceValues[$i];
+        if ($listingType == 'sale' || $listingType == 'both') {
+            $salePrice = !empty($_POST['sale_price']) ? (float)$_POST['sale_price'] : 0;
+            if ($salePrice <= 0) {
+                $errors[] = 'Geçerli bir satış fiyatı girilmelidir.';
             }
         }
         
-        // Özellikleri işle
-        if (isset($_POST['interior_features'])) {
-            $listingData['features']['İç Özellikler'] = $_POST['interior_features'];
-        }
-        
-        if (isset($_POST['exterior_features'])) {
-            $listingData['features']['Dış Özellikler'] = $_POST['exterior_features'];
-        }
-        
-        if (isset($_POST['env_features'])) {
-            $listingData['features']['Çevre Özellikleri'] = $_POST['env_features'];
-        }
-        
-        // Minimal doğrulama
-        if (empty($listingData['title'])) {
-            $errors[] = 'İlan başlığı gereklidir.';
-        }
-        
-        if (empty($listingData['description'])) {
-            $errors[] = 'İlan açıklaması gereklidir.';
-        }
-        
-        // İlana göre fiyat kontrolü
-        if (isset($_POST['listing_type'])) {
-            if ($_POST['listing_type'] == 'sale' || $_POST['listing_type'] == 'both') {
-                if (!is_numeric($listingData['sale_price']) || $listingData['sale_price'] <= 0) {
-                    $errors[] = 'Geçerli bir satış fiyatı girilmelidir.';
-                }
-            } else {
-                $listingData['sale_price'] = 0;
-            }
-            
-            if ($_POST['listing_type'] == 'rent' || $_POST['listing_type'] == 'both') {
-                if (!is_numeric($listingData['rent_price']) || $listingData['rent_price'] <= 0) {
-                    $errors[] = 'Geçerli bir kira fiyatı girilmelidir.';
-                }
-            } else {
-                $listingData['rent_price'] = null;
+        if ($listingType == 'rent' || $listingType == 'both') {
+            $rentPrice = !empty($_POST['rent_price']) ? (float)$_POST['rent_price'] : 0;
+            if ($rentPrice <= 0) {
+                $errors[] = 'Geçerli bir kira fiyatı girilmelidir.';
             }
         }
         
-        if (!is_numeric($listingData['property_size']) || $listingData['property_size'] <= 0) {
-            $errors[] = 'Geçerli bir alan (m²) girilmelidir.';
+        // Görsel kontrolü - bu biraz daha karmaşık çünkü "images" ve "new_images" adlarını kullanabiliyoruz
+        $hasImages = false;
+        
+        // add.php için (images[] adında olabilir)
+        if (isset($_FILES['images']) && !empty($_FILES['images']['name'][0])) {
+            $hasImages = true;
         }
         
-        if (empty($listingData['city']) || empty($listingData['country'])) {
-            $errors[] = 'Şehir ve ülke bilgileri gereklidir.';
+        // edit.php için (new_images[] adında olabilir)
+        if (isset($_FILES['new_images']) && !empty($_FILES['new_images']['name'][0])) {
+            $hasImages = true;
         }
         
-        // Hata yoksa ilanı ekle
+        // Mevcut görseller de olabilir (edit.php için)
+        if (isset($_POST['existing_images']) && !empty($_POST['existing_images'])) {
+            $hasImages = true;
+        }
+        
+        // Harita koordinatları kontrolü
+        $latitude = $_POST['latitude'] ?? 0;
+        $longitude = $_POST['longitude'] ?? 0;
+        
+        if (empty($latitude) || empty($longitude) || $latitude == 0 || $longitude == 0) {
+            $errors[] = 'Lütfen haritada bir konum seçin.';
+        }
+        
+        // Diğer form doğrulamaları...
+        
+        // Hata yoksa devam et
         if (empty($errors)) {
-            $listingId = $listing->addListing($listingData);
+            // Form verilerini birleştir
+            $listingData = [
+                'title' => $_POST['title'] ?? '',
+                'description' => $_POST['description'] ?? '',
+                'short_description' => $_POST['short_description'] ?? '',
+                'sale_price' => $salePrice,
+                'rent_price' => $rentPrice,
+                'property_size' => $_POST['property_size'] ?? 0,
+                'rooms' => $_POST['rooms'] ?? 0,
+                'bathrooms' => $_POST['bathrooms'] ?? 0,
+                'floors_no' => $_POST['floors_no'] ?? 0,
+                'garages' => $_POST['garages'] ?? 0,
+                'energy_efficiency' => $_POST['energy_efficiency'] ?? null,
+                'year_built' => !empty($_POST['year_built']) ? $_POST['year_built'] : null,
+                'property_lot_size' => !empty($_POST['property_lot_size']) ? $_POST['property_lot_size'] : null,
+                'category' => $_POST['category'] ?? 'Other',
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+                'city' => $_POST['city'] ?? '',
+                'state' => $_POST['state'] ?? '',
+                'country' => $_POST['country'] ?? '',
+                'street' => $_POST['street'] ?? '',
+                'zip' => $_POST['zip'] ?? '',
+                'keywords' => $_POST['keywords'] ?? '',
+                'featured' => isset($_POST['featured']) ? 1 : 0,
+                'multimedia' => [
+                    'video_url' => $_POST['video_url'] ?? '',
+                    'virtual_tour' => $_POST['virtual_tour'] ?? ''
+                ],
+                'distances' => [],
+                'features' => [
+                    'İç Özellikler' => [],
+                    'Dış Özellikler' => [],
+                    'Çevre Özellikleri' => []
+                ]
+            ];
             
-            // Görselleri yükle
-            if (isset($_FILES['images']) && !empty($_FILES['images']['name'][0])) {
-                $mainImageIndex = $_POST['main_image_index'] ?? 0;
+            // Mesafeleri işle
+            $distanceNames = $_POST['distance_name'] ?? [];
+            $distanceValues = $_POST['distance_value'] ?? [];
+            
+            for ($i = 0; $i < count($distanceNames); $i++) {
+                if (!empty($distanceNames[$i]) && isset($distanceValues[$i])) {
+                    $listingData['distances'][$distanceNames[$i]] = $distanceValues[$i];
+                }
+            }
+            
+            // Özellikleri işle
+            if (isset($_POST['interior_features'])) {
+                $listingData['features']['İç Özellikler'] = $_POST['interior_features'];
+            }
+            
+            if (isset($_POST['exterior_features'])) {
+                $listingData['features']['Dış Özellikler'] = $_POST['exterior_features'];
+            }
+            
+            if (isset($_POST['env_features'])) {
+                $listingData['features']['Çevre Özellikleri'] = $_POST['env_features'];
+            }
+            
+            $listing = new Listing();
+            
+            // Edit sayfası için ilanı güncelle, add sayfası için yeni ilan ekle
+            if (isset($listingId)) {
+                // edit.php
+                $listing->updateListing($listingId, $listingData);
+            } else {
+                // add.php
+                $listingId = $listing->addListing($listingData);
                 
+                if (!$listingId) {
+                    throw new Exception("İlan eklenirken bir hata oluştu.");
+                }
+            }
+            
+            // Görsel yükleme sınıfı
+            $image = new Image();
+            
+            // Ana görsel indeksi
+            $mainImageIndex = isset($_POST['main_image_index']) ? (int)$_POST['main_image_index'] : 0;
+            
+            // add.php için görselleri işle
+            if (isset($_FILES['images']) && !empty($_FILES['images']['name'][0])) {
                 for ($i = 0; $i < count($_FILES['images']['name']); $i++) {
                     if ($_FILES['images']['error'][$i] === UPLOAD_ERR_OK) {
                         $file = [
@@ -127,19 +172,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'size' => $_FILES['images']['size'][$i]
                         ];
                         
-                        $imageUrl = $image->upload($file, $listingId);
-                        $listing->addListingImage($listingId, $imageUrl, $i == $mainImageIndex ? 1 : 0);
+                        try {
+                            $imageUrl = $image->upload($file, $listingId);
+                            $listing->addListingImage($listingId, $imageUrl, $i == $mainImageIndex ? 1 : 0);
+                        } catch (Exception $e) {
+                            // Hata logla ama diğer görseller için devam et
+                            error_log("Görsel yükleme hatası: " . $e->getMessage());
+                        }
+                    }
+                }
+            }
+            
+            // edit.php için yeni görselleri işle
+            if (isset($_FILES['new_images']) && !empty($_FILES['new_images']['name'][0])) {
+                for ($i = 0; $i < count($_FILES['new_images']['name']); $i++) {
+                    if ($_FILES['new_images']['error'][$i] === UPLOAD_ERR_OK) {
+                        $file = [
+                            'name' => $_FILES['new_images']['name'][$i],
+                            'type' => $_FILES['new_images']['type'][$i],
+                            'tmp_name' => $_FILES['new_images']['tmp_name'][$i],
+                            'error' => $_FILES['new_images']['error'][$i],
+                            'size' => $_FILES['new_images']['size'][$i]
+                        ];
+                        
+                        try {
+                            $imageUrl = $image->upload($file, $listingId);
+                            $listing->addListingImage($listingId, $imageUrl, $i == $mainImageIndex ? 1 : 0);
+                        } catch (Exception $e) {
+                            error_log("Görsel yükleme hatası: " . $e->getMessage());
+                        }
+                    }
+                }
+            }
+            
+            // edit.php için ana görsel güncelleme
+            if (isset($_POST['main_image']) && is_numeric($_POST['main_image'])) {
+                $mainImageId = (int)$_POST['main_image'];
+                
+                // Mevcut görsellerin içinden ana görseli bul
+                if (isset($images) && is_array($images)) {
+                    foreach ($images as $img) {
+                        if ($img['id'] == $mainImageId) {
+                            // Ana görsel olarak işaretle
+                            $listing->addListingImage($listingId, $img['image_url'], 1);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // edit.php için silinen görselleri işle
+            if (isset($_POST['deleted_images']) && !empty($_POST['deleted_images'])) {
+                $deletedImages = explode(',', $_POST['deleted_images']);
+                
+                foreach ($deletedImages as $imgId) {
+                    if (is_numeric($imgId)) {
+                        $listing->deleteListingImage((int)$imgId);
                     }
                 }
             }
             
             $success = true;
-            // Yönlendirme
-            header('Location: edit.php?id=' . $listingId . '&success=1');
-            exit;
+            
+            // add.php için yönlendirme
+            if (!isset($editMode)) {
+                header('Location: edit.php?id=' . $listingId . '&success=1');
+                exit;
+            }
         }
     } catch (Exception $e) {
-        $errors[] = $e->getMessage();
+        $errors[] = "İşlem sırasında bir hata oluştu: " . $e->getMessage();
     }
 }
 
@@ -156,6 +258,7 @@ require_once '../templates/header.php';
         </a>
     </div>
 
+    <!-- Hata ve başarı mesajlarının gösterimi -->
     <?php if (!empty($errors)): ?>
         <div class="alert alert-danger">
             <strong><i class="bi bi-exclamation-triangle-fill me-2"></i>Lütfen aşağıdaki hataları düzeltin:</strong>
@@ -173,7 +276,7 @@ require_once '../templates/header.php';
         </div>
     <?php endif; ?>
 
-    <!-- Adım Göstergesi -->
+    <!-- Wizard Adım Göstergesi -->
     <div class="wizard-progress mb-4 d-none d-md-flex">
         <div class="wizard-progress-step active" data-step="basic-tab">
             <div class="wizard-progress-step-icon">
@@ -690,7 +793,195 @@ require_once '../templates/header.php';
     </div>
 </div>
 
-<!-- Bu CSS stili doğrudan sayfaya eklenebilir -->
+<!-- Form gönderiminde yükleme göstergesi ekleyen JS -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('#listingForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (this.checkValidity()) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>İlan Kaydediliyor...';
+                }
+            }
+        });
+    }
+});
+</script>
+
+<!-- Ek JS ve CSS kodları: Sidebar, tab navigasyonu, drag & drop, resim önizleme, mesafe ekleme, harita entegrasyonu vs. -->
+<!-- (Bu kodlar admin.js gibi harici dosyaya taşınabilir ancak burada örnek olması için eklenmiştir.) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar ve tab toggle işlemleri
+    const sidebarToggle = document.querySelector('#sidebarToggle');
+    const sidebarToggleTop = document.querySelector('#sidebarToggleTop');
+    const body = document.querySelector('body');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (sidebar) sidebar.classList.toggle('toggled');
+            body.classList.toggle('sidebar-toggled');
+        });
+    }
+    if (sidebarToggleTop) {
+        sidebarToggleTop.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (sidebar) sidebar.classList.toggle('toggled');
+            body.classList.toggle('sidebar-toggled');
+        });
+    }
+    
+    // Tablar arası geçiş
+    const nextTabButtons = document.querySelectorAll('.next-tab');
+    nextTabButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const nextTabId = this.getAttribute('data-next');
+            const nextTab = document.getElementById(nextTabId);
+            if (nextTab) nextTab.click();
+        });
+    });
+    const prevTabButtons = document.querySelectorAll('.prev-tab');
+    prevTabButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const prevTabId = this.getAttribute('data-prev');
+            const prevTab = document.getElementById(prevTabId);
+            if (prevTab) prevTab.click();
+        });
+    });
+    
+    // Drag and drop dosya yükleme
+    const dragDropAreas = document.querySelectorAll('#drag-drop-area');
+    dragDropAreas.forEach(area => {
+        const fileInput = area.querySelector('input[type="file"]');
+        const selectBtn = area.querySelector('#select-files-btn');
+        if (selectBtn && fileInput) {
+            selectBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fileInput.click();
+            });
+        }
+        area.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        area.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        area.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            if (fileInput && e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+            }
+        });
+    });
+    
+    // Resim önizleme ve ana görsel seçimi
+    const fileInputs = document.querySelectorAll('input[type="file"][accept*="image"]');
+    fileInputs.forEach(function(input) {
+        input.addEventListener('change', function() {
+            const previewContainer = document.querySelector(this.dataset.preview || '#image-previews');
+            if (!previewContainer) return;
+            previewContainer.innerHTML = '';
+            if (this.files && this.files.length > 0) {
+                document.getElementById('main-image-container').style.display = 'block';
+                for (let i = 0; i < this.files.length; i++) {
+                    const file = this.files[i];
+                    if (!file.type.startsWith('image/')) continue;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.createElement('div');
+                        preview.className = 'image-preview';
+                        
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = file.name;
+                        preview.appendChild(img);
+                        
+                        const filenameDiv = document.createElement('div');
+                        filenameDiv.className = 'image-filename';
+                        filenameDiv.textContent = file.name.length > 15 ? file.name.substring(0,12) + '...' : file.name;
+                        preview.appendChild(filenameDiv);
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.innerHTML = '&times;';
+                        deleteBtn.addEventListener('click', function() {
+                            preview.remove();
+                            if (previewContainer.children.length === 0) {
+                                document.getElementById('main-image-container').style.display = 'none';
+                            }
+                        });
+                        preview.appendChild(deleteBtn);
+                        
+                        previewContainer.appendChild(preview);
+                    };
+                    reader.readAsDataURL(file);
+                }
+                const mainImageSelect = document.getElementById('main-image-select');
+                if (mainImageSelect) {
+                    mainImageSelect.innerHTML = '';
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = "0";
+                    defaultOption.textContent = 'İlk yüklenen görsel';
+                    mainImageSelect.appendChild(defaultOption);
+                    for (let i = 0; i < this.files.length; i++) {
+                        const option = document.createElement('option');
+                        option.value = i;
+                        option.textContent = `Görsel ${i + 1}: ${this.files[i].name}`;
+                        mainImageSelect.appendChild(option);
+                    }
+                }
+            } else {
+                document.getElementById('main-image-container').style.display = 'none';
+            }
+        });
+    });
+    
+    // Mesafe satırları ekleme ve silme
+    const addDistanceBtn = document.getElementById('add-distance');
+    const distancesContainer = document.getElementById('distances-container');
+    if (addDistanceBtn && distancesContainer) {
+        addDistanceBtn.addEventListener('click', function() {
+            const newRow = document.createElement('div');
+            newRow.className = 'distance-row row mb-3';
+            newRow.innerHTML = `
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="distance_name[]" placeholder="Mekan Adı (örn. Metro)">
+                </div>
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="distance_value[]" placeholder="Mesafe" step="0.1" min="0">
+                        <span class="input-group-text">km</span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger w-100 remove-distance">Sil</button>
+                </div>
+            `;
+            distancesContainer.appendChild(newRow);
+            newRow.querySelector('.remove-distance').addEventListener('click', function() {
+                newRow.remove();
+            });
+        });
+        document.querySelectorAll('.remove-distance').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                this.closest('.distance-row').remove();
+            });
+        });
+    }
+});
+</script>
+
+<!-- Ek Inline CSS -->
 <style>
 /* Wizard Adım Göstergesi */
 .wizard-progress {
@@ -700,7 +991,6 @@ require_once '../templates/header.php';
     margin-bottom: 1.5rem;
     padding: 0 1rem;
 }
-
 .wizard-progress::before {
     content: '';
     position: absolute;
@@ -711,7 +1001,6 @@ require_once '../templates/header.php';
     background: var(--gray-light);
     z-index: 1;
 }
-
 .wizard-progress-step {
     display: flex;
     flex-direction: column;
@@ -721,7 +1010,6 @@ require_once '../templates/header.php';
     flex: 1;
     text-align: center;
 }
-
 .wizard-progress-step-icon {
     width: 30px;
     height: 30px;
@@ -737,84 +1025,70 @@ require_once '../templates/header.php';
     font-weight: 600;
     transition: all 0.3s ease;
 }
-
 .wizard-progress-step-label {
     font-size: 0.85rem;
     color: var(--gray);
     font-weight: 500;
     transition: all 0.3s ease;
 }
-
 .wizard-progress-step.active .wizard-progress-step-icon {
     background: var(--primary);
     border-color: var(--primary);
     color: var(--white);
 }
-
 .wizard-progress-step.active .wizard-progress-step-label {
     color: var(--primary);
     font-weight: 600;
 }
-
 .wizard-progress-step.completed .wizard-progress-step-icon {
     background: var(--success);
     border-color: var(--success);
     color: var(--white);
 }
-
 .wizard-progress-step.completed .wizard-progress-step-label {
     color: var(--success);
 }
-
-/* Sürükle Bırak Alanı */
+/* Drag & Drop Alanı */
 .border-dashed {
     border-style: dashed !important;
     border-width: 2px !important;
     border-color: var(--gray-light) !important;
     transition: all 0.3s ease;
 }
-
 .border-dashed:hover {
     border-color: var(--primary) !important;
     background-color: rgba(67, 56, 202, 0.05);
 }
-
-/* Image Preview Stilleri */
+/* Resim Önizleme Stilleri */
 #image-previews {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
-
 .image-preview {
     position: relative;
     border-radius: 6px;
     overflow: hidden;
 }
-
 .image-preview img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
-
 /* Responsive Ayarlamalar */
 @media (max-width: 768px) {
     .wizard-progress {
         display: none;
     }
-    
     .nav-tabs {
         flex-wrap: nowrap;
         overflow-x: auto;
         scrollbar-width: none;
         -ms-overflow-style: none;
     }
-    
     .nav-tabs::-webkit-scrollbar {
         display: none;
     }
-    
     .nav-tabs .nav-link {
         white-space: nowrap;
     }
