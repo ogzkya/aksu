@@ -69,6 +69,12 @@ class FormProcessor {
                 $this->errors[] = 'Lütfen haritada bir konum seçin.';
             }
             
+            // Dosya yükleme doğrulamasını iyileştir (yeni ilan ekleme için)
+            $fieldName = $isEditMode ? 'new_images' : 'images';
+            if (!$isEditMode && (!isset($files[$fieldName]) || empty($files[$fieldName]['name'][0]))) {
+                $this->errors[] = 'En az bir görsel yüklemeniz gerekmektedir.';
+            }
+            
             // Hata varsa işlemi sonlandır
             if (!empty($this->errors)) {
                 return [
@@ -149,7 +155,7 @@ class FormProcessor {
                 }
             }
             
-            // Görsel yükleme - önce varolan görselleri ve ana görselleri kontrol et
+            // Görsel yükleme işlemleri (düzenleme modunda varolan görseller üzerinde değişiklik)
             if ($isEditMode) {
                 // Ana görsel güncelleme
                 if (isset($postData['main_image']) && is_numeric($postData['main_image'])) {
@@ -177,7 +183,7 @@ class FormProcessor {
                 }
             }
             
-            // Yeni görselleri işle - add.php için "images", edit.php için "new_images" name kullanılır
+            // Yeni görselleri işle (yeni ilan için "images", düzenleme için "new_images")
             $fieldName = $isEditMode ? 'new_images' : 'images';
             $mainImageIndex = isset($postData['main_image_index']) ? (int)$postData['main_image_index'] : 0;
             
@@ -204,12 +210,6 @@ class FormProcessor {
                 }
             }
             
-            return [
-                'success' => true,
-                'errors' => $this->errors,
-                'listingId' => $listingId
-            ];
-            
         } catch (Exception $e) {
             $this->errors[] = "İşlem sırasında bir hata oluştu: " . $e->getMessage();
             return [
@@ -218,5 +218,11 @@ class FormProcessor {
                 'listingId' => $listingId
             ];
         }
+        
+        return [
+            'success' => empty($this->errors),
+            'errors' => $this->errors,
+            'listingId' => $listingId
+        ];
     }
 }

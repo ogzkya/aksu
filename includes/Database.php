@@ -31,27 +31,25 @@ class Database {
     
     private function connect() {
         try {
-            // First just try to connect to MySQL without selecting a database
-            $this->pdo = new PDO(
-                "mysql:host={$this->host}", 
-                $this->username, 
-                $this->password,
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-            );
+            // Önce MySQL'e bağlan
+            $dsn = "mysql:host={$this->host};charset={$this->charset}";
+            $this->pdo = new PDO($dsn, $this->username, $this->password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
             
-            // Check if database exists, create if it doesn't
+            // Veritabanı var mı kontrol et
             $stmt = $this->pdo->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{$this->dbname}'");
             $dbExists = $stmt->fetchColumn();
             
             if (!$dbExists) {
-                // Create database
+                // Veritabanını oluştur
                 $this->pdo->exec("CREATE DATABASE `{$this->dbname}` CHARACTER SET {$this->charset} COLLATE {$this->charset}_general_ci");
-                echo "Veritabanı '{$this->dbname}' oluşturuldu.<br>";
+                error_log("Veritabanı '{$this->dbname}' oluşturuldu.");
             }
             
-            // Now connect to the database
+            // Veritabanına tek bir bağlantı yap
             $this->pdo = new PDO(
-                "mysql:host={$this->host};dbname={$this->dbname}", 
+                "mysql:host={$this->host};dbname={$this->dbname};charset={$this->charset}", 
                 $this->username, 
                 $this->password,
                 [
@@ -60,12 +58,9 @@ class Database {
                     PDO::ATTR_EMULATE_PREPARES => false
                 ]
             );
-            
-            // Set character set at the connection level
-            $this->pdo->exec("SET NAMES {$this->charset}");
-            
         } catch (PDOException $e) {
-            throw new Exception("Veritabanı bağlantı hatası: " . $e->getMessage());
+            error_log("Veritabanı bağlantı hatası: " . $e->getMessage());
+            throw new Exception("Veritabanına bağlanılamıyor. Lütfen yöneticinize başvurun.");
         }
     }
     

@@ -145,16 +145,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // Ana görseli güncelle
-            if (isset($_POST['main_image']) && is_numeric($_POST['main_image'])) {
-                $mainImageId = (int)$_POST['main_image'];
-                
-                foreach ($images as $img) {
-                    if ($img['id'] == $mainImageId) {
-                        $listing->addListingImage($listingId, $img['image_url'], 1);
-                        break;
-                    }
-                }
-            }
+          // admin/listings/edit.php dosyasındaki ana görsel seçimini düzeltin
+if (isset($_POST['main_image']) && is_numeric($_POST['main_image'])) {
+    $mainImageId = (int)$_POST['main_image'];
+    // Önce tüm ana görselleri temizle
+    $db->query("UPDATE listing_images SET is_main = 0 WHERE listing_id = ?", [$listingId]);
+    // Sonra seçilen görseli ana görsel olarak ayarla
+    $db->query("UPDATE listing_images SET is_main = 1 WHERE id = ? AND listing_id = ?", [$mainImageId, $listingId]);
+}
             
             // Silinen görseller
             if (isset($_POST['deleted_images']) && !empty($_POST['deleted_images'])) {

@@ -19,6 +19,10 @@
     
     <!-- Site CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Harita Marker Stilleri -->
+<link rel="stylesheet" href="/assets/css/map-markers.css">
+<!-- Modern Stiller -->
+<link rel="stylesheet" href="/assets/css/modern-styles.css">
 </head>
 <body>
     <!-- Navbar -->

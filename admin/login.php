@@ -25,6 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Kullanıcı adı veya şifre hatalı.';
     }
 }
+
+// admin/login.php dosyasındaki giriş işleme bölümüne ekleyin
+if (isset($_POST['remember']) && $_POST['remember']) {
+    // Daha uzun oturum süresi ayarla
+    $lifetime = 30 * 24 * 60 * 60; // 30 gün
+    ini_set('session.gc_maxlifetime', $lifetime);
+    session_set_cookie_params($lifetime);
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -245,3 +254,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

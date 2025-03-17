@@ -57,5 +57,7 @@
     
     <!-- Site JS -->
     <script src="assets/js/script.js"></script>
+    <!-- Harita Düzeltme Script -->
+<script src="/assets/js/map-fix.js"></script>
 </body>
 </html>

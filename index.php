@@ -668,29 +668,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const propertyData = <?= $mapDataJson ?>;
     
     propertyData.forEach(function(property) {
-        // Fiyat bilgisi ve renk ayarlama
-        let priceText = '';
-        let markerColor = '#e74c3c'; // Default satılık rengi (kırmızı)
-        
-        if (property.rent_price && property.rent_price > 0) {
-            priceText = `${formatPrice(property.rent_price)} ₺/ay`;
-            markerColor = '#2ecc71'; // Kiralık rengi (yeşil)
-        } else {
-            priceText = `${formatPrice(property.sale_price)} ₺`;
-        }
-        
-        // Marker ikon stilini özelleştir
-        const propertyIcon = L.divIcon({
-            className: 'property-marker',
-            html: `<div class="marker-price" style="background-color: ${markerColor};">${priceText}</div>`,
-            iconSize: [80, 30],
-            iconAnchor: [40, 15]
-        });
-        
-        // Marker ekle
-        const marker = L.marker([property.latitude, property.longitude], {
-            icon: propertyIcon
-        }).addTo(map);
+    // İlan tipine ve öne çıkan durumuna göre işaretleyici sınıfını belirle
+    let markerClass = property.featured ? 'featured' : '';
+    let priceClass = property.rent_price > 0 ? 'rent' : 'sale';
+    
+    // Uygun stille işaretleyici oluştur
+    const markerIcon = L.divIcon({
+        className: 'property-marker',
+        html: `<div class="marker-container ${markerClass}">
+              <div class="marker-pin ${markerClass}"><i class="bi bi-house-door-fill"></i></div>
+              <div class="marker-price marker-price-${priceClass}">${formatPrice(property.rent_price > 0 ? property.rent_price : property.sale_price)} ${property.rent_price > 0 ? '₺/ay' : '₺'}</div>
+           </div>`,
+        iconSize: [80, 60],
+        iconAnchor: [40, 60]
+    });
+    
+    // İşaretleyiciyi haritaya ekle
+    const marker = L.marker([property.latitude, property.longitude], {
+        icon: markerIcon
+    }).addTo(map);
+    
+    // Mülk detaylarıyla açılır pencere ekle
+    marker.bindPopup(createPopupContent(property));
+});
         
         // Popup içeriği - kiralık/satılık durumunu da ekleyin
         const popupContent = `
