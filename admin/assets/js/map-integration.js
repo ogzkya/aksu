@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Harita konteynerini gözlemle, görünür hale geldiğinde yeniden yükle
     observeMapContainers();
+    
+    // Tab değişimlerini dinle
+    setupTabChangeListeners();
 });
 
 /**
@@ -17,6 +20,36 @@ function initializeAllMaps() {
     initializeMap('property-location-map');
     initializeMap('property-map');
     initializeMap('search-map');
+}
+
+/**
+ * Tab değişimlerini dinle ve haritaları yeniden boyutlandır
+ */
+function setupTabChangeListeners() {
+    const tabLinks = document.querySelectorAll('a[data-bs-toggle="tab"]');
+    
+    tabLinks.forEach(function(tabLink) {
+        tabLink.addEventListener('shown.bs.tab', function(e) {
+            // Yeni tab'da bir harita var mı kontrol et
+            const targetTab = document.querySelector(e.target.getAttribute('href'));
+            if (targetTab) {
+                const maps = targetTab.querySelectorAll('[id$="-map"], [id$="_map"], #map-container');
+                maps.forEach(function(mapContainer) {
+                    if (mapContainer._leaflet_id) {
+                        setTimeout(function() {
+                            window.dispatchEvent(new Event('resize'));
+                            if (mapContainer._leaflet_map) {
+                                mapContainer._leaflet_map.invalidateSize();
+                            }
+                        }, 100);
+                    } else {
+                        // Eğer harita henüz oluşturulmamışsa, yeniden başlat
+                        initializeMap(mapContainer.id);
+                    }
+                });
+            }
+        });
+    });
 }
 
 /**
@@ -33,16 +66,19 @@ function observeMapContainers() {
                     const el = mutation.target;
                     if (el.classList.contains('active') && el.classList.contains('show')) {
                         // Tab aktifleştiğinde içindeki haritayı yeniden başlat
-                        const mapContainer = el.querySelector('#map-container');
-                        if (mapContainer) {
+                        const mapContainers = el.querySelectorAll('[id$="-map"], [id$="_map"], #map-container');
+                        mapContainers.forEach(function(mapContainer) {
                             setTimeout(function() {
-                                const existingMap = L.DomUtil.get('map-container');
-                                if (existingMap && existingMap._leaflet_id) {
-                                    existingMap._leaflet_id = null;
+                                if (mapContainer._leaflet_id) {
+                                    window.dispatchEvent(new Event('resize'));
+                                    if (mapContainer._leaflet_map) {
+                                        mapContainer._leaflet_map.invalidateSize();
+                                    }
+                                } else {
+                                    initializeMap(mapContainer.id);
                                 }
-                                initializeMap('map-container');
                             }, 100);
-                        }
+                        });
                     }
                 }
             });
@@ -110,6 +146,9 @@ function initializeMap(containerId) {
             zoomControl: true
         });
         
+        // Referansı sakla
+        mapContainer._leaflet_map = map;
+        
         // Tile layer ekle
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -129,8 +168,8 @@ function initializeMap(containerId) {
                 const lng = e.latlng.lng;
                 
                 // Gizli alanlara değerleri ata
-                latInput.value = lat;
-                lngInput.value = lng;
+                latInput.value = lat.toFixed(6);
+                lngInput.value = lng.toFixed(6);
                 
                 // Marker'ı güncelle
                 if (marker) {

@@ -30,5 +30,9 @@
     
     <!-- Admin JS -->
     <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin.js"></script>
+    <!-- Uygulama JS Dosyaları -->
+<script src="/assets/js/map-functions-optimized.js"></script>
+<script src="/assets/js/image-uploader.js"></script>
+<script src="/assets/js/ajax-form-handler.js"></script>
 </body>
 </html>

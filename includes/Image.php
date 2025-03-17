@@ -1,204 +1,219 @@
 <?php
-// Enhanced Image class with improved error handling and debug information
-
+// includes/Image.php
 class Image {
     private $uploadDirectory;
     private $allowedTypes;
     private $maxSize;
-    private $debug = false; // Set to true for debugging
+    private $app_url;
+    private $debug = false; // Hata ayıklama için true yapın
     
     public function __construct() {
-        // Get configuration
-        $configPath = __DIR__ . '/../config/config.php';
-        $config = file_exists($configPath) ? require_once $configPath : [];
+        // Konfigürasyon dosyasını al
+        $configFile = __DIR__ . '/../config/config.php';
         
-        // Set upload directory with fallback
-        $uploadDir = isset($config['app']) && isset($config['app']['upload_dir']) 
-            ? $config['app']['upload_dir'] 
-            : $_SERVER['DOCUMENT_ROOT'] . '/aksu/uploads/';
-            
-        // Make sure directory has trailing slash
-        $uploadDir = rtrim($uploadDir, '/') . '/';
-        
-        $this->uploadDirectory = $uploadDir . 'listings/';
-        
-        // Create directories if they don't exist
-        $this->createDirectories($uploadDir);
-        $this->createDirectories($this->uploadDirectory);
-        
-        // Set allowed file types and max size
-        $this->allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        $this->maxSize = 5 * 1024 * 1024; // 5 MB
-        
-        // Debug information
-        if ($this->debug) {
-            error_log("Upload directory: " . $this->uploadDirectory);
-            error_log("Directory exists: " . (is_dir($this->uploadDirectory) ? 'Yes' : 'No'));
-            error_log("Directory writable: " . (is_writable($this->uploadDirectory) ? 'Yes' : 'No'));
+        if (!file_exists($configFile)) {
+            throw new Exception("Konfigürasyon dosyası bulunamadı: " . $configFile);
         }
-    }
-    
-    /**
-     * Create directory if it doesn't exist
-     */
-    private function createDirectories($path) {
-        if (!file_exists($path)) {
-            if (!mkdir($path, 0755, true)) {
-                // Log error but don't throw exception to allow fallback
-                error_log("Failed to create directory: $path");
+        
+        $config = require $configFile;
+        
+        // Yükleme klasörü ayarları
+        $this->uploadDirectory = isset($config['app']['upload_dir']) ? 
+            rtrim($config['app']['upload_dir'], '/') . '/' : 
+            $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
+        
+        // URL ayarları (görselleri görüntülerken)
+        $this->app_url = isset($config['app']['url']) ? 
+            rtrim($config['app']['url'], '/') . '/' : 
+            'http://' . $_SERVER['HTTP_HOST'] . '/';
+        
+        // Uploads klasörü yoksa oluştur
+        if (!file_exists($this->uploadDirectory)) {
+            if (!mkdir($this->uploadDirectory, 0755, true)) {
+                throw new Exception("Yükleme klasörü oluşturulamadı: " . $this->uploadDirectory);
             }
         }
+        
+        // Listings klasörü yoksa oluştur
+        $listingsDir = $this->uploadDirectory . 'listings/';
+        if (!file_exists($listingsDir)) {
+            if (!mkdir($listingsDir, 0755, true)) {
+                throw new Exception("Listings klasörü oluşturulamadı: " . $listingsDir);
+            }
+        }
+        
+        // İzin verilen dosya türleri ve maksimum boyut
+        $this->allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        $this->maxSize = 10 * 1024 * 1024; // 10 MB
+        
+        // Debug mod açıksa klasör kontrolü yap
+        if ($this->debug) {
+            $this->logDebug("Klasör Kontrolü", [
+                'uploads_dir' => $this->uploadDirectory,
+                'exists' => file_exists($this->uploadDirectory) ? 'Evet' : 'Hayır', 
+                'is_writable' => is_writable($this->uploadDirectory) ? 'Evet' : 'Hayır'
+            ]);
+        }
     }
     
     /**
-     * Upload an image file
+     * Dosya yükleme
+     * @param array $file $_FILES array öğesi
+     * @param int $listingId İlan ID'si
+     * @return string Yüklenen dosyanın URL'i
      */
     public function upload($file, $listingId) {
-        // Detailed error logging for debugging
+        // Debug modda detaylı bilgi
         if ($this->debug) {
-            error_log("Upload attempt for listing ID: $listingId");
-            error_log("File info: " . print_r($file, true));
+            $this->logDebug("Dosya Yükleme Başlatıldı", [
+                'file' => $file,
+                'listingId' => $listingId
+            ]);
         }
         
-        // Check for upload errors
-        if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
-            $errorMessage = $this->getUploadErrorMessage($file['error'] ?? UPLOAD_ERR_NO_FILE);
-            if ($this->debug) error_log("Upload error: $errorMessage");
-            throw new Exception("Dosya yüklenirken bir hata oluştu: $errorMessage");
+        // Dosya hata kontrolü
+        if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
+            throw new Exception("Geçersiz dosya.");
         }
         
-        // Check file type
+        // Yükleme hatası kontrolü
+        if (isset($file['error']) && $file['error'] !== UPLOAD_ERR_OK) {
+            $error = $this->getUploadErrorMessage($file['error']);
+            throw new Exception("Dosya yükleme hatası: " . $error);
+        }
+        
+        // Dosya tipi kontrolü
         if (!isset($file['type']) || !in_array($file['type'], $this->allowedTypes)) {
-            if ($this->debug) error_log("Invalid file type: " . ($file['type'] ?? 'unknown'));
-            throw new Exception("Geçersiz dosya türü. Sadece JPG ve PNG formatları desteklenmektedir.");
+            throw new Exception("Desteklenmeyen dosya türü. Sadece JPG ve PNG desteklenir.");
         }
         
-        // Check file size
+        // Dosya boyutu kontrolü
         if (!isset($file['size']) || $file['size'] > $this->maxSize) {
-            if ($this->debug) error_log("File too large: " . ($file['size'] ?? 0) . " bytes");
-            throw new Exception("Dosya boyutu çok büyük. Maksimum 5MB izin verilmektedir.");
+            throw new Exception("Dosya boyutu çok büyük. Maksimum 10MB izin verilmektedir.");
         }
         
-        // Create a safe filename with unique ID
-        $filename = $listingId . '_' . uniqid() . '_' . $this->cleanFilename($file['name'] ?? 'image.jpg');
-        $fullPath = $this->uploadDirectory . $filename;
+        // Listings klasörüne yönel
+        $uploadDir = $this->uploadDirectory . 'listings/';
         
-        // Fallback upload directory if main directory isn't writable
-        if (!is_writable(dirname($fullPath))) {
-            if ($this->debug) error_log("Primary directory not writable, using fallback");
-            
-            // Try system temp directory
+        // Dosya adını oluştur
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = $listingId . '_' . uniqid() . '.' . $extension;
+        $targetFile = $uploadDir . $filename;
+        
+        // Dosya yükleme klasörü yazılabilir mi kontrol et
+        if (!is_writable(dirname($targetFile))) {
+            // Temp klasöre dene
             $tempDir = sys_get_temp_dir() . '/aksu_uploads/';
-            $this->createDirectories($tempDir);
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
             
-            if (is_writable($tempDir)) {
-                $this->uploadDirectory = $tempDir;
-                $fullPath = $this->uploadDirectory . $filename;
-            } else {
-                throw new Exception("Dosya yükleme dizini yazılabilir değil.");
+            $targetFile = $tempDir . $filename;
+            
+            if (!is_writable(dirname($targetFile))) {
+                throw new Exception("Yükleme klasörüne yazma izni yok: " . dirname($targetFile));
             }
         }
         
-        // Move the uploaded file
-        if (!move_uploaded_file($file['tmp_name'], $fullPath)) {
-            if ($this->debug) {
-                error_log("Failed to move uploaded file");
-                error_log("From: " . $file['tmp_name']);
-                error_log("To: " . $fullPath);
-                error_log("PHP error: " . error_get_last()['message'] ?? 'No error');
-            }
-            throw new Exception("Dosya kaydedilirken bir hata oluştu.");
+        // Debug modda hedef dosya bilgisi
+        if ($this->debug) {
+            $this->logDebug("Hedef Dosya", [
+                'target' => $targetFile,
+                'dir_writable' => is_writable(dirname($targetFile)) ? 'Evet' : 'Hayır'
+            ]);
         }
         
-        // Get relative URL path
-        $relativePath = $this->getRelativePath($fullPath);
+        // Dosyayı taşı
+        if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
+            throw new Exception("Dosya yüklenirken bir hata oluştu. Klasör yazma izni ve dosya erişimi kontrol edin.");
+        }
         
-        if ($this->debug) error_log("File successfully uploaded to: $fullPath");
-        if ($this->debug) error_log("Returning path: $relativePath");
+        // Debug modda başarılı yükleme bilgisi
+        if ($this->debug) {
+            $this->logDebug("Dosya Başarıyla Yüklendi", [
+                'target' => $targetFile,
+                'size' => filesize($targetFile)
+            ]);
+        }
         
-        return $relativePath;
+        // Web erişimi için URL döndür
+        return $this->getFileUrl($targetFile);
     }
     
     /**
-     * Clean filename to make it safe for storage
+     * Yüklenen dosyanın URL'ini oluştur
      */
-    private function cleanFilename($filename) {
-        // Replace special characters
-        $filename = preg_replace('/[^\p{L}\p{N}\s\._-]/u', '', $filename);
-        
-        // Replace spaces with hyphens
-        $filename = preg_replace('/\s+/', '-', $filename);
-        
-        // Replace Turkish characters
-        $filename = str_replace(
-            ['ı', 'ğ', 'ü', 'ş', 'ö', 'ç', 'İ', 'Ğ', 'Ü', 'Ş', 'Ö', 'Ç'], 
-            ['i', 'g', 'u', 's', 'o', 'c', 'I', 'G', 'U', 'S', 'O', 'C'], 
-            $filename
-        );
-        
-        // Limit length
-        if (strlen($filename) > 100) {
-            $ext = pathinfo($filename, PATHINFO_EXTENSION);
-            $basename = pathinfo($filename, PATHINFO_FILENAME);
-            $filename = substr($basename, 0, 90) . '.' . $ext;
-        }
-        
-        return $filename;
-    }
-    
-    /**
-     * Get relative path for the uploaded file
-     */
-    private function getRelativePath($fullPath) {
+    private function getFileUrl($filePath) {
+        // Document Root ile path karşılaştırması
         $docRoot = $_SERVER['DOCUMENT_ROOT'];
         
-        // If the path is within the document root, create a relative URL
-        if (strpos($fullPath, $docRoot) === 0) {
-            return str_replace($docRoot, '', $fullPath);
+        // Eğer dosya document root altındaysa, URL oluştur
+        if (strpos($filePath, $docRoot) === 0) {
+            $relativePath = substr($filePath, strlen($docRoot));
+            $relativePath = ltrim($relativePath, '/');
+            
+            return '/' . $relativePath;
         }
         
-        // If we're using a fallback directory, we need to copy the file to a web-accessible location
-        $webPath = '/uploads/listings/';
-        $webDir = $docRoot . $webPath;
+        // Document root dışında ise, dosyayı web erişilebilir bir yere kopyala
+        $filename = basename($filePath);
+        $webDir = $docRoot . '/uploads/listings/';
         
-        // Create the directory if it doesn't exist
-        $this->createDirectories($webDir);
-        
-        // Get the filename from the full path
-        $filename = basename($fullPath);
-        $webFilePath = $webDir . $filename;
-        
-        // Copy the file to the web directory
-        if (copy($fullPath, $webFilePath)) {
-            return $webPath . $filename;
+        if (!file_exists($webDir)) {
+            mkdir($webDir, 0755, true);
         }
         
-        // If all else fails, return the original path and log an error
-        error_log("Warning: Could not create relative path for uploaded file: $fullPath");
-        return $fullPath;
+        $webPath = $webDir . $filename;
+        
+        if (copy($filePath, $webPath)) {
+            return '/uploads/listings/' . $filename;
+        }
+        
+        // En kötü durumda: Mutlak URL döndür
+        $baseUrl = $this->app_url;
+        if (strpos($filePath, $this->uploadDirectory) === 0) {
+            $relativePath = substr($filePath, strlen($this->uploadDirectory));
+            return $baseUrl . 'uploads/' . $relativePath;
+        }
+        
+        // Dosya yolunu olduğu gibi döndür
+        return $filePath;
     }
     
     /**
-     * Translate PHP upload error codes to meaningful messages
+     * PHP yükleme hata mesajlarını anlamlı metinlere dönüştür
      */
     private function getUploadErrorMessage($errorCode) {
         switch ($errorCode) {
             case UPLOAD_ERR_INI_SIZE:
-                return "Dosya boyutu php.ini ayarlarında izin verilen maksimum değeri aşıyor.";
+                return 'Dosya PHP yapılandırmasında izin verilen maksimum boyutu aşıyor.';
             case UPLOAD_ERR_FORM_SIZE:
-                return "Dosya boyutu formda belirtilen maksimum değeri aşıyor.";
+                return 'Dosya formda belirtilen maksimum boyutu aşıyor.';
             case UPLOAD_ERR_PARTIAL:
-                return "Dosya sadece kısmen yüklenmiş.";
+                return 'Dosya yalnızca kısmen yüklendi.';
             case UPLOAD_ERR_NO_FILE:
-                return "Hiçbir dosya yüklenmedi.";
+                return 'Hiç dosya yüklenmedi.';
             case UPLOAD_ERR_NO_TMP_DIR:
-                return "Geçici klasör eksik.";
+                return 'Geçici klasör bulunamadı.';
             case UPLOAD_ERR_CANT_WRITE:
-                return "Dosya diske yazılamadı.";
+                return 'Dosya diske yazılamadı.';
             case UPLOAD_ERR_EXTENSION:
-                return "Bir PHP uzantısı dosya yüklemeyi durdurdu.";
+                return 'Bir PHP uzantısı dosya yüklemeyi durdurdu.';
             default:
-                return "Bilinmeyen bir hata oluştu (Kod: $errorCode).";
+                return 'Bilinmeyen yükleme hatası: ' . $errorCode;
         }
+    }
+    
+    /**
+     * Debug bilgisi kaydet
+     */
+    private function logDebug($title, $data) {
+        if (!$this->debug) return;
+        
+        $logMessage = "=== {$title} ===\n";
+        $logMessage .= print_r($data, true);
+        $logMessage .= "\n\n";
+        
+        error_log($logMessage);
     }
 }

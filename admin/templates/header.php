@@ -17,6 +17,14 @@ if (!isset($activePage)) {
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <!-- Leaflet JS -->
+     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    
+    <!-- Map Integration JS -->
+    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/map-integration.js"></script>
+        
+    <!-- Admin JS -->
+    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?> - Emlak İlan Sitesi</title>
