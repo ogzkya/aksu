@@ -1,7 +1,7 @@
-// includes/Blog.php
 <?php
+// includes/Blog.php
 class Blog {
-    private $db;
+    public $db; // Made public so we can access it directly in add.php
     
     public function __construct() {
         $this->db = new Database();
@@ -227,8 +227,8 @@ class Blog {
         return $this->db->query($sql, [$id]);
     }
     
-    // Yardımcı fonksiyonlar
-    private function createSlug($text) {
+    // Yardımcı fonksiyonlar - Changed from private to public
+    public function createSlug($text) {
         // Türkçe karakterleri değiştir
         $text = strtr($text, [
             'ı' => 'i', 'ğ' => 'g', 'ü' => 'u', 'ş' => 's', 'ö' => 'o', 'ç' => 'c',
