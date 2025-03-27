@@ -1,4 +1,3 @@
-<!-- admin/templates/header.php -->
 <?php
 if (!isset($auth)) {
     require_once '../includes/init.php';
@@ -80,7 +79,7 @@ if (!isset($activePage)) {
             <!-- Heading -->
             <div class="sidebar-heading">İçerik Yönetimi</div>
             
-            <!-- Nav Item - İlanlar -->
+            <!-- Nav Items - İçerik Yönetimi -->
             <ul class="navbar-nav">
                 <li class="nav-item <?= $activePage === 'listings' ? 'active' : '' ?>">
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/index.php">
@@ -100,26 +99,11 @@ if (!isset($activePage)) {
                         <span>Blog</span>
                     </a>
                 </li>
-            </ul>
-            
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-            
-            <!-- Heading -->
-            <div class="sidebar-heading">Kullanıcı Yönetimi</div>
-            
-            <!-- Nav Item - Kullanıcılar -->
-            <ul class="navbar-nav">
-                <li class="nav-item <?= $activePage === 'users' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/index.php">
-                        <i class="bi bi-people"></i>
-                        <span>Kullanıcılar</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/profile.php">
-                        <i class="bi bi-person-circle"></i>
-                        <span>Profil</span>
+                <!-- Yeni eklenen Duyurular menü öğesi -->
+                <li class="nav-item <?= $activePage === 'announcements' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/announcements/index.php">
+                        <i class="bi bi-megaphone"></i>
+                        <span>Duyurular</span>
                     </a>
                 </li>
             </ul>
@@ -181,15 +165,13 @@ if (!isset($activePage)) {
                 
                 <!-- Begin Page Content -->
                 <div class="container-fluid px-4">
-
-                <!-- Bu bölümü footer.php'nin sonuna taşıyın (</body> etiketinden önce) -->
-<!-- Bootstrap JS -->
-<!-- Bu bölümü footer.php'nin sonuna taşıyın (</body> etiketinden önce) -->
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-
-<!-- Admin JS -->
-<script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin.js"></script>
+                    
+                    <!-- Bu bölümü footer.php'nin sonuna taşıyın (</body> etiketinden önce) -->
+                    <!-- Bootstrap JS -->
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                    
+                    <!-- Leaflet JS -->
+                    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+                    
+                    <!-- Admin JS -->
+                    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin.js"></script>
