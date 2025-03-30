@@ -82,7 +82,7 @@ require_once 'templates/header.php';
         </div>
     </div>
 </section>
-
+<?php include 'templates/announcement-slider.php'; ?>
 <!-- Hızlı İstatistikler (İlk Kod Bloğundan) -->
 <section class="statistics-section py-5 my-5" style="background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url(assets/img/stats-bg.jpg); background-size: cover; background-position: center; color: white; background-attachment: fixed;">
     <div class="container py-4">

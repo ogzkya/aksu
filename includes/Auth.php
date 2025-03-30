@@ -1,5 +1,5 @@
 <?php
-// includes/Auth.php
+
 class Auth {
     private $db;
     
@@ -139,5 +139,19 @@ class Auth {
         
         $sql = "DELETE FROM admins WHERE id = ?";
         return $this->db->query($sql, [$id]);
+        
     }
+
+    // includes/Auth.php içine eklenecek metod:
+public function verifyPassword($userId, $password) {
+    $sql = "SELECT password_hash FROM admins WHERE id = ?";
+    $user = $this->db->fetch($sql, [$userId]);
+
+    if (!$user) {
+        return false; // Kullanıcı bulunamadı
+    }
+
+    return password_verify($password, $user['password_hash']);
 }
+}
+

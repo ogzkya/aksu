@@ -73,6 +73,4 @@
       
 <?php
 // Önce duyuruları göster
-include_once 'templates/announcement-banner.php';
-?>
-    <!-- Duyurular Bandı -->
+
