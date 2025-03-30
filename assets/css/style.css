@@ -346,9 +346,9 @@ h1, h2, h3, h4, h5, h6 {
 /* === Güncellenmiş Hero Bölümü === */
 .hero-section {
     position: relative;
-    height: 700px; /* Yükseltilmiş yükseklik */
+    height: 700px;   /* Yükseltilmiş yükseklik */
     color: white;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../img/hero-bg.jpg');
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../img/img-hero-bg-3.jpg' );
     background-size: cover;
     background-position: center;
     display: flex;
