@@ -709,6 +709,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
 </script>
 
 <?php require_once 'templates/footer.php'; ?>
