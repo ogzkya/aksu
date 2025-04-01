@@ -18,13 +18,21 @@ $pageTitle = "Ana Sayfa";
 require_once 'templates/header.php';
 ?>
 
+<!-- index.php - Anasayfa Hero Bölümü güncelleme -->
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
-        <div class="hero-content fadeInUp">
+        <div class="hero-content" data-aos="fade-up">
             <h1 class="hero-title">Hayalinizdeki Mülkü Bulun</h1>
             <p class="hero-subtitle">Aksu Emlak ile hayalinizdeki ev veya yatırım için arayışınız sona eriyor.</p>
-            <a href="search.php" class="btn btn-primary btn-lg px-4 py-2">İlanları Keşfedin</a>
+            <div class="mt-4">
+                <a href="search.php?listing_type=sale" class="btn btn-accent btn-lg me-2 mb-2">
+                    <i class="bi bi-house me-2"></i>Satılık İlanlar
+                </a>
+                <a href="search.php?listing_type=rent" class="btn btn-light btn-lg mb-2">
+                    <i class="bi bi-key me-2"></i>Kiralık İlanlar
+                </a>
+            </div>
         </div>
     </div>
 </section>
@@ -32,7 +40,7 @@ require_once 'templates/header.php';
 <!-- Arama Formu -->
 <section class="search-section">
     <div class="container">
-        <div class="search-form-wrapper">
+        <div class="search-form-wrapper" data-aos="fade-up" data-aos-delay="200">
             <form action="search.php" method="get">
                 <div class="row g-3">
                     <!-- İlan Tipi Seçimi -->
@@ -75,39 +83,43 @@ require_once 'templates/header.php';
                     
                     <div class="col-lg-2 col-md-12">
                         <label class="form-label d-md-block d-none">&nbsp;</label>
-                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-2"></i> Ara</button>
+                        <button type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-search me-2"></i> İlan Ara
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </section>
+
 <?php include 'templates/announcement-slider.php'; ?>
-<!-- Hızlı İstatistikler (İlk Kod Bloğundan) -->
-<section class="statistics-section py-5 my-5" style="background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url(assets/img/stats-bg.jpg); background-size: cover; background-position: center; color: white; background-attachment: fixed;">
+
+<!-- Hızlı İstatistikler Bölümü Güncellemesi -->
+<section class="statistics-section py-5 my-5">
     <div class="container py-4">
         <div class="row text-center">
-            <div class="col-md-3 col-6 mb-4 mb-md-0">
+            <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="100">
                 <div class="stat-item">
-                    <div class="stat-number h1 fw-bold">5200+</div>
+                    <div class="stat-number" data-counter="5200">0</div>
                     <div class="stat-label">Satılan Emlak</div>
                 </div>
             </div>
-            <div class="col-md-3 col-6 mb-4 mb-md-0">
+            <div class="col-md-3 col-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="200">
                 <div class="stat-item">
-                    <div class="stat-number h1 fw-bold">1800+</div>
+                    <div class="stat-number" data-counter="1800">0</div>
                     <div class="stat-label">Mutlu Müşteri</div>
                 </div>
             </div>
-            <div class="col-md-3 col-6">
+            <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="300">
                 <div class="stat-item">
-                    <div class="stat-number h1 fw-bold">150+</div>
+                    <div class="stat-number" data-counter="150">0</div>
                     <div class="stat-label">Aktif Projeler</div>
                 </div>
             </div>
-            <div class="col-md-3 col-6">
+            <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="400">
                 <div class="stat-item">
-                    <div class="stat-number h1 fw-bold">20+</div>
+                    <div class="stat-number" data-counter="20">0</div>
                     <div class="stat-label">Yıllık Tecrübe</div>
                 </div>
             </div>
@@ -115,14 +127,14 @@ require_once 'templates/header.php';
     </div>
 </section>
 
-<!-- Öne Çıkan İlanlar -->
+<!-- Öne Çıkan İlanlar Bölümü Güncellemesi -->
 <section class="featured-listings py-5 mt-4">
     <div class="container">
-        <h2 class="section-title">Öne Çıkan İlanlar</h2>
+        <h2 class="section-title" data-aos="fade-up">Öne Çıkan İlanlar</h2>
         <div class="row">
             <?php if (!empty($featuredListings)): ?>
-                <?php foreach ($featuredListings as $listing): ?>
-                    <div class="col-md-6 col-lg-4 mb-4">
+                <?php foreach ($featuredListings as $index => $listing): ?>
+                    <div class="col-md-6 col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="<?= 100 + ($index * 100) ?>">
                         <div class="card property-card h-100">
                             <div class="position-relative">
                                 <img src="<?= htmlspecialchars($listing['main_image'] ?? 'assets/img/property-placeholder.jpg') ?>" 
@@ -174,7 +186,7 @@ require_once 'templates/header.php';
                                 </div>
                             </div>
                             <div class="card-footer bg-white border-0">
-                                <a href="listing.php?id=<?= $listing['id'] ?>" class="btn btn-outline-primary w-100">Detaylar</a>
+                                <a href="listing.php?id=<?= $listing['id'] ?>" class="btn btn-outline-primary w-100">Detayları Gör</a>
                             </div>
                         </div>
                     </div>
@@ -186,7 +198,7 @@ require_once 'templates/header.php';
             <?php endif; ?>
         </div>
         
-        <div class="text-center mt-3">
+        <div class="text-center mt-4" data-aos="fade-up">
             <a href="search.php" class="btn btn-primary px-4">Tüm İlanları Görüntüle</a>
         </div>
     </div>
@@ -358,17 +370,16 @@ require_once 'templates/header.php';
     </div>
 </section>
 
-<!-- Neden Biz (İlk Kod Bloğundan) -->
-<section class="section-container section-bg-light">
+<!-- Neden Biz Bölümü Güncellemesi -->
+<section class="section-container section-bg-light py-5 my-5" data-aos="fade-up">
     <div class="container">
-        <div class="section-header">
-            <span class="section-subtitle">NEDEN BİZ</span>
-            <div class="section-divider"></div>
-            <h2 class="section-title">Bizi Tercih Etme Sebepleriniz</h2>
-            <p class="section-description">Aksu Emlak olarak müşterilerimize en iyi hizmeti sunmak için buradayız.</p>
+        <div class="section-header text-center mb-5">
+            <h5 class="text-primary mb-2">NEDEN BİZ</h5>
+            <h2 class="section-title mb-4" style="padding-bottom: 0">Bizi Tercih Etme Sebepleriniz</h2>
+            <p class="section-description mx-auto" style="max-width: 700px;">Aksu Emlak olarak müşterilerimize en iyi hizmeti sunmak için buradayız.</p>
         </div>
         <div class="row mt-5">
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="feature-box hover-lift hover-shadow">
                     <div class="feature-icon-wrapper">
                         <i class="bi bi-building-check fs-1 text-primary mb-4"></i>
@@ -380,7 +391,7 @@ require_once 'templates/header.php';
                 </div>
             </div>
             
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="feature-box hover-lift hover-shadow">
                     <div class="feature-icon-wrapper">
                         <i class="bi bi-person-check fs-1 text-primary mb-4"></i>
@@ -392,7 +403,7 @@ require_once 'templates/header.php';
                 </div>
             </div>
             
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="feature-box hover-lift hover-shadow">
                     <div class="feature-icon-wrapper">
                         <i class="bi bi-shield-check fs-1 text-primary mb-4"></i>
@@ -634,16 +645,18 @@ require_once 'templates/header.php';
     </div>
 </section>
 
-<!-- Hızlı İletişim (CTA) -->
-<section class="contact-cta py-5" style="background-color: var(--primary); color: white;">
+<!-- Hızlı İletişim (CTA) Güncellemesi -->
+<section class="contact-cta py-5">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-8 mb-4 mb-lg-0">
+            <div class="col-lg-8 mb-4 mb-lg-0" data-aos="fade-right">
                 <h2 class="mb-2">Hayalinizdeki mülk için bize ulaşın</h2>
                 <p class="mb-0">Uzman ekibimiz size en uygun seçenekleri sunmak için hazır.</p>
             </div>
-            <div class="col-lg-4 text-lg-end">
-                <a href="contact.php" class="btn btn-light btn-lg px-4">Bize Ulaşın</a>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                <a href="contact.php" class="btn btn-light btn-lg px-4">
+                    <i class="bi bi-telephone me-2"></i> Bize Ulaşın
+                </a>
             </div>
         </div>
     </div>
