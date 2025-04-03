@@ -8,7 +8,7 @@ $auth->requireLogin();
 
 // Gerekli sınıfları yükle
 $listing = new Listing();
-$image = new Image();
+$imageUploader = new ImageUploader();
 require_once '../../includes/FormProcessor.php';
 $formProcessor = new FormProcessor();
 
@@ -18,7 +18,7 @@ $success = false;
 // Form gönderildi mi kontrol et
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Form işleme
-    $result = $formProcessor->processListingForm($_POST, $_FILES, $listing, $image);
+    $result = $formProcessor->processListingForm($_POST, $_FILES, $listing, $imageUploader);
     
     $success = $result['success'];
     $errors = $result['errors'];

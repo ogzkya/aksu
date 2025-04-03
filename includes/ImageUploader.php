@@ -63,7 +63,7 @@ class ImageUploader {
         // İzin verilen dosya türleri ve maksimum boyut
         $this->allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
         $this->allowedExtensions = ['jpg', 'jpeg', 'png'];
-        $this->maxSize = 10 * 1024 * 1024; // 10 MB
+        $this->maxSize = 20 * 1024 * 1024; // 10 MB
         
         if ($this->debug) {
             $this->log("ImageUploader başlatıldı", [

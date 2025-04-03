@@ -1,6 +1,6 @@
 <?php
 class Listing {
-    private $db;
+    public $db;
 
     public function __construct() {
         $this->db = new Database();
