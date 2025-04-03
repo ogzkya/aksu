@@ -1,378 +1,238 @@
+// ak_su/admin/assets/js/admin.js - Güncellenmiş Hali
+
 document.addEventListener('DOMContentLoaded', function() {
-    // ---------- Utility Fonksiyonlar ----------
-    // Birden fazla elementte aynı sınıfı toggle etmek için yardımcı fonksiyon
-    function toggleClassOnElements(elements, className) {
-      elements.forEach(function(element) {
-        element.classList.toggle(className);
-      });
-    }
-  
-    // ---------- Sidebar İşlemleri ----------
-    const sidebarToggles = [
-      document.querySelector('#sidebarToggle'),
-      document.querySelector('#sidebarToggleTop')
-    ].filter(Boolean);
-    const body = document.body;
-    const sidebar = document.querySelector('.sidebar');
-  
-    // Sidebar toggling için ortak dinleyici
-    sidebarToggles.forEach(function(toggle) {
-      toggle.addEventListener('click', function(e) {
-        e.preventDefault();
-        if (sidebar) sidebar.classList.toggle('toggled');
-        body.classList.toggle('sidebar-toggled');
-      });
+  // ---------- Utility Fonksiyonlar ----------
+  // Birden fazla elementte aynı sınıfı toggle etmek için yardımcı fonksiyon
+  function toggleClassOnElements(elements, className) {
+    elements.forEach(function(element) {
+      element.classList.toggle(className);
     });
-  
-    // Küçük ekranlarda sidebar dışına tıklandığında sidebar'ı kapat
-    document.addEventListener('click', function(e) {
-      if (window.innerWidth < 768 && sidebar && sidebar.classList.contains('toggled')) {
-        const isToggleButton = sidebarToggles.some(btn => btn.contains(e.target));
-        if (!sidebar.contains(e.target) && !isToggleButton) {
-          sidebar.classList.remove('toggled');
-          body.classList.remove('sidebar-toggled');
-        }
+  }
+
+  // ---------- Sidebar İşlemleri ----------
+  const sidebarToggles = [
+    document.querySelector('#sidebarToggle'),
+    document.querySelector('#sidebarToggleTop')
+  ].filter(Boolean); // .filter(Boolean) null veya undefined değerleri kaldırır
+  const body = document.body;
+  const sidebar = document.querySelector('.sidebar');
+
+  // Sidebar toggling için ortak dinleyici
+  sidebarToggles.forEach(function(toggle) {
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      // body.classList.toggle('sidebar-toggled'); // Bootstrap 5'te bu gerekmeyebilir, sidebar sınıfı yeterli olabilir
+      if (sidebar) {
+        sidebar.classList.toggle('toggled'); // Sidebar'a 'toggled' sınıfını ekle/kaldır
+         // Body'ye de toggle ekleyelim, bazı stiller buna bağlı olabilir
+         body.classList.toggle('sidebar-toggled');
       }
     });
-  
-    // ---------- Scroll-to-top Düğmesi ----------
-    const scrollToTopButton = document.querySelector('.scroll-to-top');
-    if (scrollToTopButton) {
-      window.addEventListener('scroll', function() {
-        scrollToTopButton.style.display = window.pageYOffset > 100 ? 'flex' : 'none';
-      });
-      scrollToTopButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+  });
+
+  // Küçük ekranlarda sidebar dışına tıklandığında sidebar'ı kapat
+   document.addEventListener('click', function(e) {
+    if (window.innerWidth < 768 && sidebar && sidebar.classList.contains('toggled')) {
+      const isToggleButton = sidebarToggles.some(btn => btn && btn.contains(e.target)); // btn var mı diye kontrol ekle
+      const isInsideSidebar = sidebar.contains(e.target);
+
+      if (!isInsideSidebar && !isToggleButton) {
+        sidebar.classList.remove('toggled');
+        body.classList.remove('sidebar-toggled'); // Body'den de sınıfı kaldır
+      }
     }
-  
-    // ---------- Tabs İşlevselliği ----------
-    const tabLinks = document.querySelectorAll('.nav-link[data-bs-toggle="tab"]');
-    tabLinks.forEach(function(link) {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        tabLinks.forEach(tab => tab.classList.remove('active'));
-        this.classList.add('active');
-        const tabPanes = document.querySelectorAll('.tab-pane');
-        tabPanes.forEach(pane => pane.classList.remove('active', 'show'));
-        const targetId = this.getAttribute('href');
-        const targetPane = document.querySelector(targetId);
-        if (targetPane) {
-          targetPane.classList.add('active', 'show');
+  });
+
+
+  // ---------- Scroll-to-top Düğmesi ----------
+  const scrollToTopButton = document.querySelector('.scroll-to-top');
+  if (scrollToTopButton) {
+    window.addEventListener('scroll', function() {
+      // Butonun görünürlüğünü kontrol et
+      scrollToTopButton.style.display = window.pageYOffset > 100 ? 'flex' : 'none'; // 'flex' veya 'block' olabilir
+    });
+    scrollToTopButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // ---------- Tabs İşlevselliği (Bootstrap 5 ile zaten çalışmalı ama ekleyelim) ----------
+  // Bootstrap 5 kendi tab yönetimini yaptığı için genellikle bu kod gereksizdir.
+  // Ancak yine de ekleyelim, belki özel bir durum vardır.
+  const triggerTabList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tab"]'))
+  triggerTabList.forEach(function (triggerEl) {
+    const tabTrigger = new bootstrap.Tab(triggerEl)
+
+    triggerEl.addEventListener('click', function (event) {
+      event.preventDefault()
+      tabTrigger.show()
+    })
+  })
+
+
+  // Next/Previous tab navigasyonu (Eğer Bootstrap tabları yetmiyorsa)
+  const nextTabButtons = document.querySelectorAll('.next-tab');
+  nextTabButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      const nextTabId = this.getAttribute('data-next');
+      const nextTabTrigger = document.getElementById(nextTabId); // Trigger elementini al
+      if (nextTabTrigger) {
+          const tabInstance = bootstrap.Tab.getInstance(nextTabTrigger) || new bootstrap.Tab(nextTabTrigger);
+          tabInstance.show();
+      }
+    });
+  });
+  const prevTabButtons = document.querySelectorAll('.prev-tab');
+  prevTabButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      const prevTabId = this.getAttribute('data-prev');
+      const prevTabTrigger = document.getElementById(prevTabId); // Trigger elementini al
+      if (prevTabTrigger) {
+           const tabInstance = bootstrap.Tab.getInstance(prevTabTrigger) || new bootstrap.Tab(prevTabTrigger);
+          tabInstance.show();
+      }
+    });
+  });
+
+  // ---------- Listeleme Türü Radio Butonları (Fiyat Alanları) ----------
+  // Bu kısım önceki analizde belirtildiği gibi kalabilir, çakışma yaratmıyor.
+  const listingTypeRadios = document.querySelectorAll('input[name="listing_type"]');
+  const salePriceContainer = document.getElementById('sale-price-container'); // ID'yi kontrol et add.php/edit.php ile eşleşmeli
+  const rentPriceContainer = document.getElementById('rent-price-container'); // ID'yi kontrol et add.php/edit.php ile eşleşmeli
+  const salePriceInput = document.getElementById('sale_price');
+  const rentPriceInput = document.getElementById('rent_price');
+
+  if (listingTypeRadios.length && salePriceContainer && rentPriceContainer) {
+    listingTypeRadios.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        if (this.value === 'sale') {
+          salePriceContainer.style.display = 'block';
+          rentPriceContainer.style.display = 'none';
+          if (salePriceInput) salePriceInput.required = true;
+          if (rentPriceInput) rentPriceInput.required = false;
+        } else if (this.value === 'rent') {
+          salePriceContainer.style.display = 'none';
+          rentPriceContainer.style.display = 'block';
+          if (salePriceInput) salePriceInput.required = false;
+          if (rentPriceInput) rentPriceInput.required = true;
+        } else if (this.value === 'both') {
+          salePriceContainer.style.display = 'block';
+          rentPriceContainer.style.display = 'block';
+          if (salePriceInput) salePriceInput.required = true;
+          if (rentPriceInput) rentPriceInput.required = true;
         }
       });
     });
-  
-    // Next/Previous tab navigasyonu
-    const nextTabButtons = document.querySelectorAll('.next-tab');
-    nextTabButtons.forEach(function(button) {
-      button.addEventListener('click', function() {
-        const nextTabId = this.getAttribute('data-next');
-        const nextTab = document.getElementById(nextTabId);
-        if (nextTab) nextTab.click();
+    // Sayfa yüklendiğinde mevcut seçime göre durumu ayarla
+     const initialSelectedType = document.querySelector('input[name="listing_type"]:checked');
+     if(initialSelectedType) {
+         initialSelectedType.dispatchEvent(new Event('change'));
+     }
+  }
+
+
+  /* =====================================================
+     !!! GÖRSEL ÖNİZLEME KODLARI BURADAN KALDIRILDI !!!
+     Bu işlevsellik artık assets/js/image-uploader.js tarafından yönetiliyor.
+     ===================================================== */
+
+
+  // ---------- Mesafe Alanları (Distance Rows) ----------
+  // Bu kısım önceki analizde belirtildiği gibi kalabilir, çakışma yaratmıyor.
+  const addDistanceBtn = document.getElementById('add-distance');
+  const distancesContainer = document.getElementById('distances-container');
+  if (addDistanceBtn && distancesContainer) {
+    addDistanceBtn.addEventListener('click', function() {
+      const newRow = document.createElement('div');
+      newRow.className = 'distance-row row mb-3';
+      newRow.innerHTML = `
+        <div class="col-md-5">
+          <input type="text" class="form-control" name="distance_name[]" placeholder="Mekan Adı (örn. Metro)">
+        </div>
+        <div class="col-md-5">
+          <div class="input-group">
+            <input type="number" class="form-control" name="distance_value[]" placeholder="Mesafe" step="0.1" min="0">
+            <span class="input-group-text">km</span>
+          </div>
+        </div>
+        <div class="col-md-2 d-flex align-items-end"> {/* Align button correctly */}
+          <button type="button" class="btn btn-danger w-100 remove-distance">Sil</button>
+        </div>
+      `;
+      distancesContainer.appendChild(newRow);
+      // Silme butonuna event listener ekle
+      newRow.querySelector('.remove-distance').addEventListener('click', function() {
+        newRow.remove();
       });
     });
-    const prevTabButtons = document.querySelectorAll('.prev-tab');
-    prevTabButtons.forEach(function(button) {
-      button.addEventListener('click', function() {
-        const prevTabId = this.getAttribute('data-prev');
-        const prevTab = document.getElementById(prevTabId);
-        if (prevTab) prevTab.click();
-      });
+    // Mevcut silme butonlarına event listener ekle
+    distancesContainer.addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-distance')) {
+          e.target.closest('.distance-row').remove();
+      }
     });
-  
-    // ---------- Listeleme Türü Radio Butonları (Fiyat Alanları) ----------
-    const listingTypeRadios = document.querySelectorAll('input[name="listing_type"]');
-    const salePriceContainer = document.getElementById('sale_price_container');
-    const rentPriceContainer = document.getElementById('rent_price_container');
-    if (listingTypeRadios.length && salePriceContainer && rentPriceContainer) {
-      listingTypeRadios.forEach(function(radio) {
-        radio.addEventListener('change', function() {
-          if (this.value === 'sale') {
-            salePriceContainer.style.display = 'block';
-            rentPriceContainer.style.display = 'none';
-            document.getElementById('sale_price').required = true;
-            document.getElementById('rent_price').required = false;
-          } else if (this.value === 'rent') {
-            salePriceContainer.style.display = 'none';
-            rentPriceContainer.style.display = 'block';
-            document.getElementById('sale_price').required = false;
-            document.getElementById('rent_price').required = true;
-          } else if (this.value === 'both') {
-            salePriceContainer.style.display = 'block';
-            rentPriceContainer.style.display = 'block';
-            document.getElementById('sale_price').required = true;
-            document.getElementById('rent_price').required = true;
-          }
-        });
-      });
-    }
-  
-    // ---------- Resim Önizleme & Ana Görsel Seçimi ----------
-    const fileInputs = document.querySelectorAll('input[type="file"][accept*="image"]');
-    fileInputs.forEach(function(input) {
-      input.addEventListener('change', function() {
-        const previewContainer = document.querySelector(this.dataset.preview || '#image-previews');
-        if (!previewContainer) return;
-        previewContainer.innerHTML = '';
-        if (this.files && this.files.length > 0) {
-          const mainImageContainer = document.getElementById('main-image-container');
-          if (mainImageContainer) mainImageContainer.style.display = 'block';
-          Array.from(this.files).forEach(function(file, i) {
-            if (!file.type.startsWith('image/')) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-              const preview = document.createElement('div');
-              preview.className = 'image-preview';
-  
-              const img = document.createElement('img');
-              img.src = e.target.result;
-              img.alt = file.name;
-              preview.appendChild(img);
-  
-              const filenameDiv = document.createElement('div');
-              filenameDiv.className = 'image-filename';
-              filenameDiv.textContent = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
-              preview.appendChild(filenameDiv);
-  
-              const deleteBtn = document.createElement('button');
-              deleteBtn.className = 'delete-btn';
-              deleteBtn.innerHTML = '&times;';
-              deleteBtn.addEventListener('click', function() {
-                preview.remove();
-                if (previewContainer.children.length === 0 && mainImageContainer) {
-                  mainImageContainer.style.display = 'none';
-                }
-              });
-              preview.appendChild(deleteBtn);
-  
-              previewContainer.appendChild(preview);
-            };
-            reader.readAsDataURL(file);
-          });
-  
-          // Ana görsel seçimi için dropdown güncellemesi
-          const mainImageSelect = document.getElementById('main-image-select');
-          if (mainImageSelect) {
-            mainImageSelect.innerHTML = '';
-            const defaultOption = document.createElement('option');
-            defaultOption.value = "0";
-            defaultOption.textContent = 'İlk yüklenen görsel';
-            mainImageSelect.appendChild(defaultOption);
-            Array.from(this.files).forEach(function(file, i) {
-              const option = document.createElement('option');
-              option.value = i;
-              option.textContent = `Görsel ${i + 1}: ${file.name}`;
-              mainImageSelect.appendChild(option);
-            });
-          }
-        } else {
-          const mainImageContainer = document.getElementById('main-image-container');
-          if (mainImageContainer) mainImageContainer.style.display = 'none';
-        }
-      });
-    });
-  
-    // ---------- Mesafe Alanları (Distance Rows) ----------
-    const addDistanceBtn = document.getElementById('add-distance');
-    const distancesContainer = document.getElementById('distances-container');
-    if (addDistanceBtn && distancesContainer) {
-      addDistanceBtn.addEventListener('click', function() {
-        const newRow = document.createElement('div');
-        newRow.className = 'distance-row row mb-3';
-        newRow.innerHTML = `
-          <div class="col-md-5">
-            <input type="text" class="form-control" name="distance_name[]" placeholder="Mekan Adı (örn. Metro)">
-          </div>
-          <div class="col-md-5">
-            <div class="input-group">
-              <input type="number" class="form-control" name="distance_value[]" placeholder="Mesafe" step="0.1" min="0">
-              <span class="input-group-text">km</span>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <button type="button" class="btn btn-danger w-100 remove-distance">Sil</button>
-          </div>
-        `;
-        distancesContainer.appendChild(newRow);
-        newRow.querySelector('.remove-distance').addEventListener('click', function() {
-          newRow.remove();
-        });
-      });
-      document.querySelectorAll('.remove-distance').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          this.closest('.distance-row').remove();
-        });
-      });
-    }
-  
-    // ---------- Form Doğrulama (Validation) ----------
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-      if (form.getAttribute('novalidate') === null) {
-        form.addEventListener('submit', function(e) {
-          if (!this.checkValidity()) {
-            e.preventDefault();
-            e.stopPropagation();
-            const invalidElement = form.querySelector(':invalid');
-            if (invalidElement) {
-              const tabPane = invalidElement.closest('.tab-pane');
-              if (tabPane && !tabPane.classList.contains('show')) {
-                const tabLink = document.querySelector(`[href="#${tabPane.id}"]`);
-                if (tabLink) tabLink.click();
-              }
-              invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              invalidElement.focus();
-            }
+  }
+
+  // ---------- Form Doğrulama (Validation) ----------
+  // Bootstrap 5 kendi doğrulamasını yapar, bu kod genellikle ek kontrol içindir.
+  const forms = document.querySelectorAll('form.needs-validation'); // Sadece belirli formları hedef alabiliriz
+   Array.prototype.slice.call(forms)
+      .forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Hatalı ilk elemanı bul ve ona odaklan/scroll et
+             const invalidElement = form.querySelector(':invalid');
+             if (invalidElement) {
+                  // Eğer eleman bir tab içindeyse o tab'ı aktif et
+                  const tabPane = invalidElement.closest('.tab-pane');
+                  if (tabPane && !tabPane.classList.contains('active')) {
+                      const tabTrigger = document.querySelector(`[data-bs-target="#${tabPane.id}"]`);
+                      if (tabTrigger) {
+                          const tabInstance = bootstrap.Tab.getInstance(tabTrigger) || new bootstrap.Tab(tabTrigger);
+                          tabInstance.show();
+                           // Tab değiştikten sonra odaklanma için küçük bir gecikme
+                           setTimeout(() => {
+                              invalidElement.focus();
+                              invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                           }, 150);
+                      } else {
+                         invalidElement.focus();
+                         invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                  } else {
+                     invalidElement.focus();
+                     invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+             }
           }
           form.classList.add('was-validated');
         }, false);
-      }
-    });
-  
-    // ---------- Drag & Drop Dosya Yükleme ----------
-    const dragDropAreas = document.querySelectorAll('#drag-drop-area');
-    dragDropAreas.forEach(area => {
-      const fileInput = area.querySelector('input[type="file"]');
-      const selectBtn = area.querySelector('#select-files-btn');
-      if (selectBtn && fileInput) {
-        selectBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          fileInput.click();
-        });
-      }
-      area.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        this.classList.add('dragover');
       });
-      area.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        this.classList.remove('dragover');
-      });
-      area.addEventListener('drop', function(e) {
-        e.preventDefault();
-        this.classList.remove('dragover');
-        if (fileInput && e.dataTransfer.files.length > 0) {
-          fileInput.files = e.dataTransfer.files;
-          const event = new Event('change', { bubbles: true });
-          fileInput.dispatchEvent(event);
-        }
-      });
-    });
-  
-    // ---------- Harita Entegrasyonu (Leaflet) ----------
-    const mapContainers = ['map-container', 'property-location-map', 'property-map', 'search-map'];
-    mapContainers.forEach(id => initializeMap(id));
-  });
-  
-  // ---------------------------
-  // Harita (Leaflet) Fonksiyonları
-  // ---------------------------
-  function initializeMap(containerId) {
-    const mapContainer = document.getElementById(containerId);
-    if (!mapContainer) return;
-  
-    let initialLat = 39.1,
-        initialLng = 35.6,
-        initialZoom = 6;
-  
-    if (mapContainer.dataset.lat && mapContainer.dataset.lng) {
-      initialLat = parseFloat(mapContainer.dataset.lat);
-      initialLng = parseFloat(mapContainer.dataset.lng);
-      initialZoom = 15;
-    }
-  
-    const map = L.map(containerId).setView([initialLat, initialLng], initialZoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19
-    }).addTo(map);
-  
-    let marker;
-    if (initialZoom > 6) {
-      marker = createMarker([initialLat, initialLng], map);
-    }
-  
-    const latInput = document.getElementById('latitude');
-    const lngInput = document.getElementById('longitude');
-    if (latInput && lngInput) {
-      map.on('click', function(e) {
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-        latInput.value = lat;
-        lngInput.value = lng;
-        if (marker) {
-          marker.setLatLng(e.latlng);
-        } else {
-          marker = createMarker(e.latlng, map);
-        }
-      });
-    }
-  
-    // Global propertyData varsa, işaretleyici ekle
-    if (window.propertyData && window.propertyData.length) {
-      addPropertyMarkers(map, window.propertyData);
-    }
-  
-    return map;
-  }
-  
-  function createMarker(latlng, map) {
-    const markerIcon = L.divIcon({
-      className: 'custom-marker-icon',
-      html: '<div class="marker-pin"></div>',
-      iconSize: [30, 42],
-      iconAnchor: [15, 42]
-    });
-    return L.marker(latlng, { icon: markerIcon }).addTo(map);
-  }
-  
-  function addPropertyMarkers(map, properties) {
-    const markers = [];
-    properties.forEach(function(property) {
-      if (!property.latitude || !property.longitude) return;
-      let priceText = '',
-          priceClass = 'sale';
-      if (property.rent_price && property.rent_price > 0) {
-        priceText = `${formatPrice(property.rent_price)} ₺/ay`;
-        priceClass = 'rent';
-      } else {
-        priceText = `${formatPrice(property.sale_price)} ₺`;
-      }
-      const markerIcon = L.divIcon({
-        className: 'custom-marker-icon',
-        html: `<div class="marker-pin"></div><div class="marker-price ${priceClass}">${priceText}</div>`,
-        iconSize: [30, 42],
-        iconAnchor: [15, 42],
-        popupAnchor: [0, -42]
-      });
-      const marker = L.marker([property.latitude, property.longitude], { icon: markerIcon }).addTo(map);
-      const popupContent = `
-        <div class="map-popup">
-          <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" class="popup-image" alt="${property.title}">
-          <div class="popup-content">
-            <h5 class="popup-title">${property.title}</h5>
-            <p class="popup-price">${priceText}</p>
-            <p class="popup-address"><i class="bi bi-geo-alt"></i> ${property.city}, ${property.state}</p>
-            <a href="listing.php?id=${property.id}" class="btn btn-primary">Detaylar</a>
-          </div>
-        </div>
-      `;
-      marker.bindPopup(popupContent, {
-        maxWidth: 300,
-        className: 'property-popup'
-      });
-      markers.push(marker);
-    });
-    if (markers.length > 0) {
-      const group = new L.featureGroup(markers);
-      map.fitBounds(group.getBounds().pad(0.1));
-    }
-    return markers;
-  }
-  
-  function formatPrice(price) {
-    return new Intl.NumberFormat('tr-TR').format(price);
-  }
-  
+
+
+  // ---------- Drag & Drop Dosya Yükleme (Bu da image-uploader.js'de yönetiliyor) ----------
+  // Bu bölüm de kaldırıldı.
+
+
+  // ---------- Harita Entegrasyonu (map-integration.js veya map-functions-optimized.js tarafından yönetilmeli) ----------
+  // Bu dosyada harita başlatma olmamalı.
+  // const mapContainers = ['map-container', 'property-location-map', 'property-map', 'search-map'];
+  // mapContainers.forEach(id => initializeMap(id)); // Bu satır KALDIRILMALI
+});
+
+
+// ---------------------------
+// Harita (Leaflet) Fonksiyonları
+// ---------------------------
+// Bu fonksiyonlar artık map-integration.js veya map-functions-optimized.js dosyasında olmalı.
+// Bu dosyada (admin.js) olmamalılar.
+/*
+function initializeMap(containerId) { ... }
+function createMarker(latlng, map) { ... }
+function addPropertyMarkers(map, properties) { ... }
+function formatPrice(price) { ... }
+*/

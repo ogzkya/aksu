@@ -100,10 +100,8 @@
     </script>
     
     <!-- Site JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-<script src="assets/js/map-fix.js"></script>
-<script src="assets/js/image-upload-fix.js"></script>
-<script src="assets/js/script.js"></script>
+    <script src="assets/js/map-fix.js"></script>
+    <script src="assets/js/image-upload-fix.js"></script>
+    <script src="assets/js/script.js"></script>
 </body>
 </html>

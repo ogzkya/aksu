@@ -868,44 +868,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Mesafe satırları
-    const addDistanceBtn = document.getElementById('add-distance');
-    const distancesContainer = document.getElementById('distances-container');
+    // // Mesafe satırları
+    // const addDistanceBtn = document.getElementById('add-distance');
+    // const distancesContainer = document.getElementById('distances-container');
     
-    if (addDistanceBtn && distancesContainer) {
-        addDistanceBtn.addEventListener('click', function() {
-            const newRow = document.createElement('div');
-            newRow.className = 'distance-row row mb-3';
-            newRow.innerHTML = `
-                <div class="col-md-5">
-                    <input type="text" class="form-control" name="distance_name[]" placeholder="Mekan Adı (örn. Metro)">
-                </div>
-                <div class="col-md-5">
-                    <div class="input-group">
-                        <input type="number" class="form-control" name="distance_value[]" placeholder="Mesafe" step="0.1" min="0">
-                        <span class="input-group-text">km</span>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-danger w-100 remove-distance">Sil</button>
-                </div>
-            `;
+    // if (addDistanceBtn && distancesContainer) {
+    //     addDistanceBtn.addEventListener('click', function() {
+    //         const newRow = document.createElement('div');
+    //         newRow.className = 'distance-row row mb-3';
+    //         newRow.innerHTML = `
+    //             <div class="col-md-5">
+    //                 <input type="text" class="form-control" name="distance_name[]" placeholder="Mekan Adı (örn. Metro)">
+    //             </div>
+    //             <div class="col-md-5">
+    //                 <div class="input-group">
+    //                     <input type="number" class="form-control" name="distance_value[]" placeholder="Mesafe" step="0.1" min="0">
+    //                     <span class="input-group-text">km</span>
+    //                 </div>
+    //             </div>
+    //             <div class="col-md-2">
+    //                 <button type="button" class="btn btn-danger w-100 remove-distance">Sil</button>
+    //             </div>
+    //         `;
             
-            distancesContainer.appendChild(newRow);
+    //         distancesContainer.appendChild(newRow);
             
-            // Yeni eklenen satırın silme düğmesine olay dinleyicisi ekle
-            newRow.querySelector('.remove-distance').addEventListener('click', function() {
-                newRow.remove();
-            });
-        });
+    //         // Yeni eklenen satırın silme düğmesine olay dinleyicisi ekle
+    //         newRow.querySelector('.remove-distance').addEventListener('click', function() {
+    //             newRow.remove();
+    //         });
+    //     });
         
-        // Mevcut silme düğmelerine olay dinleyicileri ekle
-        document.querySelectorAll('.remove-distance').forEach(function(button) {
-            button.addEventListener('click', function() {
-                this.closest('.distance-row').remove();
-            });
-        });
-    }
+    //     // Mevcut silme düğmelerine olay dinleyicileri ekle
+    //     document.querySelectorAll('.remove-distance').forEach(function(button) {
+    //         button.addEventListener('click', function() {
+    //             this.closest('.distance-row').remove();
+    //         });
+    //     });
+    // }
 });
 </script>
 
