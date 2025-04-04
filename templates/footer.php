@@ -100,8 +100,9 @@
     </script>
     
     <!-- Site JS -->
-    <script src="assets/js/map-fix.js"></script>
+     <script src="assets/js/site-core.js"></script>
+    <!-- <script src="assets/js/map-fix.js"></script>
     <script src="assets/js/image-upload-fix.js"></script>
-    <script src="assets/js/script.js"></script>
+    <script src="assets/js/script.js"></script> -->
 </body>
 </html>

@@ -19,7 +19,7 @@ if (!isset($activePage)) {
     <!-- Leaflet JS -->
     
     <!-- Map Integration JS -->
-    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/map-integration.js"></script>
+    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin-core.js"></script>
         
     <!-- Admin JS -->
    
@@ -174,4 +174,4 @@ if (!isset($activePage)) {
                     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
                     
                     <!-- Admin JS -->
-                    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin.js"></script>
+                    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin-core.js"></script>
