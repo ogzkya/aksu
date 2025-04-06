@@ -57,8 +57,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar-brand img {
-    height: 40px;
-    margin-right: 10px;
+    height: 150px; /* <<< İstediğiniz yeni yüksekliği buraya yazın */
+    margin-right: 10px; 
+    width: auto; /* Genişliğin otomatik ayarlanması için eklendi */
 }
 
 .navbar-brand span {

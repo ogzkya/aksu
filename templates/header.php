@@ -25,15 +25,15 @@
     <link rel="stylesheet" href="assets/css/map-markers.css">
     <link rel="stylesheet" href="assets/css/modern-styles.css">
     <link rel="stylesheet" href="assets/css/color-scheme.css">
+    
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="index.php">
-    <!-- Logo alanı -->
+     <a class="navbar-brand d-flex align-items-center" href="index.php">
     <div class="logo-container me-2">
-        <img src="assets/img/logo.png" alt="Aksu Emlak Logo" height="125" onerror="this.src='assets/img/logo.png'; this.onerror='';">
+        <img src="assets/img/logo.png" alt="Aksu Emlak Logo" class="site-logo" onerror="this.src='assets/img/logo.png'; this.onerror='';">
     </div>
     <span><span class="text-accent fw-bold"></span></span>
 </a>

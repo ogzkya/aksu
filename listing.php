@@ -76,7 +76,7 @@ require_once 'templates/header.php';
             <div class="property-gallery card shadow-sm mb-4">
                  <div class="card-body p-2">
                     <?php if (count($carouselImages) > 0): ?>
-                        <div id="propertyCarousel" class="carousel slide" data-bs-ride="carousel"> {/* Otomatik kaydırma etkinleştirildi */}
+                        <div id="propertyCarousel" class="carousel slide" data-bs-ride="carousel"> 
                            <div class="carousel-indicators">
                                 <?php foreach ($carouselImages as $index => $img): ?>
                                     <button type="button"
@@ -95,7 +95,7 @@ require_once 'templates/header.php';
                                              class="d-block w-100"
                                              style="height: 500px; object-fit: cover;"
                                              alt="<?= htmlspecialchars($listing['title']) ?> - Görsel <?= $index + 1 ?>"
-                                             loading="<?= $index === 0 ? 'eager' : 'lazy' ?>"> {/* İlk resim hemen yüklensin */}
+                                             loading="<?= $index === 0 ? 'eager' : 'lazy' ?>"> 
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -332,7 +332,7 @@ require_once 'templates/header.php';
         </div>
 
         <div class="col-lg-4">
-            <div class="position-sticky" style="top: 90px;"> {/* Sticky sidebar */}
+            <div class="position-sticky" style="top: 90px;">
                  <div class="card shadow-sm mb-4 contact-card">
                     <div class="card-header bg-primary text-white">
                         <h4 class="h5 mb-0"><i class="bi bi-person-rolodex me-2"></i>İletişim</h4>

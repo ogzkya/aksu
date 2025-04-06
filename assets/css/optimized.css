@@ -73,7 +73,9 @@ a:hover {
 }
 
 .navbar-brand img {
-    max-height: 40px;
+    height: 150px; /* <<< İstediğiniz yeni yüksekliği buraya yazın */
+    margin-right: 10px; 
+    width: auto; /* Genişliğin otomatik ayarlanması için eklendi */
 }
 
 .navbar-brand span {
