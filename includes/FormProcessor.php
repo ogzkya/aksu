@@ -207,35 +207,68 @@ class FormProcessor {
                     // Yükleme hatalarını ana hatalara ekle
                      $this->errors = array_merge($this->errors, $uploadResult['errors']);
                 } else {
-                     // Yeni yüklenenler arasından ana görsel seçildiyse onu ayarla
-                     $newMainImageIndex = isset($postData['main_image_index']) ? (int)$postData['main_image_index'] : -1;
-                     if ($newMainImageIndex >= 0 && isset($uploadResult['files'][$newMainImageIndex])) {
-                        // Yeni yüklenen görselin ID'sini bulmamız lazım (bu biraz zor olabilir direkt)
-                        // Alternatif: Yükleme sonrası son ID'yi alıp, ona göre ayarlama veya URL ile bulma.
-                        // Şimdilik: addListingImage'in is_main parametresini kullanıyoruz.
-                        // Eğer ImageUploader direkt ID döndürmüyorsa, bu mantık FormProcessor yerine
-                        // add.php/edit.php içinde dosya yükleme sonrası yapılmalı.
+                    // *** YENİ KOD BAŞLANGICI: Başarılı yüklenen her resmi DB'ye ekle ***
+                    $isFirstNewImage = true; // İlk yeni resmi işaretlemek için
+                    // Düzenleme modunda mevcut resim sayısını al (yeni eklenen ilk resmi ana yapmak için)
+                    $existingImagesData = [];
+                    if ($isEditMode) {
+                        $existingImagesData = $listingObj->getListingImages($listingId);
+                         // Silinmesi istenen resimleri çıkardıktan sonraki durumu hesaba katmak daha doğru olabilir,
+                         // ancak şimdilik mevcut durumu alalım. Silme işlemi zaten yapıldı.
+                    }
+                    $existingImagesCount = count($existingImagesData);
 
-                        // Geçici Çözüm: Yüklenen ilk görseli ana yapalım (eğer $newMainImageIndex 0 ise)
-                        // ve diğer mevcutları is_main=0 yapalım.
-                         if ($newMainImageIndex === 0) {
-                             $newImageUrl = $uploadResult['files'][0];
-                             // Bu URL ile eşleşen image ID'sini bul ve is_main yap
-                             $newImageId = $listingObj->db->fetch("SELECT id FROM listing_images WHERE image_url = ? AND listing_id = ? ORDER BY id DESC LIMIT 1", [$newImageUrl, $listingId]);
-                             if($newImageId) {
-                                 $listingObj->setMainImage($listingId, $newImageId['id']);
-                             }
-                         }
-                     } elseif (!$isEditMode || !$hasExistingImages) {
-                          // Eğer yeni ilansa veya hiç mevcut görsel yoksa ve yeni görsel yüklendiyse, ilkini ana yap
-                          if (!empty($uploadResult['files'])) {
-                              $firstImageUrl = $uploadResult['files'][0];
-                              $firstImageId = $listingObj->db->fetch("SELECT id FROM listing_images WHERE image_url = ? AND listing_id = ? ORDER BY id DESC LIMIT 1", [$firstImageUrl, $listingId]);
-                              if($firstImageId) {
-                                  $listingObj->setMainImage($listingId, $firstImageId['id']);
-                              }
-                          }
-                     }
+                    // Yeni yüklenen resimleri döngüye al
+                    foreach ($uploadResult['files'] as $index => $uploadedUrl) {
+                        // Bu görselin ana görsel olup olmadığını belirle
+                        $isMain = 0;
+                        // Formdan gelen YENİ ana resim seçimi (genellikle select/radio ile, index'e göre)
+                        $newMainImageIndex = isset($postData['main_image_index']) ? (int)$postData['main_image_index'] : -1;
+                        // Formdan gelen MEVCUT ana resim seçimi (ID'ye göre)
+                        $existingMainImageId = isset($postData['main_image']) ? (int)$postData['main_image'] : 0;
+
+                        if ($newMainImageIndex === $index) {
+                            // Eğer kullanıcı bu YENİ resmi ana olarak seçtiyse
+                            $isMain = 1;
+                        } elseif (!$isEditMode && $isFirstNewImage) {
+                            // Eğer YENİ ilan ekleniyorsa ve bu İLK yüklenen resimse
+                            $isMain = 1;
+                        } elseif ($isEditMode && $existingImagesCount === 0 && $isFirstNewImage) {
+                            // Eğer DÜZENLEME modunda, HİÇ mevcut resim yoksa (veya hepsi silinmişse)
+                            // ve bu İLK yüklenen YENİ resimse
+                            $isMain = 1;
+                        }
+
+                        // Resmi veritabanına ekle
+                        try {
+                            // $listingObj, Listing sınıfının bir örneği olmalı
+                            $newImageDbId = $listingObj->addListingImage($listingId, $uploadedUrl, $isMain);
+
+                            // Eğer bu resim ana olarak ayarlandıysa veya seçildiyse,
+                            // diğerlerinin 'is_main'ini 0 yapalım (güvenlik için)
+                            // ve bu yeni eklenen ID'yi ana resim ID'si olarak kullanalım.
+                            if ($isMain == 1 && $newImageDbId) {
+                                $listingObj->setMainImage($listingId, $newImageDbId);
+                                // Mevcut resimlerden birinin ana seçilme ihtimalini ortadan kaldır
+                                $existingMainImageId = 0;
+                            }
+
+                        } catch (Exception $dbError) {
+                            // Veritabanı ekleme hatasını logla veya kullanıcıya bildir
+                            $this->errors[] = "Görsel veritabanına eklenirken hata oluştu ('" . basename($uploadedUrl) . "'): " . $dbError->getMessage();
+                        }
+                        $isFirstNewImage = false; // İlk resimden sonra bayrağı sıfırla
+                    }
+                    // *** YENİ KOD BİTİŞİ ***
+
+                    // --- Mevcut ana resim seçimi kontrolü ---
+                    // Kullanıcı MEVCUT bir resmi ana olarak seçmişse VE YENİ bir resmi ana olarak seçmemişse
+                    if ($isEditMode && $existingMainImageId > 0 && $newMainImageIndex < 0) {
+                        // Seçilen mevcut ID'nin hala var olduğunu ve silinmediğini kontrol etmek iyi olur,
+                        // ancak setMainImage fonksiyonu bunu zaten ID ile yapmalı.
+                        $listingObj->setMainImage($listingId, $existingMainImageId);
+                    }
+                    // --- Mevcut ana resim seçimi kontrolü bitişi ---
                 }
             }
 

@@ -29,9 +29,11 @@
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     
     <!-- Admin JS -->
-    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin-core.js"></script>
+     <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin.js"></script>
+<script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/form-upload.js"></script>
+<script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/map-integration.js"></script>
 
-    <script src="/assets/js/admin-core.js"></script>
+    
     <!-- Uygulama JS Dosyaları -->
 <!-- <script src="/assets/js/map-functions-optimized.js"></script>
 <script src="/assets/js/image-uploader.js"></script>
