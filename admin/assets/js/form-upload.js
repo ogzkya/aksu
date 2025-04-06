@@ -312,6 +312,7 @@ function initializeMap() {
                 if (latInput.value && lngInput.value) {
                     const lat = parseFloat(latInput.value);
                     const lng = parseFloat(lngInput.value);
+                    // Koordinatları kontrol et
                     
                     if (!isNaN(lat) && !isNaN(lng)) {
                         map.setView([lat, lng], 15);
