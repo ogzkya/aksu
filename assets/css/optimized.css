@@ -449,3 +449,50 @@ a:hover {
         font-size: 0.8rem;
     }
 }
+
+/* Logo Boyutu İyileştirmesi */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.navbar-brand img, 
+.site-logo {
+    height: 80px; /* Ana boyut */
+    width: auto;
+    max-width: 100%;
+    object-fit: contain; /* Orantıyı koruyarak içeriği sığdırır */
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    height: 80px;
+    max-width: 300px;
+    margin-right: 10px;
+}
+
+/* Mobil cihazlar için responsive davranış */
+@media (max-width: 768px) {
+    .navbar-brand img,
+    .site-logo {
+        height: 60px;
+    }
+    
+    .logo-container {
+        height: 60px;
+    }
+}
+
+/* Çok küçük ekranlar için */
+@media (max-width: 480px) {
+    .navbar-brand img,
+    .site-logo {
+        height: 50px;
+    }
+    
+    .logo-container {
+        height: 50px;
+    }
+}

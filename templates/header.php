@@ -25,6 +25,10 @@
     <link rel="stylesheet" href="assets/css/map-markers.css">
     <link rel="stylesheet" href="assets/css/modern-styles.css">
     <link rel="stylesheet" href="assets/css/color-scheme.css">
+    <!-- Adım 1: templates/header.php dosyasına aşağıdaki kod parçasını hemen </head> etiketinden önce ekleyin -->
+
+<!-- templates/header.php dosyasına </head> etiketinden önce ekleyin -->
+
     
 </head>
 <body>
@@ -32,10 +36,10 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
      <a class="navbar-brand d-flex align-items-center" href="index.php">
-    <div class="logo-container me-2">
-        <img src="assets/img/logo.png" alt="Aksu Emlak Logo" class="site-logo" onerror="this.src='assets/img/logo.png'; this.onerror='';">
+    <div class="logo-container me-4">
+        <img src="assets/img/logo.png" alt="" class="site-logo" onerror="this.src='assets/img/logo.png'; this.onerror='';">
     </div>
-    <span><span class="text-accent fw-bold"></span></span>
+    <!-- <span><span class="text-accent fw-bold"></span>Aksu Emlak</span> -->
 </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

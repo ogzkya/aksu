@@ -21,7 +21,7 @@ $activePage = "home"; // Aktif sayfa belirteci eklendi
 require_once 'templates/header.php';
 ?>
 
-<section class="hero-section">
+<section class="hero-section" style="background-image: url('assets/img/img-hero-bg-3.jpg');">
     <div class="container">
         <div class="hero-content" data-aos="fade-up">
             <h1 class="hero-title">Hayalinizdeki Mülkü Bulun</h1>

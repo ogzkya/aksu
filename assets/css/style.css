@@ -349,7 +349,7 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     height: 700px;   /* Yükseltilmiş yükseklik */
     color: white;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../img/img-hero-bg-3.jpg' );
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../assets/img/img-hero-bg-31.jpg' );
     background-size: cover;
     background-position: center;
     display: flex;
@@ -1438,3 +1438,4 @@ h1, h2, h3, h4, h5, h6 {
         top: -30px;
     }
 }
+
