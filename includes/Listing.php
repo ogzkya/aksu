@@ -268,14 +268,26 @@ class Listing {
     }
 
     public function addListingImage($listingId, $imageUrl, $isMain = 0) {
-        // Eğer ana görsel ekleniyorsa, diğer tüm görsellerin ana görsel işaretini kaldır
+        // EKLE: Aynı resim daha önce bu ilan için eklenmiş mi kontrol et
+        $checkSql = "SELECT id FROM listing_images WHERE listing_id = ? AND image_url = ?";
+        $existingImage = $this->db->fetch($checkSql, [$listingId, $imageUrl]);
+        
+        if ($existingImage) {
+            // Resim zaten var, sadece ana görsel durumunu güncelle
+            if ($isMain) {
+                $this->setMainImage($listingId, $existingImage['id']);
+            }
+            return $existingImage['id']; // Mevcut ID'yi döndür, tekrar ekleme yapma
+        }
+    
+        // Normal kaydetme işlemi - sadece daha önce olmayan görseller için
         if ($isMain) {
             $this->db->query(
                 "UPDATE listing_images SET is_main = 0 WHERE listing_id = ?",
                 [$listingId]
             );
         }
-
+    
         $sql = "INSERT INTO listing_images (listing_id, image_url, is_main) VALUES (?, ?, ?)";
         $this->db->query($sql, [$listingId, $imageUrl, $isMain]);
         return $this->db->lastInsertId();

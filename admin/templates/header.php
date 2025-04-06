@@ -19,7 +19,7 @@ if (!isset($activePage)) {
     <!-- Leaflet JS -->
     
     <!-- Map Integration JS -->
-    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin-core.js"></script>
+    
         
     <!-- Admin JS -->
    
@@ -169,3 +169,5 @@ if (!isset($activePage)) {
                     <!-- Bu bölümü footer.php'nin sonuna taşıyın (</body> etiketinden önce) -->
                 
                     <!-- Admin JS -->
+                    <script src="...assets/js/image-uploader.js"></script>
+                    <!-- <script src="...admin/assets/js/form-upload.js"></script> -->
