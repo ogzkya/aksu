@@ -8,11 +8,11 @@
                 <!-- Aksu Emlak Bilgileri -->
                 <div class="col-md-4 mb-4 mb-md-0">
                     <h5 class="mb-3">Aksu Emlak</h5>
-                    <p>2003 yılından bu yana Antalya ve çevresinde gayrimenkul sektöründe satılık ve kiralık mülkler için güvenilir bir platform sağlıyoruz.</p>
+                    <p>2000 yılından bu yana İstanbul ve çevresinde gayrimenkul sektöründe satılık ve kiralık mülkler için güvenilir bir platform sağlıyoruz.</p>
                     <div class="mt-4">
-                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i> Atatürk Cad. No: 123, Aksu, Antalya</p>
+                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i> Halkalı Küçükçekmece</p>
                         <p class="mb-1"><i class="bi bi-telephone me-2"></i> (0242) 555 55 55</p>
-                        <p class="mb-1"><i class="bi bi-envelope me-2"></i> info@aksu-emlak.com</p>
+                        <p class="mb-1"><i class="bi bi-envelope me-2"></i> aksu-emlak@hotmail.com</p>
                     </div>
                 </div>
                 
@@ -78,6 +78,7 @@
             </div>
         </div>
     </footer>
+    
     
     <!-- Scroll to Top Butonu -->
     <a href="#" class="scroll-to-top" id="scrollTop">

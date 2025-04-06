@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+<base href="<?= $config['app']['url'] ?>/">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?= isset($pageDescription) ? htmlspecialchars($pageDescription) : 'Aksu Emlak - Satılık ve kiralık emlak ilanları' ?>">

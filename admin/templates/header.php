@@ -16,6 +16,8 @@ if (!isset($activePage)) {
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+<base href="<?= $config['app']['url'] ?>/">
+
     <!-- Leaflet JS -->
     
     <!-- Map Integration JS -->
