@@ -18,6 +18,7 @@ $mapDataJson = json_encode($mapData);
 
 $pageTitle = "Ana Sayfa";
 $activePage = "home"; // Aktif sayfa belirteci eklendi
+$config = require_once __DIR__ . '/config/config.php';
 require_once 'templates/header.php';
 ?>
 
