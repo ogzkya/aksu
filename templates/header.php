@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="assets/css/map-markers.css">
     <link rel="stylesheet" href="assets/css/modern-styles.css">
     <link rel="stylesheet" href="assets/css/color-scheme.css">
-    <link rel="stylesheet" href="assets/css/custom.css">
+    
     <!-- Adım 1: templates/header.php dosyasına aşağıdaki kod parçasını hemen </head> etiketinden önce ekleyin -->
 
 <!-- templates/header.php dosyasına </head> etiketinden önce ekleyin -->
