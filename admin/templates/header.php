@@ -16,7 +16,7 @@ if (!isset($activePage)) {
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<base href="<?= $config['app']['url'] ?>/">
+<base href="https://atakentaksuemlak.com/">
 
     <!-- Leaflet JS -->
     
