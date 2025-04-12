@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<base href="<?= $config['app']['url'] ?>/">
+<base href="https://atakentaksuemlak.com/">
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -25,9 +25,9 @@
     
     <!-- Site CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/map-markers.css">
-    <link rel="stylesheet" href="assets/css/modern-styles.css">
-    <link rel="stylesheet" href="assets/css/color-scheme.css">
+<link rel="stylesheet" href="assets/css/map-markers.css">
+<link rel="stylesheet" href="assets/css/modern-styles.css">
+<link rel="stylesheet" href="assets/css/color-scheme.css">
     
     <!-- Adım 1: templates/header.php dosyasına aşağıdaki kod parçasını hemen </head> etiketinden önce ekleyin -->
 
