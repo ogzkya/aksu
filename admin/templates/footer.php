@@ -1,42 +1,62 @@
 </div>
-                <!-- /.container-fluid -->
-            </div>
-            <!-- End of Main Content -->
+            <!-- End Main Content -->
             
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Emlak İlan Sitesi <?= date('Y') ?></span>
+            <footer class="bg-white py-4 mt-auto">
+                <div class="container-fluid">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="text-muted small">
+                            &copy; <?= date('Y') ?> Aksu Emlak. Tüm hakları saklıdır.
+                        </div>
+                        <div class="text-muted small">
+                            Version 2.0 - Admin Panel
+                        </div>
                     </div>
                 </div>
             </footer>
-            <!-- End of Footer -->
+            <!-- End Footer -->
         </div>
-        <!-- End of Content Wrapper -->
+        <!-- End Content Wrapper -->
     </div>
-    <!-- End of Page Wrapper -->
+    <!-- End Page Wrapper -->
     
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop">
         <i class="bi bi-arrow-up"></i>
-    </a>
+    </button>
     
+    <!-- Scripts -->
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Admin JS -->
-     <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin.js"></script>
-<!-- <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/form-upload.js"></script> -->
-<script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/map-integration.js"></script>
-
+    <!-- Admin JS - TEK DOSYA (Tüm eski dosyalar kaldırıldı) -->
+    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin-clean.js"></script>
     
-    <!-- Uygulama JS Dosyaları -->
-<!-- <script src="/assets/js/map-functions-optimized.js"></script>
-<script src="/assets/js/image-uploader.js"></script>
-<script src="/assets/js/ajax-form-handler.js"></script> -->
+    <!-- TinyMCE Editor (sadece gerektiğinde) -->
+    <?php if (isset($useTinyMCE) && $useTinyMCE): ?>
+    <script src="https://cdn.tiny.cloud/1/YOUR_API_KEY/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+            selector: 'textarea.tinymce',
+            height: 400,
+            menubar: false,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+            content_style: 'body { font-family: Inter, Arial, sans-serif; font-size: 14px; }'
+        });
+    </script>
+    <?php endif; ?>
+    
+    <!-- Sayfa özel scripts varsa -->
+    <?php if (isset($pageScripts)): ?>
+        <?= $pageScripts ?>
+    <?php endif; ?>
 </body>
 </html>

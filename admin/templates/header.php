@@ -16,56 +16,48 @@ if (!isset($activePage)) {
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<base href="https://atakentaksuemlak.com/">
-
-    <!-- Leaflet JS -->
-    
-    <!-- Map Integration JS -->
-    
-        
-    <!-- Admin JS -->
-   
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($pageTitle) ?> - Emlak İlan Sitesi</title>
+    <title><?= htmlspecialchars($pageTitle) ?> - Aksu Emlak Admin</title>
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     
-    <!-- Admin CSS -->
+    <!-- Admin CSS - Tek dosya -->
     <link rel="stylesheet" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/css/admin.css">
     
-    <!-- Custom styles override -->
-    <style>
-        /* Hide PHP warnings */
-        .warning, div[class*="warning"] {
-            display: none !important;
-        }
-    </style>
+    <!-- Meta tags -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Aksu Emlak Admin Panel">
 </head>
 <body id="page-top">
     <div id="wrapper">
         <!-- Sidebar -->
         <div class="sidebar">
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
+            <!-- Brand -->
+            <a class="sidebar-brand" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
                 <div class="sidebar-brand-icon">
                     <i class="bi bi-building"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">Emlak Admin</div>
+                <div class="sidebar-brand-text">Aksu Emlak</div>
             </a>
             
             <!-- Divider -->
-            <hr class="sidebar-divider my-0">
+            <hr class="sidebar-divider">
             
-            <!-- Nav Item - Dashboard -->
+            <!-- Dashboard -->
             <ul class="navbar-nav">
                 <li class="nav-item <?= $activePage === 'dashboard' ? 'active' : '' ?>">
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
@@ -81,7 +73,7 @@ if (!isset($activePage)) {
             <!-- Heading -->
             <div class="sidebar-heading">İçerik Yönetimi</div>
             
-            <!-- Nav Items - İçerik Yönetimi -->
+            <!-- Navigation -->
             <ul class="navbar-nav">
                 <li class="nav-item <?= $activePage === 'listings' ? 'active' : '' ?>">
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/index.php">
@@ -92,16 +84,15 @@ if (!isset($activePage)) {
                 <li class="nav-item">
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/add.php">
                         <i class="bi bi-plus-circle"></i>
-                        <span>Yeni İlan Ekle</span>
+                        <span>Yeni İlan</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item <?= $activePage === 'blog' ? 'active' : '' ?>">
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/blog/index.php">
                         <i class="bi bi-file-earmark-text"></i>
                         <span>Blog</span>
                     </a>
                 </li>
-                <!-- Yeni eklenen Duyurular menü öğesi -->
                 <li class="nav-item <?= $activePage === 'announcements' ? 'active' : '' ?>">
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/announcements/index.php">
                         <i class="bi bi-megaphone"></i>
@@ -111,65 +102,81 @@ if (!isset($activePage)) {
             </ul>
             
             <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
+            <hr class="sidebar-divider">
             
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle">
+            <!-- Heading -->
+            <div class="sidebar-heading">Sistem</div>
+            
+            <!-- System Navigation -->
+            <ul class="navbar-nav">
+                <li class="nav-item <?= $activePage === 'users' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/index.php">
+                        <i class="bi bi-people"></i>
+                        <span>Kullanıcılar</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Sidebar Toggler -->
+            <div class="text-center d-none d-md-inline mt-4">
+                <button class="btn btn-link text-white" id="sidebarToggle">
                     <i class="bi bi-chevron-left"></i>
                 </button>
             </div>
         </div>
-        <!-- End of Sidebar -->
+        <!-- End Sidebar -->
         
         <!-- Content Wrapper -->
-        <div id="content-wrapper" class="d-flex flex-column">
-            <!-- Main Content -->
-            <div id="content">
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <!-- Sidebar Toggle (Topbar) -->
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="bi bi-list"></i>
-                    </button>
+        <div id="content-wrapper">
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar static-top">
+                <!-- Sidebar Toggle (Mobile) -->
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none">
+                    <i class="bi bi-list"></i>
+                </button>
+                
+                <!-- Page Title -->
+                <div class="d-none d-sm-inline-block">
+                    <h1 class="h4 mb-0 text-gray-800"><?= htmlspecialchars($pageTitle) ?></h1>
+                </div>
+                
+                <!-- Topbar Navbar -->
+                <ul class="navbar-nav ms-auto">
+                    <!-- Quick Links -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>index.php" target="_blank" title="Siteyi Görüntüle">
+                            <i class="bi bi-globe"></i>
+                        </a>
+                    </li>
                     
-                    <!-- Page Title -->
-                    <h1 class="h3 mb-0 text-gray-800 d-none d-md-inline-block"><?= htmlspecialchars($pageTitle) ?></h1>
-                    
-                    <!-- Topbar Navbar -->
-                    <ul class="navbar-nav ml-auto">
-                        <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
-                                    <?= htmlspecialchars($_SESSION['username']) ?>
-                                </span>
-                                <i class="bi bi-person-circle fs-5"></i>
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
+                    <!-- User Info -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="me-2 d-none d-lg-inline text-gray-600">
+                                <?= htmlspecialchars($_SESSION['username']) ?>
+                            </span>
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
                                 <a class="dropdown-item" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/profile.php">
-                                    <i class="bi bi-person fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    <i class="bi bi-person"></i>
                                     Profil
                                 </a>
-                                <div class="dropdown-divider"></div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
                                 <a class="dropdown-item" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/logout.php">
-                                    <i class="bi bi-box-arrow-right fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    <i class="bi bi-box-arrow-right"></i>
                                     Çıkış Yap
                                 </a>
-                            </div>
-                        </li>
-                    </ul>
-                </nav>
-                <!-- End of Topbar -->
-                
-                <!-- Begin Page Content -->
-                <div class="container-fluid px-4">
-                    
-                    <!-- Bu bölümü footer.php'nin sonuna taşıyın (</body> etiketinden önce) -->
-                
-                    <!-- Admin JS -->
-                    <script src="...assets/js/image-uploader.js"></script>
-                    <!-- <script src="...admin/assets/js/form-upload.js"></script> -->
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <!-- End Topbar -->
+            
+            <!-- Main Content -->
+            <div class="container-fluid">
