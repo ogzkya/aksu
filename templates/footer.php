@@ -20,13 +20,11 @@
                 <div class="col-md-2 col-6 mb-4 mb-md-0">
                     <h5 class="mb-3">Hızlı Erişim</h5>
                     <ul class="list-unstyled">
-                        <?php
-                        footer_link('index.php', 'Ana Sayfa');
-                        footer_link('search.php?listing_type=sale', 'Satılık İlanlar');
-                        footer_link('search.php?listing_type=rent', 'Kiralık İlanlar');
-                        footer_link('blog.php', 'Blog');
-                        footer_link('contact.php', 'İletişim');
-                        ?>
+                        <li><a href="index.php" class="text-white">Ana Sayfa</a></li>
+                        <li><a href="search.php?listing_type=sale" class="text-white">Satılık İlanlar</a></li>
+                        <li><a href="search.php?listing_type=rent" class="text-white">Kiralık İlanlar</a></li>
+                        <li><a href="blog.php" class="text-white">Blog</a></li>
+                        <li><a href="contact.php" class="text-white">İletişim</a></li>
                     </ul>
                 </div>
                 
@@ -34,13 +32,11 @@
                 <div class="col-md-2 col-6 mb-4 mb-md-0">
                     <h5 class="mb-3">Kategoriler</h5>
                     <ul class="list-unstyled">
-                        <?php
-                        footer_link('search.php?category=Apartment', 'Daireler');
-                        footer_link('search.php?category=House', 'Müstakil Evler');
-                        footer_link('search.php?category=Commercial', 'Ticari Mülkler');
-                        footer_link('search.php?category=Land', 'Arsalar');
-                        footer_link('search.php', 'Tüm Kategoriler');
-                        ?>
+                        <li><a href="search.php?category=Apartment" class="text-white">Daireler</a></li>
+                        <li><a href="search.php?category=House" class="text-white">Müstakil Evler</a></li>
+                        <li><a href="search.php?category=Commercial" class="text-white">Ticari Mülkler</a></li>
+                        <li><a href="search.php?category=Land" class="text-white">Arsalar</a></li>
+                        <li><a href="search.php" class="text-white">Tüm Kategoriler</a></li>
                     </ul>
                 </div>
                 

@@ -62,7 +62,7 @@ a:hover {
 
 /* Header ve Logo */
 .navbar {
-    padding: 12px 0;
+    padding: 0.75rem 0;
     background-color: var(--white) !important;
     box-shadow: var(--shadow);
 }
@@ -73,9 +73,9 @@ a:hover {
 }
 
 .navbar-brand img {
-    height: 48px;
-    margin-right: 10px;
-    width: auto;
+    height: 150px; /* <<< İstediğiniz yeni yüksekliği buraya yazın */
+    margin-right: 10px; 
+    width: auto; /* Genişliğin otomatik ayarlanması için eklendi */
 }
 
 .navbar-brand span {
@@ -83,8 +83,8 @@ a:hover {
 }
 
 .navbar-nav .nav-link {
-    font-weight: 600;
-    padding: 10px 15px;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
     border-radius: var(--border-radius);
     transition: all 0.2s;
 }
@@ -96,14 +96,16 @@ a:hover {
 }
 
 /* Kartlar ve İlan Kartları */
-.card, .blog-card {
-    border-radius: var(--border-radius);
+.card {
     border: none;
+    border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform var(--transition-speed) var(--transition-curve),
+                box-shadow var(--transition-speed) var(--transition-curve);
+    overflow: hidden;
 }
 
-.card:hover, .blog-card:hover {
+.card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-md);
 }

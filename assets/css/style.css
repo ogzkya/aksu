@@ -40,9 +40,9 @@ h1, h2, h3, h4, h5, h6 {
 
 /* === Modern Navbar === */
 .navbar {
-    padding: 12px 0;
-    background: #fff;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    padding: 15px 0;
+    background: white;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -57,9 +57,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar-brand img {
-    height: 48px;
-    margin-right: 10px;
-    width: auto;
+    height: 150px; /* <<< İstediğiniz yeni yüksekliği buraya yazın */
+    margin-right: 10px; 
+    width: auto; /* Genişliğin otomatik ayarlanması için eklendi */
 }
 
 .navbar-brand span {
@@ -127,15 +127,16 @@ h1, h2, h3, h4, h5, h6 {
 
 /* === Kartlar ve İlan Kartı === */
 .card {
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.10);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
 .card-img-top {
@@ -220,8 +221,8 @@ h1, h2, h3, h4, h5, h6 {
 /* === Modern Footer === */
 .footer {
     background: var(--secondary);
-    color: #fff;
-    padding: 60px 0 30px;
+    color: white;
+    padding: 80px 0 30px;
 }
 
 .footer-logo {
@@ -460,10 +461,6 @@ h1, h2, h3, h4, h5, h6 {
 /* === Blog Kartları === */
 .blog-card {
     height: 100%;
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .blog-card .card-img-top {
@@ -789,9 +786,9 @@ h1, h2, h3, h4, h5, h6 {
 
 /* === Modern Navbar (Admin ve Genel) === */
 .navbar {
-    padding: 12px 0;
-    background: #fff;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    padding: 15px 0;
+    background: white;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -806,9 +803,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar-brand img {
-    height: 48px;
+    height: 40px;
     margin-right: 10px;
-    width: auto;
 }
 
 .navbar-brand span {
@@ -855,8 +851,8 @@ h1, h2, h3, h4, h5, h6 {
 /* === Modern Footer (Admin ve Genel) === */
 .footer {
     background: var(--secondary);
-    color: #fff;
-    padding: 60px 0 30px;
+    color: white;
+    padding: 80px 0 30px;
 }
 
 .footer-logo {
