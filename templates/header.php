@@ -39,43 +39,35 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
-     <a class="navbar-brand d-flex align-items-center" href="index.php">
-    <div class="logo-container me-4">
-        <img src="assets/img/logo.png" alt="" class="site-logo" onerror="this.src='assets/img/logo.png'; this.onerror='';">
-    </div>
-    <!-- <span><span class="text-accent fw-bold"></span>Aksu Emlak</span> -->
-</a>
-            
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
+                <div class="logo-container me-4">
+                    <img src="assets/img/logo.png" alt="" class="site-logo" onerror="this.src='assets/img/logo.png'; this.onerror='';">
+                </div>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link <?= $activePage === 'home' ? 'active' : '' ?>" href="index.php">Ana Sayfa</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= $activePage === 'sale' ? 'active' : '' ?>" href="search.php?listing_type=sale">Satılık</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= $activePage === 'rent' ? 'active' : '' ?>" href="search.php?listing_type=rent">Kiralık</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= $activePage === 'blog' ? 'active' : '' ?>" href="blog.php">Blog</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link <?= $activePage === 'contact' ? 'active' : '' ?>" href="contact.php">İletişim</a>
-                    </li>
                     <?php
-                    // Admin erişimi kontrolü
-                    if (isset($_SESSION['user_id'])): 
-                    ?>
-                    <li class="nav-item ms-2">
-                        <a class="btn btn-primary rounded-pill px-3" href="admin/index.php">
-                            <i class="bi bi-speedometer2 me-1"></i> Yönetim Paneli
-                        </a>
-                    </li>
+                    function nav_link($href, $label, $activePage, $pageKey) {
+                        $active = $activePage === $pageKey ? 'active' : '';
+                        echo '<li class="nav-item">';
+                        echo '<a class="nav-link ' . $active . '" href="' . $href . '">' . $label . '</a>';
+                        echo '</li>';
+                    }
+
+                    nav_link('index.php', 'Ana Sayfa', $activePage, 'home');
+                    nav_link('search.php?listing_type=sale', 'Satılık', $activePage, 'sale');
+                    nav_link('search.php?listing_type=rent', 'Kiralık', $activePage, 'rent');
+                    nav_link('blog.php', 'Blog', $activePage, 'blog');
+                    nav_link('contact.php', 'İletişim', $activePage, 'contact');
+                    if (isset($_SESSION['user_id'])): ?>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-primary rounded-pill px-3" href="admin/index.php">
+                                <i class="bi bi-speedometer2 me-1"></i> Yönetim Paneli
+                            </a>
+                        </li>
                     <?php endif; ?>
                 </ul>
             </div>

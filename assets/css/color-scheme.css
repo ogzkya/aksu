@@ -3,34 +3,31 @@
 
 :root {
     /* Yeni Renk Paleti */
-    --primary: #3b5998;         /* Koyu mavi (Facebook mavisi) */
-    --primary-dark: #2f477a;    /* Daha koyu mavi */
+    --primary: #2563eb;         /* Koyu mavi (Facebook mavisi) */
+    --primary-dark: #1d4ed8;    /* Daha koyu mavi */
     --primary-light: #8b9dc3;   /* Açık mavi */
     
-    --secondary: #1e3a8a;       /* Lacivert */
+    --secondary: #0f172a;       /* Lacivert */
     --secondary-light: #dbeafe; /* Çok açık mavi */
     
-    --accent: #f59e0b;          /* Altın/Amber rengi */
+    --accent: #f97316;          /* Altın/Amber rengi */
     --accent-dark: #d97706;     /* Koyu altın */
     --accent-light: #fef3c7;    /* Açık altın */
     
     --success: #10b981;         /* Yeşil */
     --warning: #f59e0b;         /* Turuncu/Amber */
-    --danger: #dc2626;          /* Kırmızı */
+    --danger: #ef4444;          /* Kırmızı */
     --info: #3b82f6;            /* Mavi */
     
     --light: #f8fafc;           /* Çok açık gri */
-    --dark: #0f172a;            /* Koyu lacivert */
+    --dark: #1e293b;            /* Koyu lacivert */
     --gray: #64748b;            /* Orta gri */
     --gray-light: #e2e8f0;      /* Açık gri */
     --white: #ffffff;           /* Beyaz */
     --black: #000000;           /* Siyah */
     
     /* Gölgeler */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow: 0 10px 25px rgba(0,0,0,0.05);
     
     /* Typography */
     --font-primary: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -43,13 +40,7 @@
     --transition-curve: cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Boyutlar */
-    --border-radius-sm: 0.25rem;
-    --border-radius: 0.5rem;
-    --border-radius-md: 0.75rem;
-    --border-radius-lg: 1rem;
-    --border-radius-xl: 1.5rem;
-    --border-radius-2xl: 2rem;
-    --border-radius-full: 9999px;
+    --border-radius: 12px;
 }
 
 /* ================ GENEL STIL GÜNCELLEMELERİ ================ */
