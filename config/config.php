@@ -2,7 +2,7 @@
 return [
     'db' => [
         'host' => 'localhost', // Local'de genellikle 'localhost' veya '127.0.0.1' olur
-        'name' => '',   // Local veritabanınızın adı (aynı veya farklı olabilir)
+        'name' => 'aksu_db',   // Local veritabanınızın adı (aynı veya farklı olabilir)
         'user' => 'root',  // Local veritabanı kullanıcı adınız (genellikle 'root')
         'pass' => '',  // Local veritabanı şifreniz (XAMPP/WAMP'ta genellikle boş, MAMP'ta 'root' olabilir)
         'charset' => 'utf8mb4'
