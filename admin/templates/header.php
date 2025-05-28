@@ -16,15 +16,8 @@ if (!isset($activePage)) {
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<base href="https://atakentaksuemlak.com/">
-
-    <!-- Leaflet JS -->
+    <base href="https://atakentaksuemlak.com/">
     
-    <!-- Map Integration JS -->
-    
-        
-    <!-- Admin JS -->
-   
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?> - Emlak İlan Sitesi</title>
@@ -41,6 +34,11 @@ if (!isset($activePage)) {
     
     <!-- Admin CSS -->
     <link rel="stylesheet" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/css/admin.css">
+    <link rel="stylesheet" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/css/image-upload.css">
+    
+    <!-- GEREKSİZ CSS DOSYASI KALDIRILDI:
+         - marker-styles.css (Boş dosya)
+    -->
     
     <!-- Custom styles override -->
     <style>
@@ -168,8 +166,4 @@ if (!isset($activePage)) {
                 <!-- Begin Page Content -->
                 <div class="container-fluid px-4">
                     
-                    <!-- Bu bölümü footer.php'nin sonuna taşıyın (</body> etiketinden önce) -->
-                
-                    <!-- Admin JS -->
-                    <script src="...assets/js/image-uploader.js"></script>
-                    <!-- <script src="...admin/assets/js/form-upload.js"></script> -->
+                <!-- GEREKSİZ SCRIPT TAGLARI KALDIRILDI -->
