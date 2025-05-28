@@ -32,12 +32,12 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Admin JS - TEK DOSYA (Tüm eski dosyalar kaldırıldı) -->
+    <!-- Admin JS - TEK DOSYA -->
     <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin-clean.js"></script>
     
     <!-- TinyMCE Editor (sadece gerektiğinde) -->
     <?php if (isset($useTinyMCE) && $useTinyMCE): ?>
-    <script src="https://cdn.tiny.cloud/1/YOUR_API_KEY/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
         tinymce.init({
             selector: 'textarea.tinymce',

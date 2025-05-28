@@ -35,8 +35,8 @@ if (!isset($activePage)) {
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     
-    <!-- Admin CSS - Tek dosya -->
-    <link rel="stylesheet" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/css/admin.css">
+    <!-- Admin CSS - TEK DOSYA -->
+    <link rel="stylesheet" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/css/admin-clean.css">
     
     <!-- Meta tags -->
     <meta name="robots" content="noindex, nofollow">
@@ -97,6 +97,12 @@ if (!isset($activePage)) {
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/announcements/index.php">
                         <i class="bi bi-megaphone"></i>
                         <span>Duyurular</span>
+                    </a>
+                </li>
+                <li class="nav-item <?= $activePage === 'features' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/features/index.php">
+                        <i class="bi bi-list-check"></i>
+                        <span>Özellik Yönetimi</span>
                     </a>
                 </li>
             </ul>
