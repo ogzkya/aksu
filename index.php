@@ -551,28 +551,21 @@ require_once 'templates/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Harita başlatma
     try {
-        // Harita merkezi (Türkiye)
         const map = L.map('property-map').setView([39.1, 35.6], 6);
         
-        // OpenStreetMap katmanı
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 18
         }).addTo(map);
         
-        // Fiyatı biçimlendiren yardımcı fonksiyon
         function formatPrice(price) {
-            // Sadece sayısal değerler için formatla
             if (price === null || price === undefined || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
-                return false; // Geçersiz fiyat için false döndür
+                return false;
             }
-            // Sayıyı formatla
             return new Intl.NumberFormat('tr-TR').format(Math.round(parseFloat(price)));
         }
         
-        // Kategori adı fonksiyonu
         function getCategoryName(category) {
             const categories = {
                 'House': 'Müstakil Ev',
@@ -584,11 +577,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return categories[category] || category;
         }
         
-        // Kısa adres fonksiyonu
         function getShortAddress(property) {
             const parts = [];
             if (property.city) parts.push(property.city);
             if (property.district) parts.push(property.district);
+            else if (property.state) parts.push(property.state);
             return parts.join(', ');
         }
         
@@ -599,14 +592,12 @@ document.addEventListener('DOMContentLoaded', function() {
             propertyData.forEach(function(property) {
                 if (!property.latitude || !property.longitude) return;
                 
-                // Marker üzerindeki fiyat için değerleri hazırla
+                // Marker üzerindeki fiyat için değerleri hazırla (değişmiyor)
                 let markerPriceText = '';
                 let markerClass = '';
-                
                 let formattedPinRentPrice = formatPrice(property.rent_price);
                 let formattedPinSalePrice = formatPrice(property.sale_price);
 
-                // Marker üzerinde gösterilecek fiyatı belirle (öncelik kiralık, sonra satılık)
                 if (formattedPinRentPrice) {
                     markerPriceText = `${formattedPinRentPrice} ₺/ay`;
                     markerClass = 'marker-price-rent';
@@ -615,7 +606,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     markerClass = 'marker-price-sale';
                 }
                 
-                // Marker gösterimi için HTML
                 const markerHtml = `
                     <div class="marker-container">
                         <div class="marker-pin ${property.featured ? 'featured' : ''}">
@@ -625,83 +615,119 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 
-                // Özel marker ikonu
                 const markerIcon = L.divIcon({
                     className: 'property-marker',
                     html: markerHtml,
-                    iconSize: [80, 60], // Boyutlar içeriğe göre ayarlanabilir
-                    iconAnchor: [40, 60], // İkonun haritadaki bağlantı noktası
-                    popupAnchor: [0, -60] // Popup'ın ikona göre konumu
+                    iconSize: [80, 60],
+                    iconAnchor: [40, 60],
+                    popupAnchor: [0, -60]
                 });
                 
-                // Popup içeriği için fiyatları hazırla
+                // Modern popup içeriği için fiyat hazırlama
                 let formattedPopupSalePrice = formatPrice(property.sale_price);
                 let formattedPopupRentPrice = formatPrice(property.rent_price);
-                let priceHtml = ''; // Popup içinde gösterilecek fiyat HTML'i
+                let priceHtml = '';
                 
                 if (formattedPopupSalePrice && formattedPopupRentPrice) {
-                    // Hem satılık hem kiralık fiyatı varsa
                     priceHtml = `
-                        <div class="popup-prices">
-                            <span class="popup-price sale">${formattedPopupSalePrice} ₺</span>
-                            <span class="popup-price-divider">|</span>
-                            <span class="popup-price rent">${formattedPopupRentPrice} ₺/ay</span>
+                        <div class="modern-popup-prices">
+                            <div class="price-item sale-price">
+                                <span class="price-label">Satılık</span>
+                                <span class="price-value">${formattedPopupSalePrice} ₺</span>
+                            </div>
+                            <div class="price-divider"></div>
+                            <div class="price-item rent-price">
+                                <span class="price-label">Kiralık</span>
+                                <span class="price-value">${formattedPopupRentPrice} ₺/ay</span>
+                            </div>
                         </div>
                     `;
                 } else if (formattedPopupSalePrice) {
-                    // Sadece satılık fiyatı varsa
-                    priceHtml = `<div class="popup-prices"><span class="popup-price sale">${formattedPopupSalePrice} ₺</span></div>`;
+                    priceHtml = `
+                        <div class="modern-popup-prices">
+                            <div class="price-item sale-price">
+                                <span class="price-label">Satılık</span>
+                                <span class="price-value">${formattedPopupSalePrice} ₺</span>
+                            </div>
+                        </div>
+                    `;
                 } else if (formattedPopupRentPrice) {
-                    // Sadece kiralık fiyatı varsa
-                    priceHtml = `<div class="popup-prices"><span class="popup-price rent">${formattedPopupRentPrice} ₺/ay</span></div>`;
+                    priceHtml = `
+                        <div class="modern-popup-prices">
+                            <div class="price-item rent-price">
+                                <span class="price-label">Kiralık</span>
+                                <span class="price-value">${formattedPopupRentPrice} ₺/ay</span>
+                            </div>
+                        </div>
+                    `;
                 } else {
-                    // Hiçbir fiyat belirtilmemişse
-                    priceHtml = `<div class="popup-prices"><span class="popup-price none">Fiyat belirtilmemiş</span></div>`;
+                    priceHtml = `
+                        <div class="modern-popup-prices">
+                            <div class="price-item no-price">
+                                <span class="price-value">Fiyat Belirtilmemiş</span>
+                            </div>
+                        </div>
+                    `;
                 }
                 
-                // Modern popup içeriği
+                // Ultra modern popup tasarımı
                 const popupContent = `
-                    <div class="popup-modern">
-                        <div class="popup-img-wrap">
+                    <div class="modern-property-popup">
+                        <div class="popup-image-container">
                             <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" 
                                  alt="${property.title || 'İlan görseli'}" 
-                                 class="popup-img" 
+                                 class="popup-property-image"
                                  onerror="this.onerror=null; this.src='assets/img/property-placeholder.jpg';"
                                  loading="lazy">
-                            ${property.featured ? '<span class="popup-featured">Öne Çıkan</span>' : ''}
+                            ${property.featured ? '<div class="featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : ''}
+                            <div class="image-overlay"></div>
                         </div>
-                        <div class="popup-main-content">
-                            <div class="popup-title-row">
-                                <span class="popup-title">${property.title || 'İlan Detayı'}</span>
+                        
+                        <div class="popup-content-area">
+                            <div class="popup-header">
+                                <h3 class="property-title">${property.title || 'İlan Detayı'}</h3>
+                                <div class="property-location">
+                                    <i class="bi bi-geo-alt-fill"></i>
+                                    <span>${getShortAddress(property) || 'Konum belirtilmemiş'}</span>
+                                </div>
                             </div>
+                            
                             ${priceHtml}
-                            <div class="popup-meta">
-                                <span class="popup-category"><i class="bi bi-tag"></i> ${getCategoryName(property.category)}</span>
-                                ${getShortAddress(property) ? `<span class="popup-address"><i class="bi bi-geo-alt"></i> ${getShortAddress(property)}</span>` : ''}
+                            
+                            <div class="property-details">
+                                <div class="detail-item">
+                                    <i class="bi bi-house-door-fill"></i>
+                                    <span class="detail-label">Kategori</span>
+                                    <span class="detail-value">${getCategoryName(property.category)}</span>
+                                </div>
                             </div>
-                            <a href="listing.php?id=${property.id}" class="popup-btn-modern">
-                                <i class="bi bi-info-circle"></i> Detayları Gör
-                            </a>
+                            
+                            <div class="popup-actions">
+                                <a href="listing.php?id=${property.id}" class="modern-detail-btn">
+                                    <i class="bi bi-eye-fill"></i>
+                                    <span>Detayları İncele</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 `;
                 
-                // İşaretleyiciyi oluştur ve haritaya ekle
                 const marker = L.marker([property.latitude, property.longitude], {
                     icon: markerIcon
                 }).addTo(map);
                 
-                // Açılır pencere ekle
                 marker.bindPopup(popupContent, {
-                    maxWidth: 280,
-                    minWidth: 200,
-                    className: 'property-popup'
+                    maxWidth: 320,
+                    minWidth: 280,
+                    className: 'modern-property-popup-container',
+                    closeButton: true,
+                    autoPan: true
                 });
                 
                 markers.push(marker);
             });
             
-            // Eğer marker varsa, haritayı otomatik sığdır
             if (markers.length > 0) {
                 const group = new L.featureGroup(markers);
                 map.fitBounds(group.getBounds().pad(0.1));
@@ -751,7 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-/* Harita marker ve popup stillerini iyileştir */
+/* Marker stilleri (değişmiyor) */
 .property-marker {
     z-index: 1000;
 }
@@ -804,109 +830,259 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #28a745;
 }
 
-.map-popup {
+/* Ultra Modern Popup Tasarımı */
+.modern-property-popup-container .leaflet-popup-content-wrapper {
+    background: transparent;
     padding: 0;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     overflow: hidden;
+    border: none;
 }
 
-.map-popup-image {
-    position: relative;
-    height: 120px;
-    overflow: hidden;
-}
-
-.map-popup-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.popup-badge {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: #ffc107;
-    color: #000;
-    padding: 2px 6px;
-    font-size: 10px;
-    border-radius: 3px;
-}
-
-.map-popup-content {
-    padding: 8px;
-}
-
-.popup-title {
-    font-size: 14px;
-    margin-bottom: 5px;
-    font-weight: bold;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.popup-price {
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 13px;
-}
-
-.popup-price.sale {
-    color: #dc3545;
-}
-
-.popup-price.rent {
-    color: #28a745;
-}
-
-.popup-category {
-    font-size: 12px;
-    color: #6c757d;
-    margin-bottom: 8px;
-}
-
-.property-popup .leaflet-popup-content {
+.modern-property-popup-container .leaflet-popup-content {
     margin: 0;
-}
-
-.property-popup .leaflet-popup-content-wrapper {
     padding: 0;
-    border-radius: 5px;
+    border-radius: 16px;
     overflow: hidden;
 }
 
-.popup-price-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 5px;
-}
-
-.popup-price-divider {
-    color: #aaa;
-    font-weight: normal;
-}
-
-/* Popup butonu için stil */
-.popup-btn-modern {
+.modern-property-popup-container .leaflet-popup-close-button {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.5);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 15px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
     text-decoration: none;
-    transition: background 0.3s;
+    z-index: 1000;
 }
 
-.popup-btn-modern i {
-    margin-right: 5px;
+.modern-property-popup-container .leaflet-popup-close-button:hover {
+    background: rgba(0,0,0,0.7);
+    color: white;
 }
 
-.popup-btn-modern:hover {
-    background: #0056b3;
+.modern-property-popup {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-width: 280px;
+    max-width: 320px;
+}
+
+.popup-image-container {
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.popup-property-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.popup-property-image:hover {
+    transform: scale(1.05);
+}
+
+.image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    pointer-events: none;
+}
+
+.featured-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(255,215,0,0.3);
+}
+
+.popup-content-area {
+    padding: 18px;
+}
+
+.popup-header {
+    margin-bottom: 16px;
+}
+
+.property-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.property-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.property-location i {
+    color: #ef4444;
+    font-size: 14px;
+}
+
+.modern-popup-prices {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.price-item {
+    text-align: center;
+    flex: 1;
+}
+
+.price-label {
+    display: block;
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.price-value {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.sale-price .price-value {
+    color: #dc2626;
+}
+
+.rent-price .price-value {
+    color: #059669;
+}
+
+.no-price .price-value {
+    color: #6b7280;
+    font-style: italic;
+    font-weight: 500;
+}
+
+.price-divider {
+    width: 1px;
+    height: 30px;
+    background: #d1d5db;
+}
+
+.property-details {
+    margin-bottom: 16px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+.detail-item i {
+    color: #6366f1;
+    font-size: 16px;
+    width: 16px;
+}
+
+.detail-label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #1f2937;
+    margin-left: auto;
+}
+
+.popup-actions {
+    margin-top: 16px;
+}
+
+.modern-detail-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-detail-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.modern-detail-btn:active {
+    transform: translateY(0);
+}
+
+.modern-detail-btn i:first-child {
+    font-size: 16px;
+}
+
+.modern-detail-btn i:last-child {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.modern-detail-btn:hover i:last-child {
+    transform: translateX(2px);
 }
 </style>
 <?php require_once 'templates/footer.php'; ?>
