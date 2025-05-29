@@ -259,13 +259,13 @@ class Listing {
         return $this->db->query($sql, $params);
     }
 
-    public function deleteListing($id) {
-        // Önce ilişkili görselleri sil (isteğe bağlı, dosya sisteminden silme eklenebilir)
-         $this->db->query("DELETE FROM listing_images WHERE listing_id = ?", [$id]);
-        // Sonra ilanı sil
-        $sql = "DELETE FROM listings WHERE id = ?";
-        return $this->db->query($sql, [$id]);
-    }
+    // public function deleteListing($id) {
+    //     // Önce ilişkili görselleri sil (isteğe bağlı, dosya sisteminden silme eklenebilir)
+    //      $this->db->query("DELETE FROM listing_images WHERE listing_id = ?", [$id]);
+    //     // Sonra ilanı sil
+    //     $sql = "DELETE FROM listings WHERE id = ?";
+    //     return $this->db->query($sql, [$id]);
+    // }
 
     public function addListingImage($listingId, $imageUrl, $isMain = 0) {
         // EKLE: Aynı resim daha önce bu ilan için eklenmiş mi kontrol et
@@ -323,19 +323,64 @@ class Listing {
         return $this->db->fetchAll($sql);
     }
 
-    public function toggleFeatured($id) {
-        $sql = "UPDATE listings SET featured = NOT featured WHERE id = ?";
-        return $this->db->query($sql, [$id]);
+    public function updateMainImage($listingId, $imageId) {
+        try {
+            // Önce tüm ana görselleri temizle
+            $this->db->query("UPDATE listing_images SET is_main = 0 WHERE listing_id = ?", [$listingId]);
+            
+            // Sonra seçilen görseli ana görsel olarak ayarla
+            $this->db->query("UPDATE listing_images SET is_main = 1 WHERE id = ? AND listing_id = ?", [$imageId, $listingId]);
+            
+            return true;
+        } catch (Exception $e) {
+            // Production'da detaylı hata logları
+            error_log("Ana görsel güncellenirken hata - Listing ID: $listingId, Image ID: $imageId - " . $e->getMessage());
+            return false;
+        }
     }
 
-    // countListings fonksiyonu getAllListings ile aynı filtreleri kullanacak şekilde güncellendi
+    public function toggleFeatured($listingId) {
+        try {
+            // Mevcut durumu al
+            $current = $this->db->fetch("SELECT featured FROM listings WHERE id = ?", [$listingId]);
+            
+            if (!$current) {
+                throw new Exception("Listing bulunamadı: $listingId");
+            }
+            
+            $newStatus = $current['featured'] ? 0 : 1;
+            
+            // Durumu tersine çevir
+            $this->db->query("UPDATE listings SET featured = ? WHERE id = ?", [$newStatus, $listingId]);
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("Featured durumu güncellenirken hata - Listing ID: $listingId - " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteListing($listingId) {
+        try {
+            // Önce görselleri sil
+            $this->db->query("DELETE FROM listing_images WHERE listing_id = ?", [$listingId]);
+            
+            // Sonra ilanı sil
+            $this->db->query("DELETE FROM listings WHERE id = ?", [$listingId]);
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("İlan silinirken hata: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function countListings($filters = []) {
-        $sql = "SELECT COUNT(*) as total FROM listings l WHERE 1=1"; // Alias 'l' eklendi
+        $sql = "SELECT COUNT(*) as count FROM listings WHERE 1=1";
         $params = [];
 
-         // Filtreleme koşulları (getAllListings ile aynı)
-         if (!empty($filters)) {
-            // Kiralık/Satılık filtresi
+        // Filtreleme koşulları - getAllListings ile aynı mantık
+        if (!empty($filters)) {
             if (isset($filters['listing_type']) && $filters['listing_type']) {
                 if ($filters['listing_type'] == 'rent') {
                     $sql .= " AND rent_price IS NOT NULL AND rent_price > 0";
@@ -344,72 +389,24 @@ class Listing {
                 }
             }
 
-            // Kategori filtresi
-            if (isset($filters['category']) && $filters['category']) {
-                $sql .= " AND category = ?";
-                $params[] = $filters['category'];
+            if (isset($filters['featured']) && $filters['featured']) {
+                $sql .= " AND featured = 1";
             }
 
-            // Fiyat aralığı filtresi - satılık için
-             if ((!isset($filters['listing_type']) || $filters['listing_type'] !== 'rent')) {
-                if (isset($filters['min_price']) && is_numeric($filters['min_price'])) {
-                    $sql .= " AND sale_price >= ?";
-                    $params[] = $filters['min_price'];
-                }
-                if (isset($filters['max_price']) && is_numeric($filters['max_price'])) {
-                    $sql .= " AND sale_price <= ?";
-                    $params[] = $filters['max_price'];
-                }
-            }
+            if (isset($filters['search']) && !empty($filters['search'])) {
+                $sql .= " AND (title LIKE ? OR city LIKE ? OR street LIKE ?)";
 
-            // Fiyat aralığı filtresi - kiralık için
-            if (isset($filters['listing_type']) && $filters['listing_type'] === 'rent') {
-                 if (isset($filters['min_rent']) && is_numeric($filters['min_rent'])) {
-                    $sql .= " AND rent_price >= ?";
-                    $params[] = $filters['min_rent'];
-                }
-                if (isset($filters['max_rent']) && is_numeric($filters['max_rent'])) {
-                    $sql .= " AND rent_price <= ?";
-                    $params[] = $filters['max_rent'];
-                }
+                $searchParam = '%' . $filters['search'] . '%';
+                $params[] = $searchParam;
+                $params[] = $searchParam;
+                $params[] = $searchParam;
             }
-
-            // Oda sayısı filtresi
-            if (isset($filters['rooms']) && is_numeric($filters['rooms'])) {
-                 if($filters['rooms'] == 5) {
-                     $sql .= " AND rooms >= ?";
-                 } else {
-                     $sql .= " AND rooms = ?";
-                 }
-                $params[] = $filters['rooms'];
-            }
-
-            // Şehir/konum veya başlık filtresi
-             if (isset($filters['city']) && !empty($filters['city'])) {
-                 $searchTerm = "%{$filters['city']}%";
-                 $sql .= " AND (l.title LIKE ? OR l.city LIKE ? OR l.state LIKE ? OR l.street LIKE ?)";
-                 $params[] = $searchTerm;
-                 $params[] = $searchTerm;
-                 $params[] = $searchTerm;
-                 $params[] = $searchTerm;
-             }
-              // Arama filtresi (admin panelinden gelen)
-             if (isset($filters['search']) && !empty($filters['search'])) {
-                 $searchTerm = "%{$filters['search']}%";
-                 $sql .= " AND (l.title LIKE ? OR l.city LIKE ? OR l.state LIKE ?)"; // 'l' alias eklendi
-                 $params[] = $searchTerm;
-                 $params[] = $searchTerm;
-                 $params[] = $searchTerm;
-             }
-             // Öne çıkanlar filtresi (admin panelinden gelen)
-             if (isset($filters['featured']) && $filters['featured']) {
-                 $sql .= " AND l.featured = 1"; // 'l' alias eklendi
-             }
         }
 
-
         $result = $this->db->fetch($sql, $params);
-        return $result['total'];
+        return (int)$result['count'];
     }
+
+    // Diğer mevcut metodlar...
 }
 ?>

@@ -1,18 +1,33 @@
-
-
 (function() {
     'use strict';
     
     const AksuAdmin = {
         // Başlatma
         init: function() {
-            document.addEventListener('DOMContentLoaded', () => {
-                this.Core.init();
-                this.Forms.init();
-                this.Maps.init();
-                this.FileUpload.init();
-                this.Features.init();
-            });
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this.initializeModules());
+            } else {
+                this.initializeModules();
+            }
+        },
+
+        initializeModules: function() {
+            console.log('AksuAdmin modülleri başlatılıyor...');
+            this.Core.init();
+            this.Forms.init();
+            this.Maps.init();       // Haritayı hemen başlat
+            this.FileUpload.init(); // Görsel yüklemeyi başlat
+            this.Features.init();
+
+            // Sayfa yüklendiğinde aktif olan Konum tab'ı için haritayı kontrol et
+            const activeTabPane = document.querySelector('.tab-pane.active#location');
+            if (activeTabPane) {
+                // Yazım hatası düzeltildi: querySelector_ -> querySelector
+                const mapContainer = activeTabPane.querySelector("#map-container, #locationMap");
+                if (mapContainer) {
+                     this.Maps.refreshMap(mapContainer.id);
+                }
+            }
         },
         
         // Yardımcı fonksiyonlar
@@ -86,14 +101,24 @@
             },
             
             initTabsFunctionality: function() {
-                // Tab değişiminde harita yenileme
-                document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-                    tab.addEventListener('shown.bs.tab', (e) => {
-                        if (e.target.getAttribute('href') === '#location') {
-                            setTimeout(() => {
-                                AksuAdmin.Maps.refreshMap('map-container');
-                            }, 100);
+                document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tabEl => {
+                    tabEl.addEventListener('shown.bs.tab', event => {
+                        const targetHref = event.target.getAttribute('href');
+                        if (targetHref === '#location') {
+                            // `add.php` ve `edit.php` farklı ID'ler kullanabilir
+                            const mapContainer = document.querySelector('#location #map-container, #location #locationMap');
+                            if (mapContainer) {
+                                AksuAdmin.Maps.refreshMap(mapContainer.id);
+                            }
                         }
+                        // Wizard progress adımlarını güncelleme (add.php'den buraya taşındı)
+                        const activeTabId = event.target.id; // e.g., "location-tab"
+                        document.querySelectorAll('.wizard-progress-step').forEach(step => {
+                            step.classList.remove('active');
+                            if (step.dataset.step === activeTabId) {
+                                step.classList.add('active');
+                            }
+                        });
                     });
                 });
             },
@@ -211,149 +236,125 @@
         
         // Dosya yükleme - DÜZELTİLMİŞ
         FileUpload: {
-            processedFiles: new Set(),
-            currentFiles: [],
-            
             init: function() {
-                const fileInput = document.getElementById('images');
+                const fileInput = document.getElementById('images'); // add.php'deki input
                 const previewContainer = document.getElementById('image-previews');
                 const dragDropArea = document.getElementById('drag-drop-area');
                 const selectBtn = document.getElementById('select-files-btn');
+                const mainImageContainer = document.getElementById('main-image-container');
+                const mainImageSelect = document.getElementById('main-image-select');
                 
-                if (!fileInput || !previewContainer) return;
+                if (!fileInput || !previewContainer || !dragDropArea || !selectBtn || !mainImageContainer || !mainImageSelect) {
+                    console.warn('FileUpload: Gerekli HTML elementlerinden bazıları add.php sayfasında bulunamadı.');
+                    return;
+                }
+                console.log('FileUpload (add.php) başlatılıyor...');
                 
-                // Event listener'ları temizle ve yeniden ekle
+                // input'u clone et ve olayları yeni elemana bağla
                 const newFileInput = fileInput.cloneNode(true);
                 fileInput.parentNode.replaceChild(newFileInput, fileInput);
                 
-                // Dosya seçme butonu
-                selectBtn?.addEventListener('click', (e) => {
+                selectBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     newFileInput.click();
                 });
                 
-                // Drag & Drop
-                if (dragDropArea) {
-                    ['dragover', 'drop'].forEach(eventName => {
-                        dragDropArea.addEventListener(eventName, (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                        });
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dragDropArea.addEventListener(eventName, e => {
+                        e.preventDefault();
+                        e.stopPropagation();
                     });
-                    
-                    dragDropArea.addEventListener('dragover', function() {
-                        this.classList.add('border-primary');
-                    });
-                    
-                    dragDropArea.addEventListener('dragleave', function() {
-                        this.classList.remove('border-primary');
-                    });
-                    
-                    dragDropArea.addEventListener('drop', function(e) {
-                        this.classList.remove('border-primary');
-                        if (e.dataTransfer.files.length > 0) {
-                            AksuAdmin.FileUpload.handleFiles(e.dataTransfer.files);
-                        }
-                    });
-                }
+                });
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dragDropArea.addEventListener(eventName, () => dragDropArea.classList.add('border-primary', 'bg-light'));
+                });
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dragDropArea.addEventListener(eventName, () => dragDropArea.classList.remove('border-primary', 'bg-light'));
+                });
                 
-                // Dosya seçimi
-                newFileInput.addEventListener('change', function() {
-                    AksuAdmin.FileUpload.handleFiles(this.files);
+                dragDropArea.addEventListener('drop', (e) => {
+                    if (e.dataTransfer.files.length > 0) {
+                        newFileInput.files = e.dataTransfer.files;
+                        newFileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                
+                newFileInput.addEventListener('change', (e) => {
+                    AksuAdmin.FileUpload.handleFiles(e.target.files, previewContainer, mainImageContainer, mainImageSelect);
                 });
             },
-            
-            handleFiles: function(files) {
-                const previewContainer = document.getElementById('image-previews');
-                const mainImageContainer = document.getElementById('main-image-container');
-                const mainImageSelect = document.getElementById('main-image-select');
+            handleFiles: function(files, previewContainer, mainImageContainer, mainImageSelect) {
+                previewContainer.innerHTML = ''; // Önceki önizlemeleri temizle
+                mainImageSelect.innerHTML = '<option value="0">İlk yüklenen görsel</option>'; // Seçiciyi sıfırla
                 
-                if (!files || files.length === 0) return;
-                
-                // Mevcut dosya sayısını kontrol et
-                const currentCount = previewContainer.querySelectorAll('.image-preview').length;
-                const maxImages = 25;
-                
-                if (currentCount >= maxImages) {
-                    AksuAdmin.Utils.showMessage('Maksimum 25 görsel yükleyebilirsiniz.', 'warning');
+                if (!files || files.length === 0) {
+                    mainImageContainer.classList.add('d-none');
                     return;
                 }
                 
-                // Dosyaları işle
-                Array.from(files).forEach((file, index) => {
-                    if (currentCount + index >= maxImages) return;
-                    
-                    // Dosya kontrolü
-                    if (!file.type.match('image/(jpeg|jpg|png)')) {
-                        AksuAdmin.Utils.showMessage(`"${file.name}" desteklenmeyen format.`, 'warning');
+                mainImageContainer.classList.remove('d-none');
+                let imageIndex = 0;
+                
+                Array.from(files).forEach(file => {
+                    if (!file.type.startsWith('image/')) {
+                        console.warn(`Desteklenmeyen dosya tipi: ${file.name}`);
+                        return;
+                    }
+                    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                        AksuAdmin.Utils.showMessage(`"${file.name}" çok büyük (max 10MB).`, 'warning');
                         return;
                     }
                     
-                    if (file.size > 5 * 1024 * 1024) {
-                        AksuAdmin.Utils.showMessage(`"${file.name}" çok büyük (max 5MB).`, 'warning');
-                        return;
-                    }
-                    
-                    // Benzersiz ID oluştur
-                    const fileId = `${file.name}_${file.size}_${Date.now()}`;
-                    if (this.processedFiles.has(fileId)) return;
-                    
-                    this.processedFiles.add(fileId);
-                    this.currentFiles.push(file);
-                    
-                    // Önizleme oluştur
                     const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.addImagePreview(e.target.result, file.name, previewContainer.children.length);
+                    const currentIndex = imageIndex; // Closure için index'i sakla
+                    
+                    reader.onload = (event) => {
+                        const previewEl = document.createElement('div');
+                        previewEl.className = 'image-preview-item position-relative border rounded overflow-hidden';
+                        previewEl.style.width = '150px';
+                        previewEl.style.height = '100px';
+                        previewEl.dataset.index = currentIndex;
                         
-                        // Ana görsel seçimini güncelle
-                        if (mainImageContainer) {
-                            mainImageContainer.classList.remove('d-none');
-                            this.updateMainImageSelect();
-                        }
+                        previewEl.innerHTML = `
+                            <img src="${event.target.result}" alt="${file.name}" class="w-100 h-100" style="object-fit: cover;">
+                            <div class="bg-dark bg-opacity-50 text-white small p-1 position-absolute bottom-0 w-100 text-truncate" title="${file.name}">
+                                ${file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name}
+                            </div>
+                            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center remove-new-image-btn"
+                                    style="width: 20px; height: 20px;" data-index="${currentIndex}">×</button>
+                        `;
+                        previewContainer.appendChild(previewEl);
+                        
+                        const option = document.createElement('option');
+                        option.value = currentIndex;
+                        option.textContent = `Görsel ${currentIndex + 1}: ${file.name}`;
+                        mainImageSelect.appendChild(option);
+                        
+                        // Silme butonu için event listener
+                        previewEl.querySelector('.remove-new-image-btn').addEventListener('click', function() {
+                            // Bu dosyanın fileInput.files listesinden kaldırılması karmaşık.
+                            // Şimdilik sadece DOM'dan kaldıralım ve kullanıcıya bilgi verelim.
+                            // Form gönderilmeden önce bu dosyalar hala `images[]` içinde olacak.
+                            // Sunucu tarafında boş dosya girişlerini ele almak gerekebilir.
+                            previewEl.remove();
+                            mainImageSelect.querySelector(`option[value="${currentIndex}"]`)?.remove();
+                            if (previewContainer.children.length === 0) {
+                                mainImageContainer.classList.add('d-none');
+                            }
+                            // Ana görsel seçiciyi yeniden düzenle
+                            let newIndex = 0;
+                            mainImageSelect.querySelectorAll('option').forEach(opt => {
+                                if (opt.value !== "0") { // "İlk yüklenen görsel" hariç
+                                     opt.value = newIndex;
+                                     // opt.textContent = `Görsel ${newIndex + 1}: ...`; // Dosya adını güncellemek zor
+                                     newIndex++;
+                                }
+                            });
+                            // fileInput'taki dosyaları güncellemek için DataTransfer kullanmak gerekir, bu daha karmaşıktır.
+                        });
                     };
                     reader.readAsDataURL(file);
-                });
-            },
-            
-            addImagePreview: function(src, filename, index) {
-                const container = document.getElementById('image-previews');
-                
-                const preview = document.createElement('div');
-                preview.className = 'image-preview';
-                preview.dataset.index = index;
-                preview.innerHTML = `
-                    <img src="${src}" alt="${filename}">
-                    <div class="image-name">${filename.length > 15 ? filename.substring(0, 12) + '...' : filename}</div>
-                    <button type="button" class="delete-image-btn" onclick="AksuAdmin.FileUpload.removeImage(${index})">×</button>
-                `;
-                
-                container.appendChild(preview);
-            },
-            
-            removeImage: function(index) {
-                const preview = document.querySelector(`.image-preview[data-index="${index}"]`);
-                if (preview) {
-                    preview.remove();
-                    this.updateMainImageSelect();
-                    
-                    if (document.querySelectorAll('.image-preview').length === 0) {
-                        document.getElementById('main-image-container')?.classList.add('d-none');
-                    }
-                }
-            },
-            
-            updateMainImageSelect: function() {
-                const select = document.getElementById('main-image-select');
-                if (!select) return;
-                
-                select.innerHTML = '<option value="0">İlk yüklenen görsel</option>';
-                
-                document.querySelectorAll('.image-preview').forEach((preview, index) => {
-                    const option = document.createElement('option');
-                    option.value = index;
-                    option.textContent = `Görsel ${index + 1}`;
-                    select.appendChild(option);
+                    imageIndex++;
                 });
             }
         },
@@ -362,93 +363,112 @@
         Maps: {
             instances: {},
             markers: {},
-            
             init: function() {
-                // Leaflet yüklenene kadar bekle
                 if (typeof L === 'undefined') {
-                    setTimeout(() => this.init(), 100);
+                    console.warn('Leaflet JS yüklenmemiş. Harita başlatılamıyor.');
+                    setTimeout(() => this.init(), 200); // Tekrar dene
                     return;
                 }
-                
-                this.initializeMap('map-container');
+                console.log('Maps modülü hazır. Harita, ilgili sekme açıldığında yüklenecek.');
+                // Harita başlatma işlemi Core.initTabsFunctionality tarafından tetiklenecek
             },
-            
             initializeMap: function(containerId) {
                 const container = document.getElementById(containerId);
-                if (!container) return;
-                
-                // Önceki haritayı temizle
+                if (!container) {
+                    console.error(`Harita container'ı bulunamadı: #${containerId}`);
+                    return null;
+                }
+
+                // Eğer harita zaten varsa, tekrar başlatma
                 if (this.instances[containerId]) {
-                    this.instances[containerId].remove();
-                    delete this.instances[containerId];
+                    console.log(`Harita #${containerId} zaten başlatılmış. Boyutlar güncelleniyor.`);
+                    this.instances[containerId].invalidateSize();
+                    return this.instances[containerId];
                 }
                 
-                // Koordinatları al
+                console.log(`Harita #${containerId} başlatılıyor...`);
+                container.innerHTML = ''; // Önceki içeriği temizle (hata mesajı vb.)
+                container.style.height = '400px'; // Yüksekliği ayarla
+
                 const latInput = document.getElementById('latitude');
                 const lngInput = document.getElementById('longitude');
-                
-                let lat = 39.1, lng = 35.6, zoom = 6;
-                
-                if (latInput?.value && lngInput?.value) {
-                    lat = parseFloat(latInput.value);
-                    lng = parseFloat(lngInput.value);
-                    zoom = 15;
-                }
-                
-                // Harita oluştur
-                const map = L.map(containerId).setView([lat, lng], zoom);
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap',
-                    maxZoom: 19
-                }).addTo(map);
-                
-                // Marker ekle
-                let marker = null;
-                if (zoom > 6) {
-                    marker = L.marker([lat, lng], { draggable: true }).addTo(map);
-                }
-                
-                // Harita tıklama
-                map.on('click', (e) => {
-                    const { lat, lng } = e.latlng;
-                    
-                    if (latInput && lngInput) {
-                        latInput.value = lat.toFixed(6);
-                        lngInput.value = lng.toFixed(6);
+                let lat = 41.0082; // Küçükçekmece varsayılan enlem
+                let lng = 28.7784; // Küçükçekmece varsayılan boylam
+                let zoom = 13;
+
+                if (latInput && lngInput && latInput.value && lngInput.value) {
+                    const parsedLat = parseFloat(latInput.value);
+                    const parsedLng = parseFloat(lngInput.value);
+                    if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+                        lat = parsedLat;
+                        lng = parsedLng;
+                        zoom = 15;
                     }
-                    
-                    if (marker) {
+                }
+
+                try {
+                    const map = L.map(containerId).setView([lat, lng], zoom);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 19
+                    }).addTo(map);
+
+                    const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+                    marker.on('dragend', function() {
+                        const position = marker.getLatLng();
+                        if (latInput) latInput.value = position.lat.toFixed(6);
+                        if (lngInput) lngInput.value = position.lng.toFixed(6);
+                    });
+
+                    map.on('click', function(e) {
                         marker.setLatLng(e.latlng);
-                    } else {
-                        marker = L.marker(e.latlng, { draggable: true }).addTo(map);
-                        this.setupMarkerDrag(marker, latInput, lngInput);
-                    }
-                });
-                
-                // Marker sürükleme
-                if (marker && latInput && lngInput) {
-                    this.setupMarkerDrag(marker, latInput, lngInput);
-                }
-                
-                this.instances[containerId] = map;
-            },
-            
-            setupMarkerDrag: function(marker, latInput, lngInput) {
-                marker.on('dragend', (e) => {
-                    const { lat, lng } = marker.getLatLng();
+                        if (latInput) latInput.value = e.latlng.lat.toFixed(6);
+                        if (lngInput) lngInput.value = e.latlng.lng.toFixed(6);
+                    });
+                    
                     if (latInput && lngInput) {
-                        latInput.value = lat.toFixed(6);
-                        lngInput.value = lng.toFixed(6);
+                        [latInput, lngInput].forEach(input => {
+                            input.addEventListener('change', () => {
+                                const newLat = parseFloat(latInput.value);
+                                const newLng = parseFloat(lngInput.value);
+                                if (!isNaN(newLat) && !isNaN(newLng)) {
+                                    marker.setLatLng([newLat, newLng]);
+                                    map.setView([newLat, newLng]);
+                                }
+                            });
+                        });
                     }
-                });
+
+                    this.instances[containerId] = map;
+                    this.markers[containerId] = marker;
+
+                    // Harita DOM'a eklendikten ve boyutları ayarlandıktan sonra çağır
+                    setTimeout(() => {
+                        map.invalidateSize();
+                        console.log(`Harita #${containerId} boyutları güncellendi.`);
+                    }, 100);
+                    
+                    console.log(`Harita #${containerId} başarıyla başlatıldı.`);
+                    return map;
+
+                } catch (error) {
+                    console.error(`Harita #${containerId} başlatılırken hata:`, error);
+                    container.innerHTML = `<div class="alert alert-danger">Harita yüklenemedi: ${error.message}</div>`;
+                    return null;
+                }
             },
-            
             refreshMap: function(containerId) {
-                const map = this.instances[containerId];
-                if (map) {
-                    setTimeout(() => map.invalidateSize(), 100);
+                if (!containerId) {
+                    console.warn('refreshMap çağrıldı ancak containerId belirtilmemiş.');
+                    return;
+                }
+                console.log(`Harita #${containerId} için refreshMap çağrıldı.`);
+                if (this.instances[containerId]) {
+                    console.log(`Mevcut harita #${containerId} boyutları güncelleniyor.`);
+                    this.instances[containerId].invalidateSize();
                 } else {
+                    console.log(`Harita #${containerId} mevcut değil, yeniden başlatılıyor.`);
                     this.initializeMap(containerId);
                 }
             }

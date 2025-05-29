@@ -11,6 +11,12 @@ $rentListings = $listing->getRentListings(3); // 3 kiralık
 
 // Harita için tüm ilan verilerini çekmeye devam edebiliriz veya limitli çekebiliriz
 $mapData = $listing->getMapData(); // Tüm fiyatı olan ilanlar
+// ÖNEMLİ NOT: $listing->getMapData() metodunun, her ilan için hem 'sale_price' hem de 'rent_price'
+// alanlarını (varsa) getirdiğinden emin olun. Veritabanınızda ve Listing sınıfınızdaki
+// kaydetme/güncelleme mantığı, bu iki fiyatın birbirinden bağımsız olarak ayarlanabilmesine
+// olanak tanımalıdır. Böylece bir mülk aynı anda hem satılık hem kiralık olabilir veya
+// sadece biri için fiyatı olabilir. Popup gösterimi bu esnekliği zaten desteklemektedir.
+
 $activeAnnouncements = $announcement->getActiveAnnouncements(true); // Aktif duyurular
 
 // JSON formatında harita verileri
@@ -545,96 +551,164 @@ require_once 'templates/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Harita başlatma (Leaflet kütüphanesi header.php'de yüklenmiş olmalı)
+    // Harita başlatma
     try {
         // Harita merkezi (Türkiye)
         const map = L.map('property-map').setView([39.1, 35.6], 6);
-
+        
         // OpenStreetMap katmanı
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 18
         }).addTo(map);
-
+        
         // Fiyatı biçimlendiren yardımcı fonksiyon
         function formatPrice(price) {
-            if (typeof price !== 'number' || isNaN(price)) return 'N/A';
-            return new Intl.NumberFormat('tr-TR').format(price);
+            // Sadece sayısal değerler için formatla
+            if (price === null || price === undefined || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
+                return false; // Geçersiz fiyat için false döndür
+            }
+            // Sayıyı formatla
+            return new Intl.NumberFormat('tr-TR').format(Math.round(parseFloat(price)));
         }
-
+        
+        // Kategori adı fonksiyonu
+        function getCategoryName(category) {
+            const categories = {
+                'House': 'Müstakil Ev',
+                'Apartment': 'Daire',
+                'Commercial': 'Ticari',
+                'Land': 'Arsa',
+                'Other': 'Diğer'
+            };
+            return categories[category] || category;
+        }
+        
+        // Kısa adres fonksiyonu
+        function getShortAddress(property) {
+            const parts = [];
+            if (property.city) parts.push(property.city);
+            if (property.district) parts.push(property.district);
+            return parts.join(', ');
+        }
+        
         const propertyData = <?= $mapDataJson ?>;
-        const markers = []; // Marker'ları tutmak için dizi
-
+        const markers = [];
+        
         if (propertyData && propertyData.length > 0) {
             propertyData.forEach(function(property) {
-                if (!property.latitude || !property.longitude) return; // Koordinat yoksa atla
+                if (!property.latitude || !property.longitude) return;
+                
+                // Marker üzerindeki fiyat için değerleri hazırla
+                let markerPriceText = '';
+                let markerClass = '';
+                
+                let formattedPinRentPrice = formatPrice(property.rent_price);
+                let formattedPinSalePrice = formatPrice(property.sale_price);
 
-                 // Fiyat bilgisini ve sınıfını belirle
-                let priceText = '';
-                let markerClass = ''; // Fiyat sınıfı
-
-                if (property.rent_price && property.rent_price > 0) {
-                    priceText = `${formatPrice(property.rent_price)} ₺/ay`;
-                    markerClass = 'marker-price-rent'; // Kiralık
-                } else if (property.sale_price && property.sale_price > 0) {
-                    priceText = `${formatPrice(property.sale_price)} ₺`;
-                    markerClass = 'marker-price-sale'; // Satılık
-                } else {
-                    priceText = 'Fiyat Yok';
-                    markerClass = 'marker-price-none'; // Fiyat yoksa
+                // Marker üzerinde gösterilecek fiyatı belirle (öncelik kiralık, sonra satılık)
+                if (formattedPinRentPrice) {
+                    markerPriceText = `${formattedPinRentPrice} ₺/ay`;
+                    markerClass = 'marker-price-rent';
+                } else if (formattedPinSalePrice) {
+                    markerPriceText = `${formattedPinSalePrice} ₺`;
+                    markerClass = 'marker-price-sale';
                 }
-
-
+                
+                // Marker gösterimi için HTML
+                const markerHtml = `
+                    <div class="marker-container">
+                        <div class="marker-pin ${property.featured ? 'featured' : ''}">
+                            <i class="bi bi-house-fill"></i>
+                        </div>
+                        ${markerPriceText ? `<div class="marker-price ${markerClass}">${markerPriceText}</div>` : ''}
+                    </div>
+                `;
+                
                 // Özel marker ikonu
                 const markerIcon = L.divIcon({
-                    className: 'property-marker', // Ana sınıf
-                    html: `
-                        <div class="marker-container">
-                            <div class="marker-pin ${property.featured ? 'featured' : ''}">
-                                <i class="bi bi-house-fill"></i>
-                            </div>
-                             ${priceText !== 'Fiyat Yok' ? `<div class="marker-price ${markerClass}">${priceText}</div>` : ''}
-                        </div>
-                    `,
-                    iconSize: [80, 60],
+                    className: 'property-marker',
+                    html: markerHtml,
+                    iconSize: [80, 60], // Boyutlar içeriğe göre ayarlanabilir
                     iconAnchor: [40, 60], // İkonun haritadaki bağlantı noktası
-                    popupAnchor: [0, -60] // Popup'ın açılacağı nokta
+                    popupAnchor: [0, -60] // Popup'ın ikona göre konumu
                 });
-
-                // İşaretleyiciyi haritaya ekle
+                
+                // Popup içeriği için fiyatları hazırla
+                let formattedPopupSalePrice = formatPrice(property.sale_price);
+                let formattedPopupRentPrice = formatPrice(property.rent_price);
+                let priceHtml = ''; // Popup içinde gösterilecek fiyat HTML'i
+                
+                if (formattedPopupSalePrice && formattedPopupRentPrice) {
+                    // Hem satılık hem kiralık fiyatı varsa
+                    priceHtml = `
+                        <div class="popup-prices">
+                            <span class="popup-price sale">${formattedPopupSalePrice} ₺</span>
+                            <span class="popup-price-divider">|</span>
+                            <span class="popup-price rent">${formattedPopupRentPrice} ₺/ay</span>
+                        </div>
+                    `;
+                } else if (formattedPopupSalePrice) {
+                    // Sadece satılık fiyatı varsa
+                    priceHtml = `<div class="popup-prices"><span class="popup-price sale">${formattedPopupSalePrice} ₺</span></div>`;
+                } else if (formattedPopupRentPrice) {
+                    // Sadece kiralık fiyatı varsa
+                    priceHtml = `<div class="popup-prices"><span class="popup-price rent">${formattedPopupRentPrice} ₺/ay</span></div>`;
+                } else {
+                    // Hiçbir fiyat belirtilmemişse
+                    priceHtml = `<div class="popup-prices"><span class="popup-price none">Fiyat belirtilmemiş</span></div>`;
+                }
+                
+                // Modern popup içeriği
+                const popupContent = `
+                    <div class="popup-modern">
+                        <div class="popup-img-wrap">
+                            <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" 
+                                 alt="${property.title || 'İlan görseli'}" 
+                                 class="popup-img" 
+                                 onerror="this.onerror=null; this.src='assets/img/property-placeholder.jpg';"
+                                 loading="lazy">
+                            ${property.featured ? '<span class="popup-featured">Öne Çıkan</span>' : ''}
+                        </div>
+                        <div class="popup-main-content">
+                            <div class="popup-title-row">
+                                <span class="popup-title">${property.title || 'İlan Detayı'}</span>
+                            </div>
+                            ${priceHtml}
+                            <div class="popup-meta">
+                                <span class="popup-category"><i class="bi bi-tag"></i> ${getCategoryName(property.category)}</span>
+                                ${getShortAddress(property) ? `<span class="popup-address"><i class="bi bi-geo-alt"></i> ${getShortAddress(property)}</span>` : ''}
+                            </div>
+                            <a href="listing.php?id=${property.id}" class="popup-btn-modern">
+                                <i class="bi bi-info-circle"></i> Detayları Gör
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                // İşaretleyiciyi oluştur ve haritaya ekle
                 const marker = L.marker([property.latitude, property.longitude], {
                     icon: markerIcon
                 }).addTo(map);
-
-                // Mülk detaylarıyla açılır pencere ekle
-                const popupContent = `
-                    <div class="map-popup">
-                        <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" class="popup-image" alt="${property.title || ''}" loading="lazy">
-                        <h5 class="popup-title">${property.title || 'İlan Detayı'}</h5>
-                        <p class="popup-price">${priceText}</p>
-                        <a href="listing.php?id=${property.id}" class="btn btn-sm btn-primary w-100">Detaylar</a>
-                    </div>
-                `;
-
-                 marker.bindPopup(popupContent, {
-                    maxWidth: 250,
+                
+                // Açılır pencere ekle
+                marker.bindPopup(popupContent, {
+                    maxWidth: 280,
+                    minWidth: 200,
                     className: 'property-popup'
                 });
-
-                markers.push(marker); // Marker'ı diziye ekle
+                
+                markers.push(marker);
             });
-
-             // Eğer marker varsa, haritayı otomatik sığdır
-             if (markers.length > 0) {
-                 const group = new L.featureGroup(markers);
-                 map.fitBounds(group.getBounds().pad(0.1)); // pad() ile kenarlarda biraz boşluk bırak
-             }
-
-        } else {
-            console.log("Harita için gösterilecek ilan verisi bulunamadı.");
+            
+            // Eğer marker varsa, haritayı otomatik sığdır
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
         }
-
-         // İstatistik sayacı
+        
+        // İstatistik sayacı
         const counters = document.querySelectorAll('.stat-number[data-counter]');
         const speed = 200; // Animasyon hızı
 
@@ -675,4 +749,164 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<style>
+/* Harita marker ve popup stillerini iyileştir */
+.property-marker {
+    z-index: 1000;
+}
+
+.marker-container {
+    position: relative;
+    width: auto;
+    min-width: 30px;
+}
+
+.marker-pin {
+    width: 30px;
+    height: 30px;
+    background-color: #ff6b6b;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.marker-pin.featured {
+    background-color: #ffc107;
+}
+
+.marker-pin i {
+    font-size: 16px;
+}
+
+.marker-price {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.marker-price-sale {
+    color: #dc3545;
+}
+
+.marker-price-rent {
+    color: #28a745;
+}
+
+.map-popup {
+    padding: 0;
+    overflow: hidden;
+}
+
+.map-popup-image {
+    position: relative;
+    height: 120px;
+    overflow: hidden;
+}
+
+.map-popup-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.popup-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ffc107;
+    color: #000;
+    padding: 2px 6px;
+    font-size: 10px;
+    border-radius: 3px;
+}
+
+.map-popup-content {
+    padding: 8px;
+}
+
+.popup-title {
+    font-size: 14px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.popup-price {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+.popup-price.sale {
+    color: #dc3545;
+}
+
+.popup-price.rent {
+    color: #28a745;
+}
+
+.popup-category {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.property-popup .leaflet-popup-content {
+    margin: 0;
+}
+
+.property-popup .leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.popup-price-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.popup-price-divider {
+    color: #aaa;
+    font-weight: normal;
+}
+
+/* Popup butonu için stil */
+.popup-btn-modern {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.popup-btn-modern i {
+    margin-right: 5px;
+}
+
+.popup-btn-modern:hover {
+    background: #0056b3;
+}
+</style>
 <?php require_once 'templates/footer.php'; ?>

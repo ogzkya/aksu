@@ -1,9 +1,17 @@
 <?php
 // includes/init.php
 
-// Hata raporlama (geliştirme için açık)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Production ortamı kontrolü
+if (getenv('ENVIRONMENT') === 'production') {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    ini_set('error_log', __DIR__ . '/../logs/error.log');
+} else {
+    // Hata raporlama (geliştirme için açık)
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
 
 // Oturum başlatma
 session_start();

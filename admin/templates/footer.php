@@ -28,12 +28,16 @@
     <!-- Scripts -->
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Leaflet JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Admin JS - TEK DOSYA -->
-    <script src="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/js/admin-clean.js"></script>
+    <script>
+        if (!window.adminScriptLoaded) {
+            window.adminScriptLoaded = true;
+            console.log('Admin script yükleniyor...');
+        }
+    </script>
+    <!-- Mutlak veya kök dizine göre ayarlayın -->
+    <script src="/aksu/admin/assets/js/admin-clean.js"></script>
     
     <!-- TinyMCE Editor (sadece gerektiğinde) -->
     <?php if (isset($useTinyMCE) && $useTinyMCE): ?>

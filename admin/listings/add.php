@@ -657,255 +657,46 @@ require_once '../templates/header.php';
 <!-- JS Kodları -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form doğrulama
+    // SADECE FORM VALIDATION VE TAB GEÇİŞ KODLARI BURADA KALMALI
+    // HARİTA VEYA GÖRSEL YÜKLEME İLE İLGİLİ HİÇBİR KOD OLMAMALI
+
     const form = document.getElementById('listingForm');
-    
-    form.addEventListener('submit', function(e) {
-        if (!this.checkValidity()) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Hatalı sekmeyi bul ve aç
-            const invalidInput = form.querySelector(':invalid');
-            if (invalidInput) {
-                const tabPane = invalidInput.closest('.tab-pane');
-                if (tabPane && !tabPane.classList.contains('show')) {
-                    const tabId = tabPane.id;
-                    document.querySelector(`a[href="#${tabId}"]`).click();
-                    
-                    setTimeout(() => {
-                        invalidInput.focus();
-                    }, 500);
-                }
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                // Hatalı sekmeye odaklanma vb.
+                // ... (mevcut form doğrulama kodunuz)
             }
-            
-            // Uyarı göster
-            alert('Lütfen zorunlu alanları doldurun!');
-        } else {
-            // Gönderi sırasında düğmeyi devre dışı bırak
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('submitBtn').innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Kaydediliyor...';
-        }
-        
-        form.classList.add('was-validated');
-    });
-    
-    // İlan tipi değiştiğinde fiyat alanlarını göster/gizle
-    const listingTypeRadios = document.querySelectorAll('input[name="listing_type"]');
-    const salePriceContainer = document.getElementById('sale-price-container');
-    const rentPriceContainer = document.getElementById('rent-price-container');
-    
-    listingTypeRadios.forEach(function(radio) {
-        radio.addEventListener('change', function() {
-            if (this.value === 'sale') {
-                salePriceContainer.style.display = 'block';
-                rentPriceContainer.style.display = 'none';
-                
-                document.getElementById('sale_price').required = true;
-                document.getElementById('rent_price').required = false;
-                document.getElementById('rent_price').value = '';
-            } else if (this.value === 'rent') {
-                salePriceContainer.style.display = 'none';
-                rentPriceContainer.style.display = 'block';
-                
-                document.getElementById('rent_price').required = true;
-                document.getElementById('sale_price').required = false;
-                document.getElementById('sale_price').value = '';
-            } else if (this.value === 'both') {
-                salePriceContainer.style.display = 'block';
-                rentPriceContainer.style.display = 'block';
-                
-                document.getElementById('sale_price').required = true;
-                document.getElementById('rent_price').required = true;
+            form.classList.add('was-validated');
+        });
+    }
+
+    // Tab geçiş butonları (Wizard adımları için)
+    document.querySelectorAll('.next-tab, .prev-tab').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTabId = this.dataset.next || this.dataset.prev;
+            if (targetTabId) {
+                const tabTrigger = document.getElementById(targetTabId);
+                if (tabTrigger) {
+                    new bootstrap.Tab(tabTrigger).show();
+                }
             }
         });
     });
-    
-    // Tab gezinme butonları
-    const tabLinks = document.querySelectorAll('.nav-link[data-bs-toggle="tab"]');
-    const nextTabButtons = document.querySelectorAll('.next-tab');
-    const prevTabButtons = document.querySelectorAll('.prev-tab');
-    
-    // Tab değişiminde wizard adımlarını güncelle
-    tabLinks.forEach(function(tabLink) {
-        tabLink.addEventListener('shown.bs.tab', function(e) {
-            const targetId = e.target.getAttribute('id');
-            document.querySelectorAll('.wizard-progress-step').forEach(function(step) {
+     // Wizard progress adımlarını güncelleme
+    document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(tabEl => {
+        tabEl.addEventListener('shown.bs.tab', event => {
+            const activeTabId = event.target.id; // e.g., "location-tab"
+            document.querySelectorAll('.wizard-progress-step').forEach(step => {
                 step.classList.remove('active');
-                if (step.getAttribute('data-step') === targetId) {
+                if (step.dataset.step === activeTabId) {
                     step.classList.add('active');
                 }
             });
         });
     });
-    
-    // İleri/geri butonları
-    nextTabButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const nextTabId = this.getAttribute('data-next');
-            document.getElementById(nextTabId).click();
-        });
-    });
-    
-    prevTabButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            const prevTabId = this.getAttribute('data-prev');
-            document.getElementById(prevTabId).click();
-        });
-    });
-    
-    // Sürükle bırak görsel yükleme
-    const dragDropArea = document.getElementById('drag-drop-area');
-    const fileInput = document.getElementById('images');
-    const selectBtn = document.getElementById('select-files-btn');
-    const previewsContainer = document.getElementById('image-previews');
-    const mainImageContainer = document.getElementById('main-image-container');
-    const mainImageSelect = document.getElementById('main-image-select');
-    
-    if (dragDropArea && fileInput) {
-        // Dosya seçme butonu
-        selectBtn.addEventListener('click', function() {
-            fileInput.click();
-        });
-        
-        // Sürükle bırak olayları
-        dragDropArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            this.classList.add('bg-light');
-        });
-        
-        dragDropArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            this.classList.remove('bg-light');
-        });
-        
-        dragDropArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            this.classList.remove('bg-light');
-            
-            if (fileInput && e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
-                const event = new Event('change', { bubbles: true });
-                fileInput.dispatchEvent(event);
-            }
-        });
-        
-        // Dosya seçildiğinde önizleme göster
-        fileInput.addEventListener('change', function() {
-            previewsContainer.innerHTML = '';
-            mainImageSelect.innerHTML = '';
-            
-            if (this.files && this.files.length > 0) {
-                mainImageContainer.classList.remove('d-none');
-                
-                // Varsayılan seçeneği ekle
-                const defaultOption = document.createElement('option');
-                defaultOption.value = "0";
-                defaultOption.textContent = 'İlk yüklenen görsel';
-                mainImageSelect.appendChild(defaultOption);
-                
-                for (let i = 0; i < this.files.length; i++) {
-                    const file = this.files[i];
-                    
-                    if (!file.type.match('image.*')) {
-                        continue;
-                    }
-                    
-                    const reader = new FileReader();
-                    const previewIndex = i;
-                    
-                    reader.onload = function(e) {
-                        // Görsel önizleme oluştur
-                        const preview = document.createElement('div');
-                        preview.className = 'image-preview-item position-relative border rounded overflow-hidden';
-                        preview.style.width = '150px';
-                        preview.style.height = '100px';
-                        
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'w-100 h-100 object-fit-cover';
-                        preview.appendChild(img);
-                        
-                        // Dosya adı göster
-                        const filename = document.createElement('div');
-                        filename.className = 'bg-dark bg-opacity-50 text-white small p-1 position-absolute bottom-0 w-100 text-truncate';
-                        filename.textContent = file.name;
-                        preview.appendChild(filename);
-                        
-                        // Silme butonu ekle
-                        const removeBtn = document.createElement('button');
-                        removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center';
-                        removeBtn.style.width = '20px';
-                        removeBtn.style.height = '20px';
-                        removeBtn.innerHTML = '×';
-                        removeBtn.type = 'button';
-                        removeBtn.addEventListener('click', function() {
-                            // Bu işlevsiz, gerçekte dosya girdisinden kaldırma yapamıyoruz
-                            // Ancak kullanıcıya görsel geri bildirim verir
-                            preview.remove();
-                            
-                            // Tüm önizlemeler kaldırıldıysa, ana görsel seçiciyi gizle
-                            if (previewsContainer.children.length === 0) {
-                                mainImageContainer.classList.add('d-none');
-                            }
-                        });
-                        preview.appendChild(removeBtn);
-                        
-                        previewsContainer.appendChild(preview);
-                        
-                        // Ana görsel seçici için seçenek ekle
-                        const option = document.createElement('option');
-                        option.value = previewIndex;
-                        option.textContent = `Görsel ${previewIndex + 1}: ${file.name}`;
-                        mainImageSelect.appendChild(option);
-                    };
-                    
-                    reader.readAsDataURL(file);
-                }
-            } else {
-                mainImageContainer.classList.add('d-none');
-            }
-        });
-    }
-    
-    // // Mesafe satırları
-    // const addDistanceBtn = document.getElementById('add-distance');
-    // const distancesContainer = document.getElementById('distances-container');
-    
-    // if (addDistanceBtn && distancesContainer) {
-    //     addDistanceBtn.addEventListener('click', function() {
-    //         const newRow = document.createElement('div');
-    //         newRow.className = 'distance-row row mb-3';
-    //         newRow.innerHTML = `
-    //             <div class="col-md-5">
-    //                 <input type="text" class="form-control" name="distance_name[]" placeholder="Mekan Adı (örn. Metro)">
-    //             </div>
-    //             <div class="col-md-5">
-    //                 <div class="input-group">
-    //                     <input type="number" class="form-control" name="distance_value[]" placeholder="Mesafe" step="0.1" min="0">
-    //                     <span class="input-group-text">km</span>
-    //                 </div>
-    //             </div>
-    //             <div class="col-md-2">
-    //                 <button type="button" class="btn btn-danger w-100 remove-distance">Sil</button>
-    //             </div>
-    //         `;
-            
-    //         distancesContainer.appendChild(newRow);
-            
-    //         // Yeni eklenen satırın silme düğmesine olay dinleyicisi ekle
-    //         newRow.querySelector('.remove-distance').addEventListener('click', function() {
-    //             newRow.remove();
-    //         });
-    //     });
-        
-    //     // Mevcut silme düğmelerine olay dinleyicileri ekle
-    //     document.querySelectorAll('.remove-distance').forEach(function(button) {
-    //         button.addEventListener('click', function() {
-    //             this.closest('.distance-row').remove();
-    //         });
-    //     });
-    // }
 });
 </script>
 

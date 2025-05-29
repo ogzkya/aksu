@@ -108,8 +108,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'İlan açıklaması gereklidir.';
         }
         
-        if (!is_numeric($updatedData['sale_price']) || $updatedData['sale_price'] <= 0) {
-            $errors[] = 'Geçerli bir satış fiyatı girilmelidir.';
+        // Fiyat kontrolü - listing type'a göre
+        if (!empty($_POST['rent_price']) && empty($_POST['sale_price'])) {
+            // Sadece kiralık
+            if (!is_numeric($updatedData['rent_price']) || $updatedData['rent_price'] <= 0) {
+                $errors[] = 'Geçerli bir kira fiyatı girilmelidir.';
+            }
+        } elseif (empty($_POST['rent_price']) && !empty($_POST['sale_price'])) {
+            // Sadece satılık
+            if (!is_numeric($updatedData['sale_price']) || $updatedData['sale_price'] <= 0) {
+                $errors[] = 'Geçerli bir satış fiyatı girilmelidir.';
+            }
+        } elseif (!empty($_POST['rent_price']) && !empty($_POST['sale_price'])) {
+            // Hem kiralık hem satılık
+            if (!is_numeric($updatedData['sale_price']) || $updatedData['sale_price'] <= 0) {
+                $errors[] = 'Geçerli bir satış fiyatı girilmelidir.';
+            }
+            if (!is_numeric($updatedData['rent_price']) || $updatedData['rent_price'] <= 0) {
+                $errors[] = 'Geçerli bir kira fiyatı girilmelidir.';
+            }
+        } else {
+            // Hiçbir fiyat girilmemiş
+            $errors[] = 'En az bir fiyat (satış veya kira) girilmelidir.';
         }
         
         if (!is_numeric($updatedData['property_size']) || $updatedData['property_size'] <= 0) {
@@ -145,14 +165,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // Ana görseli güncelle
-          // admin/listings/edit.php dosyasındaki ana görsel seçimini düzeltin
-if (isset($_POST['main_image']) && is_numeric($_POST['main_image'])) {
-    $mainImageId = (int)$_POST['main_image'];
-    // Önce tüm ana görselleri temizle
-    $db->query("UPDATE listing_images SET is_main = 0 WHERE listing_id = ?", [$listingId]);
-    // Sonra seçilen görseli ana görsel olarak ayarla
-    $db->query("UPDATE listing_images SET is_main = 1 WHERE id = ? AND listing_id = ?", [$mainImageId, $listingId]);
-}
+            if (isset($_POST['main_image']) && is_numeric($_POST['main_image'])) {
+                $mainImageId = (int)$_POST['main_image'];
+                $listing->updateMainImage($listingId, $mainImageId);
+            }
             
             // Silinen görseller
             if (isset($_POST['deleted_images']) && !empty($_POST['deleted_images'])) {
@@ -662,46 +678,6 @@ require_once '../templates/header.php';
                     }
                 }
             });
-        });
-        
-        // Yeni görsel önizleme
-        const newImageInput = document.getElementById('new-images');
-        const newImagePreviews = document.getElementById('new-image-previews');
-        const newMainImageSelect = document.getElementById('new-main-image-select');
-        const newMainImageContainer = document.getElementById('new-main-image-container');
-        
-        newImageInput.addEventListener('change', function() {
-            newImagePreviews.innerHTML = '';
-            newMainImageSelect.innerHTML = '<option value="-1">Ana görsel seçilmedi</option>';
-            
-            if (this.files.length > 0) {
-                newMainImageContainer.style.display = 'block';
-                
-                for (let i = 0; i < this.files.length; i++) {
-                    const file = this.files[i];
-                    
-                    // Görsel önizleme
-                    const preview = document.createElement('div');
-                    preview.className = 'image-preview';
-                    
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(file);
-                    img.onload = function() {
-                        URL.revokeObjectURL(this.src);
-                    }
-                    
-                    preview.appendChild(img);
-                    newImagePreviews.appendChild(preview);
-                    
-                    // Ana görsel seçeneği ekle
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.textContent = `Yeni Görsel ${i + 1}: ${file.name}`;
-                    newMainImageSelect.appendChild(option);
-                }
-            } else {
-                newMainImageContainer.style.display = 'none';
-            }
         });
         
         // Mesafe ekleme/silme
