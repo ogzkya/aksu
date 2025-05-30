@@ -408,15 +408,13 @@ document.addEventListener('DOMContentLoaded', function() {
              } else {
                  priceText = 'Fiyat Yok';
                   markerClass = 'marker-price-none';
-             }
-
-            // Özel marker ikonu
+             }            // Özel marker ikonu (ana sayfa ile uyumlu)
             const propertyIcon = L.divIcon({
                 className: 'property-marker',
                  html: `
                     <div class="marker-container">
-                        <div class="marker-pin">
-                           <i class="bi bi-geo-alt-fill text-white fs-5"></i>
+                        <div class="marker-pin <?= $listing['featured'] ? 'featured' : '' ?>">
+                           <i class="bi bi-house-fill"></i>
                         </div>
                         ${priceText !== 'Fiyat Yok' ? `<div class="marker-price ${markerClass}">${priceText}</div>` : ''}
                     </div>
