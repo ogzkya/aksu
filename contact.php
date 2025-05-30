@@ -185,27 +185,6 @@ require_once 'templates/header.php';
                                 <h5 class="h6">Çalışma Saatleri</h5>
                                 <p class="mb-0">Pazartesi - Cumartesi: 09:00 - 18:00<br>Pazar: Kapalı</p>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-info-list text-start">
-                        <div class="d-flex mb-4">
-                            <div class="contact-icon me-3">
-                                <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
-                            </div>
-                            <div>                                <h5 class="h6">Adres</h5>
-                                <p class="mb-0">Halkalı Küçükçekmece<br>İstanbul</p>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex mb-4">
-                            <div class="contact-icon me-3">
-                                <i class="bi bi-telephone-fill text-primary fs-3"></i>
-                            </div>
-                            <div>
-                                <h5 class="h6">Telefon</h5>
-                                <p class="mb-0">(0212) 693 90 88</p>
-                            </div>
                         </div>                    </div>
                 </div>
             </div>
