@@ -346,10 +346,32 @@ document.addEventListener('DOMContentLoaded', function() {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 18
     }).addTo(map);
-    
-    // Fiyatı biçimlendiren yardımcı fonksiyon
+      // Fiyatı biçimlendiren yardımcı fonksiyon
     function formatPrice(price) {
         return new Intl.NumberFormat('tr-TR').format(price);
+    }
+    
+    // Kategori adını döndüren fonksiyon
+    function getCategoryName(category) {
+        const categories = {
+            'House': 'Müstakil Ev',
+            'Apartment': 'Daire',
+            'Commercial': 'Ticari',
+            'Land': 'Arsa',
+            'Other': 'Diğer'
+        };
+        return categories[category] || 'Belirtilmemiş';
+    }
+    
+    // Kısa adres döndüren fonksiyon
+    function getShortAddress(property) {
+        let address = '';
+        if (property.district) address += property.district;
+        if (property.city) {
+            if (address) address += ', ';
+            address += property.city;
+        }
+        return address || 'Konum belirtilmemiş';
     }
     
     const propertyData = <?= $mapDataJson ?>;
@@ -394,19 +416,102 @@ document.addEventListener('DOMContentLoaded', function() {
             icon: propertyIcon
         }).addTo(map);
         
+          // Modern popup içeriği için fiyat hazırlama
+        let formattedPopupSalePrice = formatPrice(property.sale_price);
+        let formattedPopupRentPrice = formatPrice(property.rent_price);
+        let priceHtml = '';
         
+        if (formattedPopupSalePrice && formattedPopupRentPrice) {
+            priceHtml = `
+                <div class="modern-popup-prices">
+                    <div class="price-item sale-price">
+                        <span class="price-label">Satılık</span>
+                        <span class="price-value">${formattedPopupSalePrice} ₺</span>
+                    </div>
+                    <div class="price-divider"></div>
+                    <div class="price-item rent-price">
+                        <span class="price-label">Kiralık</span>
+                        <span class="price-value">${formattedPopupRentPrice} ₺/ay</span>
+                    </div>
+                </div>
+            `;
+        } else if (formattedPopupSalePrice) {
+            priceHtml = `
+                <div class="modern-popup-prices">
+                    <div class="price-item sale-price">
+                        <span class="price-label">Satılık</span>
+                        <span class="price-value">${formattedPopupSalePrice} ₺</span>
+                    </div>
+                </div>
+            `;
+        } else if (formattedPopupRentPrice) {
+            priceHtml = `
+                <div class="modern-popup-prices">
+                    <div class="price-item rent-price">
+                        <span class="price-label">Kiralık</span>
+                        <span class="price-value">${formattedPopupRentPrice} ₺/ay</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            priceHtml = `
+                <div class="modern-popup-prices">
+                    <div class="price-item no-price">
+                        <span class="price-value">Fiyat Belirtilmemiş</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Ultra modern popup tasarımı
         const popupContent = `
-            <div class="map-popup">
-                <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" class="popup-image" alt="${property.title}">
-                <h5 class="popup-title">${property.title}</h5>
-                <p class="popup-price">${priceText}</p>
-                <a href="listing.php?id=${property.id}" class="btn btn-sm btn-primary w-100">Detaylar</a>
+            <div class="modern-property-popup">
+                <div class="popup-image-container">
+                    <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" 
+                         alt="${property.title || 'İlan görseli'}" 
+                         class="popup-property-image"
+                         onerror="this.onerror=null; this.src='assets/img/property-placeholder.jpg';"
+                         loading="lazy">
+                    ${property.featured ? '<div class="featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : ''}
+                    <div class="image-overlay"></div>
+                </div>
+                
+                <div class="popup-content-area">
+                    <div class="popup-header">
+                        <h3 class="property-title">${property.title || 'İlan Detayı'}</h3>
+                        <div class="property-location">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>${getShortAddress(property) || 'Konum belirtilmemiş'}</span>
+                        </div>
+                    </div>
+                    
+                    ${priceHtml}
+                    
+                    <div class="property-details">
+                        <div class="detail-item">
+                            <i class="bi bi-house-door-fill"></i>
+                            <span class="detail-label">Kategori</span>
+                            <span class="detail-value">${getCategoryName(property.category)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="popup-actions">
+                        <a href="listing.php?id=${property.id}" class="modern-detail-btn">
+                            <i class="bi bi-eye-fill"></i>
+                            <span>Detayları İncele</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         `;
         
         marker.bindPopup(popupContent, {
-            maxWidth: 250,
-            className: 'property-popup'
+            maxWidth: 320,
+            minWidth: 280,
+            className: 'modern-property-popup-container',
+            closeButton: true,
+            autoPan: true
         });
         markers.push(marker);
     });

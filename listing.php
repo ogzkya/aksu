@@ -385,12 +385,22 @@ document.addEventListener('DOMContentLoaded', function() {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 maxZoom: 18
-            }).addTo(map);
-
-            // Fiyatı biçimlendiren yardımcı fonksiyon
+            }).addTo(map);            // Fiyatı biçimlendiren yardımcı fonksiyon
             function formatPrice(price) {
                  if (typeof price !== 'number' || isNaN(price)) return 'N/A';
                  return new Intl.NumberFormat('tr-TR').format(price);
+            }
+
+            // Kategori adını döndüren fonksiyon
+            function getCategoryName(category) {
+                const categories = {
+                    'House': 'Müstakil Ev',
+                    'Apartment': 'Daire',
+                    'Commercial': 'Ticari',
+                    'Land': 'Arsa',
+                    'Other': 'Diğer'
+                };
+                return categories[category] || 'Belirtilmemiş';
             }
 
             // Fiyat bilgisini ve sınıfını belirle
@@ -408,7 +418,54 @@ document.addEventListener('DOMContentLoaded', function() {
              } else {
                  priceText = 'Fiyat Yok';
                   markerClass = 'marker-price-none';
-             }            // Özel marker ikonu (ana sayfa ile uyumlu)
+             }
+
+            // Modern popup içeriği için fiyat hazırlama
+            let formattedPopupSalePrice = salePrice ? formatPrice(salePrice) : null;
+            let formattedPopupRentPrice = rentPrice ? formatPrice(rentPrice) : null;
+            let priceHtml = '';
+            
+            if (formattedPopupSalePrice && formattedPopupRentPrice) {
+                priceHtml = `
+                    <div class="modern-popup-prices">
+                        <div class="price-item sale-price">
+                            <span class="price-label">Satılık</span>
+                            <span class="price-value">${formattedPopupSalePrice} ₺</span>
+                        </div>
+                        <div class="price-divider"></div>
+                        <div class="price-item rent-price">
+                            <span class="price-label">Kiralık</span>
+                            <span class="price-value">${formattedPopupRentPrice} ₺/ay</span>
+                        </div>
+                    </div>
+                `;
+            } else if (formattedPopupSalePrice) {
+                priceHtml = `
+                    <div class="modern-popup-prices">
+                        <div class="price-item sale-price">
+                            <span class="price-label">Satılık</span>
+                            <span class="price-value">${formattedPopupSalePrice} ₺</span>
+                        </div>
+                    </div>
+                `;
+            } else if (formattedPopupRentPrice) {
+                priceHtml = `
+                    <div class="modern-popup-prices">
+                        <div class="price-item rent-price">
+                            <span class="price-label">Kiralık</span>
+                            <span class="price-value">${formattedPopupRentPrice} ₺/ay</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                priceHtml = `
+                    <div class="modern-popup-prices">
+                        <div class="price-item no-price">
+                            <span class="price-value">Fiyat Belirtilmemiş</span>
+                        </div>
+                    </div>
+                `;
+            }// Özel marker ikonu (ana sayfa ile uyumlu)
             const propertyIcon = L.divIcon({
                 className: 'property-marker',
                  html: `
@@ -422,13 +479,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 iconSize: [80, 60],
                 iconAnchor: [40, 60],
                 popupAnchor: [0, -60]
-            });
+            });            // Ultra modern popup tasarımı
+            const popupContent = `
+                <div class="modern-property-popup">
+                    <div class="popup-image-container">
+                        <img src="<?= htmlspecialchars($listing['main_image'] ?? 'assets/img/property-placeholder.jpg') ?>" 
+                             alt="<?= htmlspecialchars($listing['title'] ?? 'İlan görseli') ?>" 
+                             class="popup-property-image"
+                             onerror="this.onerror=null; this.src='assets/img/property-placeholder.jpg';"
+                             loading="lazy">
+                        <?= $listing['featured'] ? '<div class="featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : '' ?>
+                        <div class="image-overlay"></div>
+                    </div>
+                    
+                    <div class="popup-content-area">
+                        <div class="popup-header">
+                            <h3 class="property-title"><?= htmlspecialchars($listing['title'] ?? 'İlan Detayı') ?></h3>
+                            <div class="property-location">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <span><?= htmlspecialchars(($listing['district'] ? $listing['district'] . ', ' : '') . ($listing['city'] ?? 'Konum belirtilmemiş')) ?></span>
+                            </div>
+                        </div>
+                        
+                        ${priceHtml}
+                        
+                        <div class="property-details">
+                            <div class="detail-item">
+                                <i class="bi bi-house-door-fill"></i>
+                                <span class="detail-label">Kategori</span>
+                                <span class="detail-value">${getCategoryName('<?= $listing['category'] ?? '' ?>')}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="popup-actions">
+                            <a href="listing.php?id=<?= $listing['id'] ?>" class="modern-detail-btn">
+                                <i class="bi bi-eye-fill"></i>
+                                <span>Bu Sayfayı Yenile</span>
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
 
             // Marker ekle
             L.marker([lat, lng], {
                 icon: propertyIcon
             }).addTo(map)
-              .bindPopup(`<b><?= htmlspecialchars(addslashes($listing['title'])) ?></b>`)
+              .bindPopup(popupContent, {
+                  maxWidth: 320,
+                  minWidth: 280,
+                  className: 'modern-property-popup-container',
+                  closeButton: true,
+                  autoPan: true
+              })
               .openPopup(); // Başlangıçta popup açık olsun
 
              // Harita yüklendiğinde boyutu düzelt

@@ -32,9 +32,8 @@
     <!-- Leaflet CSS VE JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Admin JS -->
-    <script src="<?= $basePath ?>admin/assets/js/admin-clean.js"></script>
+      <!-- Admin JS -->
+    <script src="<?= $adminUrl ?>assets/js/admin-clean.js"></script>
     
     <!-- HAR İTA TETİKLEME -->
     <script>

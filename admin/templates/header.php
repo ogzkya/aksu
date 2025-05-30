@@ -13,8 +13,22 @@ if (!isset($activePage)) {
     $activePage = '';
 }
 
-// BasePath tanımı admin paneli için
-$basePath = '../../';
+// Base URL ayarı - otomatik domain tespiti
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+$domain = $_SERVER['HTTP_HOST'];
+
+// Site root path - subdirectory kontrolü ile
+$scriptName = $_SERVER['SCRIPT_NAME'];
+$adminPos = strpos($scriptName, '/admin/');
+if ($adminPos !== false) {
+    $siteRoot = substr($scriptName, 0, $adminPos + 1);
+} else {
+    $siteRoot = '/';
+}
+
+// Tam URL oluşturma
+$baseUrl = $protocol . $domain . $siteRoot;
+$adminUrl = $baseUrl . 'admin/';
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -36,21 +50,18 @@ $basePath = '../../';
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    
-    <!-- Admin CSS - TEK DOSYA -->
-    <link rel="stylesheet" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/assets/css/admin-clean.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">    <!-- Admin CSS - TEK DOSYA -->
+    <link rel="stylesheet" href="<?= $adminUrl ?>assets/css/admin-clean.css">
     
     <!-- Meta tags -->
     <meta name="robots" content="noindex, nofollow">
     <meta name="description" content="Aksu Emlak Admin Panel">
 </head>
 <body id="page-top">
-    <div id="wrapper">
-        <!-- Sidebar -->
+    <div id="wrapper">        <!-- Sidebar -->
         <div class="sidebar">
             <!-- Brand -->
-            <a class="sidebar-brand" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
+            <a class="sidebar-brand" href="<?= $adminUrl ?>index.php">
                 <div class="sidebar-brand-icon">
                     <i class="bi bi-building"></i>
                 </div>
@@ -63,7 +74,7 @@ $basePath = '../../';
             <!-- Dashboard -->
             <ul class="navbar-nav">
                 <li class="nav-item <?= $activePage === 'dashboard' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/index.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>index.php">
                         <i class="bi bi-speedometer2"></i>
                         <span>Dashboard</span>
                     </a>
@@ -79,7 +90,7 @@ $basePath = '../../';
             <!-- Navigation -->
             <ul class="navbar-nav">
                 <li class="nav-item <?= $activePage === 'listings' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/index.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>listings/index.php">
                         <i class="bi bi-houses"></i>
                         <span>İlanlar</span>
                     </a>
@@ -87,32 +98,32 @@ $basePath = '../../';
                 
                 <!-- EMLAKÇILAR MENÜSÜ EKLENDİ -->
                 <li class="nav-item <?= $activePage === 'agents' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/agents/index.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>agents/index.php">
                         <i class="bi bi-people-fill"></i>
                         <span>Emlakçılar</span>
                     </a>
                 </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/add.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>listings/add.php">
                         <i class="bi bi-plus-circle"></i>
                         <span>Yeni İlan</span>
                     </a>
                 </li>
                 <li class="nav-item <?= $activePage === 'blog' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/blog/index.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>blog/index.php">
                         <i class="bi bi-file-earmark-text"></i>
                         <span>Blog</span>
                     </a>
                 </li>
                 <li class="nav-item <?= $activePage === 'announcements' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/announcements/index.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>announcements/index.php">
                         <i class="bi bi-megaphone"></i>
                         <span>Duyurular</span>
                     </a>
                 </li>
                 <li class="nav-item <?= $activePage === 'features' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/features/index.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>features/index.php">
                         <i class="bi bi-list-check"></i>
                         <span>Özellik Yönetimi</span>
                     </a>
@@ -123,12 +134,10 @@ $basePath = '../../';
             <hr class="sidebar-divider">
             
             <!-- Heading -->
-            <div class="sidebar-heading">Sistem</div>
-            
-            <!-- System Navigation -->
+            <div class="sidebar-heading">Sistem</div>            <!-- System Navigation -->
             <ul class="navbar-nav">
                 <li class="nav-item <?= $activePage === 'users' ? 'active' : '' ?>">
-                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/index.php">
+                    <a class="nav-link" href="<?= $adminUrl ?>users/index.php">
                         <i class="bi bi-people"></i>
                         <span>Kullanıcılar</span>
                     </a>
@@ -156,13 +165,11 @@ $basePath = '../../';
                 <!-- Page Title -->
                 <div class="d-none d-sm-inline-block">
                     <h1 class="h4 mb-0 text-gray-800"><?= htmlspecialchars($pageTitle) ?></h1>
-                </div>
-                
-                <!-- Topbar Navbar -->
+                </div>                <!-- Topbar Navbar -->
                 <ul class="navbar-nav ms-auto">
                     <!-- Quick Links -->
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>index.php" target="_blank" title="Siteyi Görüntüle">
+                        <a class="nav-link" href="<?= $baseUrl ?>index.php" target="_blank" title="Siteyi Görüntüle">
                             <i class="bi bi-globe"></i>
                         </a>
                     </li>
@@ -178,14 +185,14 @@ $basePath = '../../';
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/users/profile.php">
+                                <a class="dropdown-item" href="<?= $adminUrl ?>users/profile.php">
                                     <i class="bi bi-person"></i>
                                     Profil
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/logout.php">
+                                <a class="dropdown-item" href="<?= $adminUrl ?>logout.php">
                                     <i class="bi bi-box-arrow-right"></i>
                                     Çıkış Yap
                                 </a>
