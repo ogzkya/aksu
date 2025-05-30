@@ -1,16 +1,20 @@
 <?php
 class Listing {
-    public $db;
+    private $db;
+    private $database;
 
     public function __construct() {
-        $this->db = new Database();
+        $this->database = new Database();
+        $this->db = $this->database;  // Geriye uyumluluk için
     }
 
     // Güncellenmiş getAllListings: kiralık/satılık filtreleri ve diğer filtreleme seçenekleri eklendi
     public function getAllListings($limit = 10, $offset = 0, $filters = []) {
-        $sql = "SELECT l.*,
+        $sql = "SELECT l.*, a.name as agent_name,
                 (SELECT image_url FROM listing_images WHERE listing_id = l.id AND is_main = 1 LIMIT 1) as main_image
-                FROM listings l WHERE 1=1";
+                FROM listings l 
+                LEFT JOIN agents a ON l.agent_id = a.id 
+                WHERE 1=1";
         $params = [];
 
         // Filtreleme koşulları
@@ -91,7 +95,7 @@ class Listing {
 
         }
 
-        $sql .= " ORDER BY featured DESC, created_at DESC LIMIT ?, ?";
+        $sql .= " ORDER BY featured DESC, l.created_at DESC LIMIT ?, ?";
         $params[] = (int)$offset;
         $params[] = (int)$limit;
 
@@ -142,10 +146,12 @@ class Listing {
                 LIMIT ?";
 
         return $this->db->fetchAll($sql, [$limit]);
-    }
-
-    public function getListingById($id) {
-        $sql = "SELECT * FROM listings WHERE id = ?";
+    }    public function getListingById($id) {
+        $sql = "SELECT l.*, a.name as agent_name, a.phone as agent_phone, a.email as agent_email
+            FROM listings l 
+            LEFT JOIN agents a ON l.agent_id = a.id 
+            WHERE l.id = ?";
+        
         return $this->db->fetch($sql, [$id]);
     }
 

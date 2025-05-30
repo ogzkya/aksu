@@ -1,5 +1,5 @@
-<!-- blog.php - Blog Ana Sayfası
 <?php
+// blog.php - Blog Ana Sayfası
 require_once 'includes/init.php';
 
 $blog = new Blog();

@@ -336,15 +336,13 @@ require_once 'templates/header.php';
                  <div class="card shadow-sm mb-4 contact-card">
                     <div class="card-header bg-primary text-white">
                         <h4 class="h5 mb-0"><i class="bi bi-person-rolodex me-2"></i>İletişim</h4>
-                    </div>
-                    <div class="card-body text-center">
-                         <img src="assets/img/agent-placeholder.png" alt="Emlakçı" class="rounded-circle mb-3" width="100" loading="lazy">
+                    </div>                    <div class="card-body text-center">
+                         <img src="assets/img/logo.png" alt="Aksu Emlak" class="mb-3" width="80" loading="lazy">
                         <h5 class="card-title">Aksu Emlak</h5>
-                        <p class="card-text text-muted">Size yardımcı olmak için buradayız.</p>
-                        <a href="tel:+902425555555" class="btn btn-success w-100 mb-2">
-                            <i class="bi bi-telephone me-2"></i> (0242) 555 55 55
+                        <p class="card-text text-muted">Size yardımcı olmak için buradayız.</p>                        <a href="tel:+902126939088" class="btn btn-success w-100 mb-2">
+                            <i class="bi bi-telephone me-2"></i> (0212) 693 90 88
                         </a>
-                         <a href="mailto:info@aksu-emlak.com" class="btn btn-outline-primary w-100">
+                         <a href="mailto:aksu-emlak@hotmail.com.tr" class="btn btn-outline-primary w-100">
                             <i class="bi bi-envelope me-2"></i> E-posta Gönder
                         </a>
                          <a href="contact.php" class="btn btn-link w-100 mt-2">İletişim Formu</a>
@@ -368,9 +366,7 @@ require_once 'templates/header.php';
                         </ul>
                     </div>
                 </div>
-                <?php endif; ?>
-
-            </div>
+                <?php endif; ?>            </div>
         </div>
     </div>
 </div>

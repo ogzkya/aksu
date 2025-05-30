@@ -1,4 +1,3 @@
-// contact.php
 <?php
 require_once 'includes/init.php';
 
@@ -69,61 +68,77 @@ require_once 'templates/header.php';
 </div>
 
 <div class="container py-5">
-    <div class="row">
-        <!-- İletişim Bilgileri -->
+    <div class="row">        <!-- İletişim Bilgileri -->
         <div class="col-lg-4 mb-4 mb-lg-0">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <h3 class="h4 mb-4">İletişim Bilgileri</h3>
-                    
-                    <div class="d-flex mb-4">
-                        <div class="contact-icon me-3">
-                            <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
+                <div class="card-body text-center">
+                    <!-- Logo ve Animasyon -->
+                    <div class="contact-logo-section mb-4">
+                        <div class="contact-logo-wrapper">
+                            <img src="assets/img/logo.png" alt="Aksu Emlak" class="contact-logo mb-3">
+                            <div class="contact-animation">
+                                <div class="animated-character">
+                                    <i class="bi bi-house-heart fs-1 text-primary animated-icon"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h5 class="h6">Adres</h5>
-                            <p class="mb-0">Atatürk Cad. No: 123<br>Aksu, Antalya</p>
-                        </div>
+                        <h3 class="h4 mb-4 text-primary fw-bold">Aksu Emlak</h3>
+                        <p class="text-muted mb-4">Size yardımcı olmaktan mutluluk duyarız!</p>
                     </div>
                     
-                    <div class="d-flex mb-4">
-                        <div class="contact-icon me-3">
-                            <i class="bi bi-telephone-fill text-primary fs-3"></i>
+                    <div class="contact-info-list text-start">
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
+                            </div>
+                            <div>                                <h5 class="h6">Adres</h5>
+                                <p class="mb-0">Halkalı Küçükçekmece<br>İstanbul</p>
+                            </div>
                         </div>
-                        <div>
-                            <h5 class="h6">Telefon</h5>
-                            <p class="mb-0">+90 (242) 555 55 55</p>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-telephone-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">Telefon</h5>
+                                <p class="mb-0">(0212) 693 90 88</p>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="d-flex mb-4">
-                        <div class="contact-icon me-3">
-                            <i class="bi bi-envelope-fill text-primary fs-3"></i>
+                    </div>                        
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-envelope-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">E-posta</h5>
+                                <p class="mb-0">aksu-emlak@hotmail.com.tr</p>
+                            </div>
                         </div>
-                        <div>
-                            <h5 class="h6">E-posta</h5>
-                            <p class="mb-0">info@aksu-emlak.com</p>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex">
-                        <div class="contact-icon me-3">
-                            <i class="bi bi-clock-fill text-primary fs-3"></i>
-                        </div>
-                        <div>
-                            <h5 class="h6">Çalışma Saatleri</h5>
-                            <p class="mb-0">Pazartesi - Cumartesi: 09:00 - 18:00<br>Pazar: Kapalı</p>
+                        
+                        <div class="d-flex">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-clock-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">Çalışma Saatleri</h5>
+                                <p class="mb-0">Pazartesi - Cumartesi: 09:00 - 18:00<br>Pazar: Kapalı</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- İletişim Formu -->
+          <!-- İletişim Formu -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h3 class="h4 mb-4">Bize Mesaj Gönderin</h3>
+                    <!-- Mesaj Görseli ve Başlık -->
+                    <div class="text-center mb-4">
+                        <img src="assets/img/mesaj.jpg" alt="Mesaj Gönder" class="img-fluid mb-3" style="max-width: 150px; border-radius: 10px;">
+                        <h3 class="h4 mb-2">Bize Mesaj Gönderin</h3>
+                        <p class="text-muted">Size en iyi şekilde yardımcı olmak için buradayız!</p>
+                    </div>
                     
                     <?php if ($success): ?>
                         <div class="alert alert-success">
@@ -182,7 +197,7 @@ require_once 'templates/header.php';
     <div class="mt-5">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-0">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3195.7380204974!2d30.83650461527207!3d36.92039127991959!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14c390393d4cec97%3A0xf83942bc77d7a3da!2sAksu%2C%20Antalya!5e0!3m2!1str!2str!4v1647862231954!5m2!1str!2str" 
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3009.0846327344943!2d28.79351631531636!3d41.015754979299744!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14caa47da65b93e1%3A0x9d0f1b8a6a5e1234!2sHalkal%C4%B1%2C%20K%C3%BC%C3%A7%C3%BCk%C3%A7ekmece%2F%C4%B0stanbul!5e0!3m2!1str!2str!4v1647862231954!5m2!1str!2str" 
                         width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>

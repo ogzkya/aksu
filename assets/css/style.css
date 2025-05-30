@@ -970,472 +970,152 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.9rem;
 }
 
-/* === Ekstra Modern Admin İlan Formu Stillemeleri === */
-.admin-card {
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--card-border);
-    overflow: hidden;
+/* === Contact Page Enhancements === */
+.contact-logo-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
 }
 
-.admin-card .card-header {
-    background: white;
-    border-bottom: 1px solid var(--card-border);
-    padding: 20px 25px;
-}
-
-.admin-card .card-header .nav-tabs {
-    border-bottom: none;
-    margin-bottom: -20px;
-}
-
-.admin-card .card-header .nav-link {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px 10px 0 0;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-right: 5px;
-    transition: all 0.3s;
-}
-
-.admin-card .card-header .nav-link.active {
-    color: var(--primary);
-    background: white;
-    border-top: 3px solid var(--primary);
-}
-
-.admin-card .card-header .nav-link i {
-    margin-right: 6px;
-}
-
-.admin-card .card-body {
-    padding: 30px;
-}
-
-.form-label {
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-}
-
-.form-control,
-.form-select {
-    border-radius: 10px;
-    padding: 12px 15px;
-    font-size: 0.95rem;
-    border: 1px solid var(--gray-light);
-    transition: all 0.3s;
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-.form-text {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    margin-top: 6px;
-}
-
-.form-check-label {
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.form-switch .form-check-input {
-    width: 2.5em;
-    height: 1.25em;
-}
-
-.form-switch .form-check-input:checked {
-    background-color: var(--primary);
-    border-color: var(--primary);
-}
-
-.drag-drop-area {
-    border: 2px dashed var(--gray-light);
-    border-radius: 16px;
-    padding: 35px;
-    text-align: center;
-    transition: all 0.3s;
-    background: var(--light);
-    margin-bottom: 20px;
-}
-
-.drag-drop-area:hover,
-.drag-drop-area.dragover {
-    border-color: var(--primary);
-    background: rgba(37, 99, 235, 0.05);
-}
-
-.drag-drop-icon {
-    font-size: 3rem;
-    color: var(--primary);
-    margin-bottom: 15px;
-    opacity: 0.5;
-}
-
-.drag-drop-title {
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: var(--text-primary);
-}
-
-.drag-drop-hint {
-    color: var(--text-secondary);
-    margin-bottom: 15px;
-}
-
-.image-preview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.image-preview-item {
+.contact-logo-wrapper {
     position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--gray-light);
-    transition: all 0.3s;
-}
-
-.image-preview-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-.image-preview-item img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
-
-.image-preview-item .filename {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 5px 8px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.image-preview-item .remove-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(239, 68, 68, 0.8);
-    color: white;
-    border: none;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s;
 }
 
-.image-preview-item:hover .remove-btn {
-    opacity: 1;
+.contact-logo {
+    width: 120px;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+    transition: transform 0.3s ease;
 }
 
-.image-preview-item .main-badge {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    background: rgba(37, 99, 235, 0.8);
-    color: white;
-    font-size: 0.7rem;
-    padding: 3px 8px;
-    border-radius: 50px;
-    font-weight: 600;
+.contact-logo:hover {
+    transform: scale(1.05);
 }
 
-.tab-progress {
-    display: flex;
-    margin-bottom: 30px;
+.contact-animation {
+    margin-top: 1rem;
 }
 
-.tab-progress-item {
-    flex: 1;
-    text-align: center;
+.animated-character {
     position: relative;
+    display: inline-block;
 }
 
-.tab-progress-item::after {
-    content: '';
-    height: 2px;
-    background: var(--gray-light);
-    position: absolute;
-    top: 25px;
-    left: 50%;
-    right: 0;
-    z-index: 1;
+.animated-icon {
+    animation: heartbeat 2s ease-in-out infinite;
+    color: var(--bs-primary);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.tab-progress-item:last-child::after {
-    display: none;
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.1); }
+    50% { transform: scale(1.05); }
+    75% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 
-.tab-progress-item.active::after {
-    background: var(--primary);
-}
-
-.tab-progress-item.complete::after {
-    background: var(--success);
-}
-
-.tab-progress-circle {
+.contact-info-list .contact-icon {
+    background: rgba(var(--bs-primary-rgb), 0.1);
+    border-radius: 50%;
     width: 50px;
     height: 50px;
-    background: white;
-    border: 2px solid var(--gray-light);
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 10px;
-    position: relative;
-    z-index: 2;
-    font-weight: 600;
-    color: var(--text-secondary);
-    transition: all 0.3s;
+    flex-shrink: 0;
 }
 
-.tab-progress-item.active .tab-progress-circle {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: white;
+.contact-info-list .d-flex {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.tab-progress-item.complete .tab-progress-circle {
-    border-color: var(--success);
-    background: var(--success);
-    color: white;
+.contact-info-list .d-flex:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.tab-progress-text {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-.tab-progress-item.active .tab-progress-text {
-    color: var(--primary);
-}
-
-.tab-progress-item.complete .tab-progress-text {
-    color: var(--success);
-}
-
-.form-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid var(--gray-light);
-}
-
-.nav-btn {
-    padding: 12px 25px;
-    border-radius: 50px;
-    font-weight: 600;
+/* Logo Büyütme ve Stili */
+.navbar-brand {
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
+    text-decoration: none;
 }
 
-.nav-btn-primary {
-    background: var(--primary);
-    color: white;
-    border: none;
+.logo-container {
+    display: flex;
+    align-items: center;
 }
 
-.nav-btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+.site-logo {
+    width: 100px !important;
+    height: auto !important;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
-.nav-btn-secondary {
-    background: var(--light);
-    color: var(--text-primary);
-    border: 1px solid var(--gray-light);
+.navbar-brand:hover .site-logo {
+    transform: scale(1.05);
 }
 
-.nav-btn-secondary:hover {
-    background: var(--gray-light);
-}
-
-.nav-btn-success {
-    background: var(--success);
-    color: white;
-    border: none;
-}
-
-.nav-btn-success:hover {
-    background: #0ea572;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
-}
-
-/* === [BURADA İLK BLOKTAN ORIJINAL MARKER ve POPUP TANIMLARI KALDIRILDI] === */
-
-/* === Marker ve Popup Stil İyileştirmeleri (Güncellenmiş) - Eklenen Kod === */
-
-/* Marker container */
-.marker-container {
-    position: relative;
-    width: auto;
-    min-width: 25px;
-}
-
-/* Marker icon */
-.marker-icon {
-    position: absolute;
-    font-size: 25px;
-    color: var(--primary);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    width: 100%;
-    top: -35px;
-    left: 0;
-}
-
-/* Güncellenmiş marker-price */
-.marker-price {
-    background-color: white;
-    color: var(--primary);
-    font-weight: bold;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    white-space: nowrap;
-    margin-top: 10px;
-    border: 1px solid var(--primary);
-    position: relative;
-}
-
-.marker-price::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 6px solid white;
-}
-
-/* Fiyat durumuna göre ek stiller */
-.marker-price-sale {
-    background-color: #e74c3c;
-    color: white;
-    border-color: #e74c3c;
-}
-
-.marker-price-sale::before {
-    border-bottom-color: #e74c3c;
-}
-
-.marker-price-rent {
-    background-color: #2ecc71;
-    color: white;
-    border-color: #2ecc71;
-}
-
-.marker-price-rent::before {
-    border-bottom-color: #2ecc71;
-}
-
-/* Map popup stili */
-.property-popup .leaflet-popup-content-wrapper {
-    padding: 0;
-    overflow: hidden;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.property-popup .leaflet-popup-content {
-    margin: 0;
-    width: 280px !important;
-}
-
-.map-popup {
-    width: 100%;
-}
-
-.popup-image {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    display: block;
-}
-
-.popup-title {
-    font-weight: 600;
-    font-size: 0.95rem;
-    margin: 10px 12px 5px;
-    color: var(--secondary);
-}
-
-.popup-price {
-    font-weight: bold;
-    color: var(--primary);
-    margin: 0 12px 5px;
-    font-size: 1.1rem;
-}
-
-.map-popup .btn {
-    margin: 0 12px 12px;
-    width: calc(100% - 24px);
-}
-
-/* Harita boyutları */
-#property-location-map, 
-#property-map, 
-#search-map, 
-#map-container {
-    border-radius: 8px;
-    min-height: 400px;
-    width: 100%;
-    z-index: 1;
-}
-
-/* Mobil için harita büyütme */
+/* Responsive Design */
 @media (max-width: 768px) {
-    #property-location-map, 
-    #property-map, 
-    #search-map, 
-    #map-container {
-        min-height: 300px;
+    .contact-logo {
+        width: 100px;
     }
     
-    .marker-price {
-        font-size: 10px;
-        padding: 2px 6px;
+    .contact-logo-section {
+        padding: 1.5rem 1rem;
     }
     
-    .marker-icon {
-        font-size: 20px;
-        top: -30px;
+    .site-logo {
+        width: 80px !important;
     }
+}
+
+@media (max-width: 576px) {
+    .site-logo {
+        width: 70px !important;
+    }
+}
+
+/* Navbar Brand Text */
+.brand-text {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--bs-dark);
+}
+
+.brand-text .text-accent {
+    color: var(--bs-primary) !important;
+}
+
+/* Header Logo Enhancement */
+.navbar-brand {
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: translateY(-1px);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: scale(1.02);
 }
 

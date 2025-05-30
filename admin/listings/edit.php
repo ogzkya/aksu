@@ -1,6 +1,7 @@
 // admin/listings/edit.php
 <?php
 require_once '../../includes/init.php';
+require_once '../../includes/Agent.php';
 
 $auth = new Auth();
 $auth->requireLogin();
@@ -13,6 +14,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $listingId = (int)$_GET['id'];
 $listing = new Listing();
 $image = new Image();
+$agents = (new Agent())->getAll();
 $errors = [];
 $success = isset($_GET['success']) || false;
 
@@ -35,6 +37,8 @@ $features = json_decode($listingData['features'] ?? '[]', true) ?: [
     'Dış Özellikler' => [],
     'Çevre Özellikleri' => []
 ];
+
+$currentAgent = $listingData['agent_id'] ?? null;
 
 // Form gönderildi mi kontrol et
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -73,7 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'İç Özellikler' => [],
                 'Dış Özellikler' => [],
                 'Çevre Özellikleri' => []
-            ]
+            ],
+            'agent_id' => $_POST['agent_id'] ?? null
         ];
         
         // Mesafeleri işle
@@ -202,6 +207,134 @@ $pageTitle = "İlan Düzenle";
 $activePage = "listings";
 require_once '../templates/header.php';
 ?>
+
+<style>
+.image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    min-height: 120px;
+    padding: 20px;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.image-preview-container.drag-over {
+    border-color: #007bff;
+    background-color: #e3f2fd;
+}
+
+.image-preview-container:empty::before {
+    content: 'Yeni görseller buraya sürükleyip bırakın veya dosya seçin';
+    color: #6c757d;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 80px;
+}
+
+.image-preview {
+    position: relative;
+    width: 120px;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.image-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-preview .delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.image-preview .delete-btn:hover {
+    background: #dc3545;
+    transform: scale(1.1);
+}
+
+.image-preview .main-image-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,123,255,0.9), transparent);
+    color: white;
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.image-preview .image-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: white;
+    padding: 5px 8px;
+    font-size: 11px;
+    text-align: center;
+}
+
+#map-container {
+    height: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.custom-file-button {
+    cursor: pointer;
+}
+
+.custom-file-button input[type="file"] {
+    cursor: pointer;
+}
+
+.custom-file-button .input-group-text {
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.custom-file-button .input-group-text:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+</style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0 text-gray-800">İlan Düzenle</h1>
@@ -576,25 +709,31 @@ require_once '../templates/header.php';
                     <h5 class="mb-3">Görsel Galerisi</h5>
                     
                     <div class="card mb-3">
-                        <div class="card-body">
-                            <!-- Mevcut Görseller -->
+                        <div class="card-body">                            <!-- Mevcut Görseller -->
                             <?php if (!empty($images)): ?>
                                 <div class="mb-4">
-                                    <label class="form-label">Mevcut Görseller</label>
+                                    <label class="form-label">
+                                        <i class="bi bi-images me-2"></i>Mevcut Görseller
+                                        <span class="badge bg-secondary ms-2"><?= count($images) ?></span>
+                                    </label>
                                     <div class="image-preview-container">
                                         <?php foreach ($images as $img): ?>
                                             <div class="image-preview" data-image-id="<?= $img['id'] ?>">
-                                                <img src="<?= htmlspecialchars($img['image_url']) ?>" alt="">
+                                                <img src="<?= htmlspecialchars($img['image_url']) ?>" alt="Görsel <?= $img['id'] ?>">
                                                 <?php if ($img['is_main']): ?>
-                                                    <span class="main-image-label">Ana</span>
+                                                    <span class="main-image-label">
+                                                        <i class="bi bi-star-fill me-1"></i>Ana
+                                                    </span>
                                                 <?php endif; ?>
-                                                <button type="button" class="delete-btn delete-existing-image">×</button>
+                                                <button type="button" class="delete-btn delete-existing-image" title="Görseli Sil">×</button>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
                                     
                                     <div class="mt-3">
-                                        <label for="main-image-select" class="form-label">Ana Görsel Seç</label>
+                                        <label for="main-image-select" class="form-label">
+                                            <i class="bi bi-star me-2"></i>Ana Görsel Seç
+                                        </label>
                                         <select class="form-select" id="main-image-select" name="main_image">
                                             <?php foreach ($images as $img): ?>
                                                 <option value="<?= $img['id'] ?>" <?= $img['is_main'] ? 'selected' : '' ?>>
@@ -607,16 +746,29 @@ require_once '../templates/header.php';
                                     <!-- Silinen görselleri saklamak için gizli alan -->
                                     <input type="hidden" name="deleted_images" id="deleted-images-input" value="">
                                 </div>
+                            <?php else: ?>
+                                <div class="mb-4">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Bu ilan için henüz görsel eklenmemiş. Aşağıdan yeni görseller ekleyebilirsiniz.
+                                    </div>
+                                </div>
                             <?php endif; ?>
-                            
-                            <!-- Yeni Görseller -->
+                              <!-- Yeni Görseller -->
                             <div class="mb-3">
                                 <label for="new-images" class="form-label">Yeni Görseller Ekle</label>
                                 <div class="input-group custom-file-button">
                                     <input type="file" class="form-control" id="new-images" name="new_images[]" accept="image/jpeg,image/png,image/jpg" multiple>
-                                    <label class="input-group-text" for="new-images">Gözat</label>
+                                    <label class="input-group-text" for="new-images">
+                                        <i class="bi bi-cloud-upload me-2"></i>Gözat
+                                    </label>
                                 </div>
-                                <div class="form-text">Kabul edilen formatlar: JPG, JPEG, PNG</div>
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Kabul edilen formatlar: JPG, JPEG, PNG (Maksimum 10MB)
+                                    <br>
+                                    <small class="text-muted">Görselleri buraya sürükleyip bırakabilir veya dosya seçebilirsiniz</small>
+                                </div>
                             </div>
                             
                             <div id="new-image-previews" class="image-preview-container">
@@ -624,7 +776,9 @@ require_once '../templates/header.php';
                             </div>
                             
                             <div class="mt-3" id="new-main-image-container" style="display: none;">
-                                <label for="new-main-image-select" class="form-label">Yeni Ana Görsel</label>
+                                <label for="new-main-image-select" class="form-label">
+                                    <i class="bi bi-star me-2"></i>Yeni Ana Görsel
+                                </label>
                                 <select class="form-select" id="new-main-image-select" name="main_image_index">
                                     <option value="-1">Ana görsel seçilmedi</option>
                                 </select>
@@ -643,100 +797,328 @@ require_once '../templates/header.php';
     </div>
 </div>
 
+<!-- Düzenleme Sayfası JavaScript -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Silinen görselleri izleme
-        const deletedImages = [];
-        const deletedImagesInput = document.getElementById('deleted-images-input');
+class EditListingManager {
+    constructor() {
+        this.newImages = [];
+        this.deletedImages = [];
+        this.currentMainImage = null;
         
-        // Görsel silme işlemi
-        document.querySelectorAll('.delete-existing-image').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                const preview = this.closest('.image-preview');
-                const imageId = preview.getAttribute('data-image-id');
+        // admin-clean.js ile çakışmayı önlemek için işaretle
+        window.ListingImageUploader = true;
+        document.body.classList.add('listing-image-uploader-active');
+        
+        this.init();
+    }
+
+    init() {
+        this.initImageUpload();
+        this.initExistingImages();
+        this.initMap();
+        this.initFormValidation();
+        this.initPriceTypeHandler();
+        this.initTabHandlers();
+    }
+
+    // Yeni görsel yükleme sistemi
+    initImageUpload() {
+        const input = document.getElementById('new-images');
+        const previews = document.getElementById('new-image-previews');
+        const mainContainer = document.getElementById('new-main-image-container');
+        const mainSelect = document.getElementById('new-main-image-select');
+
+        if (!input || !previews) return;
+
+        input.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            this.handleNewImages(files, previews, mainContainer, mainSelect);
+        });
+
+        // Sürükle-bırak desteği
+        this.initDragDrop(input, previews, mainContainer, mainSelect);
+    }
+
+    initDragDrop(input, previews, mainContainer, mainSelect) {
+        const dragEvents = ['dragenter', 'dragover', 'dragleave', 'drop'];
+        
+        dragEvents.forEach(eventName => {
+            previews.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        previews.addEventListener('dragover', () => {
+            previews.classList.add('drag-over');
+        });
+
+        previews.addEventListener('dragleave', () => {
+            previews.classList.remove('drag-over');
+        });        previews.addEventListener('drop', (e) => {
+            previews.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.type.match(/^image\/(jpeg|jpg|png)$/i)
+            );
+            
+            if (files.length > 0) {
+                this.handleNewImages(files, previews, mainContainer, mainSelect);
                 
-                // Silinecek ID'yi ekle
-                deletedImages.push(imageId);
-                deletedImagesInput.value = deletedImages.join(',');
+                // FileList oluştur ve input'a ata
+                const dt = new DataTransfer();
+                this.newImages.forEach(file => dt.items.add(file));
+                input.files = dt.files;
+            } else if (e.dataTransfer.files.length > 0) {
+                alert('Lütfen sadece görsel dosyalarını (JPG, JPEG, PNG) sürükleyin.');
+            }
+        });
+    }    handleNewImages(files, previews, mainContainer, mainSelect) {
+        if (files.length === 0) {
+            previews.innerHTML = '';
+            mainContainer.style.display = 'none';
+            this.newImages = [];
+            return;
+        }
+
+        // Dosya doğrulama
+        const validFiles = [];
+        const errors = [];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+        files.forEach((file, index) => {
+            if (!allowedTypes.includes(file.type.toLowerCase())) {
+                errors.push(`${file.name}: Geçersiz dosya formatı. Sadece JPG, JPEG, PNG desteklenmektedir.`);
+                return;
+            }
+
+            if (file.size > maxSize) {
+                errors.push(`${file.name}: Dosya boyutu çok büyük. Maksimum 10MB olmalıdır.`);
+                return;
+            }
+
+            validFiles.push(file);
+        });
+
+        if (errors.length > 0) {
+            alert('Dosya yükleme hataları:\n' + errors.join('\n'));
+        }
+
+        if (validFiles.length === 0) {
+            previews.innerHTML = '';
+            mainContainer.style.display = 'none';
+            this.newImages = [];
+            return;
+        }
+
+        this.newImages = validFiles;
+        previews.innerHTML = '';
+        
+        validFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'image-preview position-relative';
+                imageDiv.innerHTML = `
+                    <img src="${e.target.result}" alt="Yeni görsel ${index + 1}">
+                    <button type="button" class="delete-btn" onclick="editManager.removeNewImage(${index})" title="Görseli Kaldır">×</button>
+                    <div class="image-info">
+                        <small>Yeni ${index + 1}</small>
+                        <br>
+                        <small class="text-muted">${fileSize}MB</small>
+                    </div>
+                `;
+                previews.appendChild(imageDiv);
+            };
+            reader.readAsDataURL(file);
+        });        // Ana görsel seçimi için dropdown'ı güncelle
+        mainSelect.innerHTML = '<option value="-1">Ana görsel seçilmedi</option>';
+        validFiles.forEach((file, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = `Yeni Görsel ${index + 1} (${file.name})`;
+            mainSelect.appendChild(option);
+        });
+
+        mainContainer.style.display = validFiles.length > 0 ? 'block' : 'none';
+    }
+
+    removeNewImage(index) {
+        const input = document.getElementById('new-images');
+        const previews = document.getElementById('new-image-previews');
+        const mainContainer = document.getElementById('new-main-image-container');
+        const mainSelect = document.getElementById('new-main-image-select');
+
+        // Array'dan kaldır
+        this.newImages.splice(index, 1);
+
+        // FileList'i güncelle
+        const dt = new DataTransfer();
+        this.newImages.forEach(file => dt.items.add(file));
+        input.files = dt.files;
+
+        // Önizlemeleri yeniden oluştur
+        this.handleNewImages(this.newImages, previews, mainContainer, mainSelect);
+    }
+
+    // Mevcut görseller için silme işlevi
+    initExistingImages() {
+        const existingImages = document.querySelectorAll('.delete-existing-image');
+        const deletedInput = document.getElementById('deleted-images-input');
+
+        existingImages.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const imageDiv = e.target.closest('.image-preview');
+                const imageId = imageDiv.dataset.imageId;
                 
-                // Önizlemeyi gizle
-                preview.style.display = 'none';
-                
-                // Ana görsel seçimi güncellemesi
-                const mainImageSelect = document.getElementById('main-image-select');
-                const option = mainImageSelect.querySelector(`option[value="${imageId}"]`);
-                
-                if (option) {
-                    option.disabled = true;
+                if (imageId && confirm('Bu görseli silmek istediğinizden emin misiniz?')) {
+                    this.deletedImages.push(imageId);
+                    deletedInput.value = this.deletedImages.join(',');
+                    imageDiv.remove();
                     
-                    // Eğer silinen görsel ana görsel ise, başka bir görsel seç
-                    if (option.selected) {
-                        const availableOptions = Array.from(mainImageSelect.options).filter(opt => !opt.disabled);
-                        if (availableOptions.length > 0) {
-                            availableOptions[0].selected = true;
-                        }
-                    }
+                    // Ana görsel seçimi dropdown'ını güncelle
+                    this.updateMainImageSelect();
                 }
             });
         });
+    }
+
+    updateMainImageSelect() {
+        const mainSelect = document.getElementById('main-image-select');
+        const existingImages = document.querySelectorAll('.image-preview[data-image-id]');
         
-        // Mesafe ekleme/silme
-        const distancesContainer = document.getElementById('distances-container');
-        
-        document.getElementById('add-distance').addEventListener('click', function() {
-            const newRow = document.createElement('div');
-            newRow.className = 'distance-row row mb-3';
-            newRow.innerHTML = `
-                <div class="col-md-5">
-                    <input type="text" class="form-control" name="distance_name[]" placeholder="Mekan Adı (örn. Metro)">
-                </div>
-                <div class="col-md-5">
-                    <div class="input-group">
-                        <input type="number" class="form-control" name="distance_value[]" placeholder="Mesafe" step="0.1" min="0">
-                        <span class="input-group-text">km</span>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-danger w-100 remove-distance">Sil</button>
-                </div>
-            `;
+        if (mainSelect) {
+            // Mevcut seçimi sakla
+            const currentValue = mainSelect.value;
             
-            distancesContainer.appendChild(newRow);
-        });
-        
-        distancesContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-distance')) {
-                const row = e.target.closest('.distance-row');
-                
-                if (distancesContainer.children.length > 1) {
-                    row.remove();
-                } else {
-                    // İlk satırı temizle
-                    row.querySelectorAll('input').forEach(input => input.value = '');
+            // Dropdown'ı temizle ve yeniden doldur
+            mainSelect.innerHTML = '';
+            
+            existingImages.forEach(imageDiv => {
+                const imageId = imageDiv.dataset.imageId;
+                if (!this.deletedImages.includes(imageId)) {
+                    const option = document.createElement('option');
+                    option.value = imageId;
+                    option.textContent = `Görsel ${imageId}`;
+                    if (currentValue === imageId) {
+                        option.selected = true;
+                    }
+                    mainSelect.appendChild(option);
                 }
-            }
-        });
+            });
+        }
+    }
+
+    // Harita işlevleri
+    initMap() {
+        const latInput = document.getElementById('latitude');
+        const lngInput = document.getElementById('longitude');
+        const mapContainer = document.getElementById('map-container');
         
-        // Leaflet harita
-        const map = L.map('map-container').setView([<?= $listingData['latitude'] ?>, <?= $listingData['longitude'] ?>], 15);
+        if (!mapContainer || typeof L === 'undefined') return;
+
+        const defaultLat = 41.0082, defaultLng = 28.7784;
+        const lat = parseFloat(latInput.value) || defaultLat;
+        const lng = parseFloat(lngInput.value) || defaultLng;
+        
+        mapContainer.style.height = '400px';
+        const map = L.map('map-container').setView([lat, lng], 13);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 18
+            attribution: '© OpenStreetMap'
         }).addTo(map);
         
-        const marker = L.marker([<?= $listingData['latitude'] ?>, <?= $listingData['longitude'] ?>]).addTo(map);
+        const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
         
-        map.on('click', function(e) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
-            
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
-            
+        const updateInputs = (pos) => {
+            latInput.value = pos.lat.toFixed(6);
+            lngInput.value = pos.lng.toFixed(6);
+        };
+        
+        marker.on('dragend', () => updateInputs(marker.getLatLng()));
+        map.on('click', (e) => {
             marker.setLatLng(e.latlng);
+            updateInputs(e.latlng);
         });
-    });
+    }
+
+    // Form doğrulama
+    initFormValidation() {
+        const form = document.querySelector('form');
+        if (!form) return;
+
+        form.addEventListener('submit', (e) => {
+            let isValid = true;
+            const errors = [];
+
+            // Temel alanları kontrol et
+            const title = document.getElementById('title');
+            const description = document.getElementById('description');
+            
+            if (!title.value.trim()) {
+                errors.push('İlan başlığı gereklidir.');
+                isValid = false;
+            }
+            
+            if (!description.value.trim()) {
+                errors.push('İlan açıklaması gereklidir.');
+                isValid = false;
+            }
+
+            // Fiyat kontrolü
+            const salePrice = document.getElementById('sale_price');
+            const rentPrice = document.getElementById('rent_price');
+            
+            if ((!salePrice.value || salePrice.value <= 0) && (!rentPrice.value || rentPrice.value <= 0)) {
+                errors.push('En az bir fiyat (satış veya kira) girilmelidir.');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Lütfen aşağıdaki hataları düzeltin:\n' + errors.join('\n'));
+            }
+        });
+    }
+
+    // Fiyat tipi yönetimi
+    initPriceTypeHandler() {
+        const salePrice = document.getElementById('sale_price');
+        const rentPrice = document.getElementById('rent_price');
+        
+        if (salePrice && rentPrice) {
+            [salePrice, rentPrice].forEach(input => {
+                input.addEventListener('input', () => {
+                    // Fiyat tipine göre UI güncellemeleri burada yapılabilir
+                });
+            });
+        }
+    }
+
+    // Tab işlevleri
+    initTabHandlers() {
+        const tabTriggers = document.querySelectorAll('[data-bs-toggle="tab"]');
+        
+        tabTriggers.forEach(tab => {
+            tab.addEventListener('shown.bs.tab', (e) => {
+                const href = e.target.getAttribute('href');
+                
+                // Harita tab'ı açıldığında haritayı yenile
+                if (href === '#location' && window.currentMap) {
+                    setTimeout(() => {
+                        window.currentMap.invalidateSize();
+                    }, 100);
+                }
+            });
+        });
+    }
+}
+
+// Sayfa yüklendiğinde başlat
+document.addEventListener('DOMContentLoaded', function() {
+    window.editManager = new EditListingManager();
+});
 </script>
 
 <?php require_once '../templates/footer.php'; ?>

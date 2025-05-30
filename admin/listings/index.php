@@ -58,107 +58,62 @@ require_once '../templates/header.php';
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <!-- Güncellenmiş Tablo Başlığı -->
+            <table class="table table-bordered" width="100%" cellspacing="0">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Resim</th>
                         <th>Başlık</th>
-                        <th>İlan Tipi</th>
-                        <th>Fiyat</th>
-                        <th>Lokasyon</th>
                         <th>Kategori</th>
+                        <th>Fiyat</th>
+                        <th>Emlakçı</th>
                         <th>Durum</th>
                         <th>Tarih</th>
                         <th>İşlemler</th>
                     </tr>
                 </thead>
-                <!-- Güncellenmiş Tablo Gövdesi -->
                 <tbody>
-                    <?php foreach ($listings as $item): ?>
+                    <?php if (empty($listings)): ?>
                         <tr>
-                            <td><?= $item['id'] ?></td>
-                            <td class="text-center">
-                                <?php if (!empty($item['main_image'])): ?>
-                                    <img src="<?= htmlspecialchars($item['main_image']) ?>" 
-                                         alt="" 
-                                         class="img-thumbnail" 
-                                         style="width: 60px; height: 40px; object-fit: cover;">
-                                <?php else: ?>
-                                    <div class="bg-light d-flex align-items-center justify-content-center" 
-                                         style="width: 60px; height: 40px;">
-                                        <i class="bi bi-image text-muted"></i>
-                                    </div>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <a href="../../listing.php?id=<?= $item['id'] ?>" target="_blank">
-                                    <?= htmlspecialchars($item['title']) ?>
-                                </a>
-                            </td>
-                            <td>
-                                <?php if ($item['rent_price'] && $item['rent_price'] > 0): ?>
-                                    <?php if ($item['sale_price'] && $item['sale_price'] > 0): ?>
-                                        <span class="badge bg-info">Satılık/Kiralık</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-success">Kiralık</span>
+                            <td colspan="8" class="text-center">Henüz ilan yok</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($listings as $listing): ?>
+                            <tr>
+                                <td><?= $listing['id'] ?></td>
+                                <td><?= htmlspecialchars($listing['title']) ?></td>
+                                <td><?= ucfirst($listing['category']) ?></td>
+                                <td>
+                                    <?php if ($listing['sale_price']): ?>
+                                        <?= number_format($listing['sale_price']) ?> ₺
                                     <?php endif; ?>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">Satılık</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($item['rent_price'] && $item['rent_price'] > 0): ?>
-                                    <?= number_format($item['rent_price'], 0, ',', '.') ?> ₺/ay
-                                    <?php if ($item['sale_price'] && $item['sale_price'] > 0): ?>
-                                        <br><?= number_format($item['sale_price'], 0, ',', '.') ?> ₺
+                                    <?php if ($listing['rent_price']): ?>
+                                        <br><?= number_format($listing['rent_price']) ?> ₺/ay
                                     <?php endif; ?>
-                                <?php else: ?>
-                                    <?= number_format($item['sale_price'], 0, ',', '.') ?> ₺
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($item['city']) ?></td>
-                            <td>
-                                <?php
-                                $categories = [
-                                    'House' => 'Müstakil Ev',
-                                    'Apartment' => 'Daire',
-                                    'Commercial' => 'Ticari',
-                                    'Land' => 'Arsa',
-                                    'Other' => 'Diğer'
-                                ];
-                                echo $categories[$item['category']] ?? $item['category'];
-                                ?>
-                            </td>
-                            <td>
-                                <?php if ($item['featured']): ?>
-                                    <span class="badge bg-primary">Öne Çıkan</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Normal</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= date('d.m.Y', strtotime($item['created_at'])) ?></td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="edit.php?id=<?= $item['id'] ?>" class="btn btn-info" title="Düzenle">
+                                </td>
+                                <td>
+                                    <?= $listing['agent_name'] ? htmlspecialchars($listing['agent_name']) : '<span class="text-muted">Belirtilmemiş</span>' ?>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<?= $listing['status'] === 'active' ? 'success' : 'secondary' ?>">
+                                        <?= $listing['status'] === 'active' ? 'Aktif' : 'Pasif' ?>
+                                    </span>
+                                </td>
+                                <td><?= date('d.m.Y', strtotime($listing['created_at'])) ?></td>
+                                <td>
+                                    <a href="view.php?id=<?= $listing['id'] ?>" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="edit.php?id=<?= $listing['id'] ?>" class="btn btn-sm btn-primary">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="feature.php?id=<?= $item['id'] ?>" class="btn btn-warning" title="<?= $item['featured'] ? 'Öne Çıkarma' : 'Öne Çıkar' ?>">
-                                        <i class="bi bi-star<?= $item['featured'] ? '-fill' : '' ?>"></i>
-                                    </a>
-                                    <a href="delete.php?id=<?= $item['id'] ?>" class="btn btn-danger" title="Sil" onclick="return confirm('Bu ilanı silmek istediğinize emin misiniz?');">
+                                    <a href="delete.php?id=<?= $listing['id'] ?>" 
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Bu ilanı silmek istediğinizden emin misiniz?')">
                                         <i class="bi bi-trash"></i>
                                     </a>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                    
-                    <?php if (count($listings) === 0): ?>
-                        <tr>
-                            <td colspan="10" class="text-center">İlan bulunamadı</td>
-                        </tr>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>

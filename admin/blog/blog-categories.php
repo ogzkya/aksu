@@ -1,6 +1,6 @@
 <?php
 // admin/blog/blog-category.php - Frontend for displaying blog posts by category
-require_once '../includes/init.php';
+require_once '../../includes/init.php';
 
 // Check if category slug is provided
 if (!isset($_GET['slug'])) {

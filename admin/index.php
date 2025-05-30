@@ -1,12 +1,13 @@
 <?php
 // admin/index.php
 require_once '../includes/init.php';
+require_once '../includes/Message.php';
 
 $auth = new Auth();
 $auth->requireLogin();
 
 $listing = new Listing();
-$message = new Message();
+$messageModel = new Message();
 
 // İstatistikler
 $totalListings = $listing->countListings();
@@ -18,7 +19,7 @@ $featuredListings = $listing->countListings(['featured' => 1]);
 $recentListings = $listing->getAllListings(5, 0);
 
 // Son mesajlar
-$recentMessages = $message->getAllMessages(5, 0);
+$recentMessages = $messageModel->getAll();
 
 // Admin kullanıcıları
 $users = $auth->getAllUsers();

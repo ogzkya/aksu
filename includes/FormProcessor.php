@@ -132,6 +132,7 @@ class FormProcessor {
                 'zip' => $postData['zip'] ?? '',
                 'keywords' => $postData['keywords'] ?? null,
                 'featured' => isset($postData['featured']) ? 1 : 0,
+                'agent_id' => !empty($postData['agent_id']) ? (int)$postData['agent_id'] : null,
                 'multimedia' => [
                     'video_url' => $postData['video_url'] ?? '',
                     'virtual_tour' => $postData['virtual_tour'] ?? ''
@@ -291,5 +292,130 @@ class FormProcessor {
             'errors' => $this->errors,
             'listingId' => $listingId // ID her zaman döndürülür
         ];
+    }
+
+    public function processListingFormOld($post, $files, $listing, $imageUploader) {
+        $errors = [];
+        
+        // Kategori kontrolü
+        $category = $post['category'] ?? '';
+        $isLand = ($category === 'Land');
+        
+        // Temel alanlar
+        if (empty($post['title'])) $errors[] = 'Başlık gereklidir.';
+        if (empty($post['description'])) $errors[] = 'Açıklama gereklidir.';
+        if (empty($post['category'])) $errors[] = 'Kategori gereklidir.';
+        if (empty($post['property_size'])) $errors[] = 'Alan bilgisi gereklidir.';
+        
+        // Arsa değilse oda/banyo/kat zorunlu
+        if (!$isLand) {
+            if (empty($post['rooms']) || $post['rooms'] <= 0) $errors[] = 'Oda sayısı gereklidir.';
+            if (empty($post['bathrooms']) || $post['bathrooms'] <= 0) $errors[] = 'Banyo sayısı gereklidir.';
+            if (empty($post['floors_no']) || $post['floors_no'] <= 0) $errors[] = 'Kat sayısı gereklidir.';
+        }
+        
+        // Fiyat kontrolü
+        $listingType = $post['listing_type'] ?? 'sale';
+        if ($listingType === 'sale' || $listingType === 'both') {
+            if (empty($post['sale_price']) || $post['sale_price'] <= 0) {
+                $errors[] = 'Satış fiyatı gereklidir.';
+            }
+        }
+        if ($listingType === 'rent' || $listingType === 'both') {
+            if (empty($post['rent_price']) || $post['rent_price'] <= 0) {
+                $errors[] = 'Kira fiyatı gereklidir.';
+            }
+        }
+        
+        // Konum kontrolü
+        if (empty($post['street'])) $errors[] = 'Sokak/Cadde gereklidir.';
+        if (empty($post['city'])) $errors[] = 'Şehir gereklidir.';
+        if (empty($post['state'])) $errors[] = 'İl/Bölge gereklidir.';
+        if (empty($post['latitude']) || empty($post['longitude'])) {
+            $errors[] = 'Harita üzerinden konum seçimi gereklidir.';
+        }
+        
+        if (!empty($errors)) {
+            return ['success' => false, 'errors' => $errors, 'listingId' => null];
+        }
+        
+        // Arsa için varsayılan değerler
+        if ($isLand) {
+            $post['rooms'] = 0;
+            $post['bathrooms'] = 0;
+            $post['floors_no'] = 1;
+            $post['garages'] = 0;
+            $post['year_built'] = null;
+            $post['energy_efficiency'] = null;
+        }
+        
+        // Veri hazırlama
+        $listingData = [
+            'title' => $post['title'],
+            'description' => $post['description'],
+            'short_description' => $post['short_description'] ?? null,
+            'keywords' => $post['keywords'] ?? null,
+            'category' => $post['category'],
+            'listing_type' => $listingType,
+            'sale_price' => !empty($post['sale_price']) ? (float)$post['sale_price'] : null,
+            'rent_price' => !empty($post['rent_price']) ? (float)$post['rent_price'] : null,
+            'property_size' => (float)$post['property_size'],
+            'property_lot_size' => !empty($post['property_lot_size']) ? (float)$post['property_lot_size'] : null,
+            'rooms' => (int)$post['rooms'],
+            'bathrooms' => (int)$post['bathrooms'],
+            'floors_no' => (int)$post['floors_no'],
+            'garages' => (int)($post['garages'] ?? 0),
+            'year_built' => !empty($post['year_built']) ? (int)$post['year_built'] : null,
+            'energy_efficiency' => $post['energy_efficiency'] ?? null,
+            'street' => $post['street'],
+            'zip' => $post['zip'] ?? null,
+            'city' => $post['city'],
+            'state' => $post['state'],
+            'country' => $post['country'] ?? 'Türkiye',
+            'latitude' => (float)$post['latitude'],
+            'longitude' => (float)$post['longitude'],
+            'video_url' => $post['video_url'] ?? null,
+            'virtual_tour' => $post['virtual_tour'] ?? null,
+            'featured' => isset($post['featured']) ? 1 : 0,
+            'agent_id' => !empty($post['agent_id']) ? (int)$post['agent_id'] : null,
+            'status' => 'active'
+        ];
+        
+        // --- Mevcut ilanı güncelle
+        if ($listing) {
+            // İlanı güncelle
+            $listingObj->updateListing($listing['id'], $listingData);
+            $listingId = $listing['id'];
+        } else {
+            // --- Yeni ilan ekle
+            // Yeni ilanı ekle
+            $listingId = $listingObj->addListing($listingData);
+        }
+        
+        // Hata kontrolü
+        if (!$listingId) {
+            return ['success' => false, 'errors' => ['İlan kaydedilemedi.'], 'listingId' => null];
+        }
+        
+        // --- Görsel yükleme
+        if ($hasNewFiles) {
+            $uploadResult = $imageUploader->uploadMultiple($files[$imageFieldName], $listingId);
+            
+            if (!$uploadResult['success']) {
+                // Yükleme hatalarını döndür
+                return ['success' => false, 'errors' => $uploadResult['errors'], 'listingId' => $listingId];
+            }
+            
+            // Yüklenen görsellerle ilgili işlemler
+            foreach ($uploadResult['files'] as $index => $uploadedUrl) {
+                // Ana görsel belirleme
+                $isMain = ($index === 0) ? 1 : 0; // İlk yüklenen görsel ana görsel olsun
+                
+                // Veritabanına ekle
+                $listingObj->addListingImage($listingId, $uploadedUrl, $isMain);
+            }
+        }
+        
+        return ['success' => true, 'errors' => [], 'listingId' => $listingId];
     }
 }

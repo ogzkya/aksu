@@ -9,10 +9,9 @@
                 <div class="col-md-4 mb-4 mb-md-0">
                     <h5 class="mb-3">Aksu Emlak</h5>
                     <p>2000 yılından bu yana İstanbul ve çevresinde gayrimenkul sektöründe satılık ve kiralık mülkler için güvenilir bir platform sağlıyoruz.</p>
-                    <div class="mt-4">
-                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i> Halkalı Küçükçekmece</p>
-                        <p class="mb-1"><i class="bi bi-telephone me-2"></i> (0242) 555 55 55</p>
-                        <p class="mb-1"><i class="bi bi-envelope me-2"></i> aksu-emlak@hotmail.com</p>
+                    <div class="mt-4">                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i> Halkalı Küçükçekmece</p>
+                        <p class="mb-1"><i class="bi bi-telephone me-2"></i> (0212) 693 90 88</p>
+                        <p class="mb-1"><i class="bi bi-envelope me-2"></i> aksu-emlak@hotmail.com.tr</p>
                     </div>
                 </div>
                 
@@ -67,13 +66,14 @@
                 <div class="col-md-6">
                     <p class="mb-md-0">&copy; <?= date('Y') ?> Aksu Emlak. Tüm hakları saklıdır.</p>
                 </div>
-                
-                <div class="col-md-6 text-md-end">
-                    <ul class="list-inline mb-0">
-                        <li class="list-inline-item"><a href="#" class="text-white">Gizlilik Politikası</a></li>
-                        <li class="list-inline-item"><a href="#" class="text-white">Kullanım Şartları</a></li>
-                        <li class="list-inline-item"><a href="#" class="text-white">Çerez Politikası</a></li>
-                    </ul>
+                  <div class="col-md-6 text-md-end">
+                    <div class="footer-policy-links d-flex flex-wrap justify-content-md-end justify-content-start gap-3">
+                        <a href="#" class="text-white text-decoration-none">Gizlilik Politikası</a>
+                        <span class="text-muted">|</span>
+                        <a href="#" class="text-white text-decoration-none">Kullanım Şartları</a>
+                        <span class="text-muted">|</span>
+                        <a href="#" class="text-white text-decoration-none">Çerez Politikası</a>
+                    </div>
                 </div>
             </div>
         </div>

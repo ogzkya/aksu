@@ -442,38 +442,74 @@ require_once 'templates/header.php';
         <div class="row mt-5">
             <div class="col-lg-10 mx-auto">
                 <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <div class="testimonial-item text-center">
+                    <div class="carousel-inner">                        <div class="carousel-item active">
+                            <div class="testimonial-item text-center" data-aos="fade-up" data-aos-delay="100">
                                 <div class="testimonial-avatar mb-4">
-                                    <img src="assets/img/avatar-1.jpg" alt="Müşteri" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
+                                    <div class="avatar-wrapper position-relative">
+                                        <img src="assets/img/kadin1.png" alt="Ayşe Yılmaz" class="rounded-circle testimonial-img" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
+                                        <div class="avatar-border"></div>
+                                        <div class="quote-icon">
+                                            <i class="bi bi-quote text-primary"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="testimonial-content">
                                     <p class="testimonial-text fs-5 mb-4">"Aksu Emlak sayesinde hayalimdeki evi çok kısa sürede buldum. Profesyonel ekibi ve güler yüzlü hizmetiyle tüm süreci sorunsuz bir şekilde tamamladık."</p>
+                                    <div class="star-rating mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    </div>
                                     <h4 class="testimonial-name fw-bold">Ayşe Yılmaz</h4>
                                     <p class="testimonial-position text-muted">Müşteri</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="carousel-item">
-                            <div class="testimonial-item text-center">
+                        </div>                        <div class="carousel-item">
+                            <div class="testimonial-item text-center" data-aos="fade-up" data-aos-delay="100">
                                 <div class="testimonial-avatar mb-4">
-                                    <img src="assets/img/avatar-2.jpg" alt="Müşteri" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
+                                    <div class="avatar-wrapper position-relative">
+                                        <img src="assets/img/mehmet_demir.png" alt="Mehmet Demir" class="rounded-circle testimonial-img" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
+                                        <div class="avatar-border"></div>
+                                        <div class="quote-icon">
+                                            <i class="bi bi-quote text-primary"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="testimonial-content">
                                     <p class="testimonial-text fs-5 mb-4">"İşimi büyütmek için aradığım ofisi Aksu Emlak'ta buldum. Danışmanım ihtiyaçlarımı çok iyi analiz ederek bana en uygun seçenekleri sundu."</p>
+                                    <div class="star-rating mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    </div>
                                     <h4 class="testimonial-name fw-bold">Mehmet Demir</h4>
                                     <p class="testimonial-position text-muted">İş İnsanı</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="carousel-item">
-                            <div class="testimonial-item text-center">
+                        </div>                        <div class="carousel-item">
+                            <div class="testimonial-item text-center" data-aos="fade-up" data-aos-delay="100">
                                 <div class="testimonial-avatar mb-4">
-                                    <img src="assets/img/avatar-3.jpg" alt="Müşteri" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
+                                    <div class="avatar-wrapper position-relative">
+                                        <img src="assets/img/kadin2.png" alt="Zeynep Kaya" class="rounded-circle testimonial-img" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
+                                        <div class="avatar-border"></div>
+                                        <div class="quote-icon">
+                                            <i class="bi bi-quote text-primary"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="testimonial-content">
                                     <p class="testimonial-text fs-5 mb-4">"Kiralık daire arayışımda Aksu Emlak'ın yardımlarıyla çok kısa sürede istediğim bölgede uygun fiyatlı bir daire bulabildim. Teşekkürler!"</p>
+                                    <div class="star-rating mb-3">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    </div>
                                     <h4 class="testimonial-name fw-bold">Zeynep Kaya</h4>
                                     <p class="testimonial-position text-muted">Öğretmen</p>
                                 </div>
@@ -506,8 +542,7 @@ require_once 'templates/header.php';
              <?php if (!empty($latestPosts)): ?>
                  <?php foreach ($latestPosts as $post): ?>
                      <div class="col-md-4 mb-4">
-                         <div class="card blog-card h-100">
-                             <img src="<?= htmlspecialchars($post['image'] ?? 'assets/img/blog-placeholder.jpg') ?>"
+                         <div class="card blog-card h-100">                             <img src="<?= htmlspecialchars($post['image'] ?? 'assets/img/blog.jpg') ?>"
                                   class="card-img-top"
                                   alt="<?= htmlspecialchars($post['title']) ?>" loading="lazy">
                              <div class="card-body d-flex flex-column">

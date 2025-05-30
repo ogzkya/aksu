@@ -1,5 +1,6 @@
 <?php
 class Database {
+    private static $instance = null;
     private $host;
     private $dbname;
     private $username;
@@ -81,9 +82,28 @@ class Database {
     public function fetch($sql, $params = []) {
         return $this->query($sql, $params)->fetch();
     }
-    
-    public function lastInsertId() {
+      public function lastInsertId() {
         return $this->pdo->lastInsertId();
+    }
+    
+    public function prepare($sql) {
+        return $this->pdo->prepare($sql);
+    }
+    
+    public function exec($sql) {
+        return $this->pdo->exec($sql);
+    }
+      public function execute($sql, $params = []) {
+        $stmt = $this->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
+    }
+    
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 }
 ?>

@@ -12,6 +12,9 @@ if (!isset($pageTitle)) {
 if (!isset($activePage)) {
     $activePage = '';
 }
+
+// BasePath tanımı admin paneli için
+$basePath = '../../';
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -81,6 +84,15 @@ if (!isset($activePage)) {
                         <span>İlanlar</span>
                     </a>
                 </li>
+                
+                <!-- EMLAKÇILAR MENÜSÜ EKLENDİ -->
+                <li class="nav-item <?= $activePage === 'agents' ? 'active' : '' ?>">
+                    <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/agents/index.php">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Emlakçılar</span>
+                    </a>
+                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="<?= str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/') - 2) ?>admin/listings/add.php">
                         <i class="bi bi-plus-circle"></i>
