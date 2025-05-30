@@ -459,7 +459,7 @@ a:hover {
 
 .navbar-brand img, 
 .site-logo {
-    height: 80px; /* Ana boyut */
+    height: 90px; /* Ana boyut büyütüldü */
     width: auto;
     max-width: 100%;
     object-fit: contain; /* Orantıyı koruyarak içeriği sığdırır */
@@ -468,8 +468,8 @@ a:hover {
 .logo-container {
     display: flex;
     align-items: center;
-    height: 80px;
-    max-width: 300px;
+    height: 90px; /* Logo container yüksekliği de büyütüldü */
+    max-width: 350px;
     margin-right: 10px;
 }
 
@@ -477,11 +477,11 @@ a:hover {
 @media (max-width: 768px) {
     .navbar-brand img,
     .site-logo {
-        height: 60px;
+        height: 70px; /* Mobilde de biraz büyük */
     }
     
     .logo-container {
-        height: 60px;
+        height: 70px;
     }
 }
 
@@ -489,10 +489,10 @@ a:hover {
 @media (max-width: 480px) {
     .navbar-brand img,
     .site-logo {
-        height: 50px;
+        height: 60px; /* Çok küçük ekranlarda uygun boyut */
     }
     
     .logo-container {
-        height: 50px;
+        height: 60px;
     }
 }

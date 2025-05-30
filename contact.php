@@ -68,69 +68,9 @@ require_once 'templates/header.php';
 </div>
 
 <div class="container py-5">
-    <div class="row">        <!-- İletişim Bilgileri -->
-        <div class="col-lg-4 mb-4 mb-lg-0">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <!-- Logo ve Animasyon -->
-                    <div class="contact-logo-section mb-4">
-                        <div class="contact-logo-wrapper">
-                            <img src="assets/img/logo.png" alt="Aksu Emlak" class="contact-logo mb-3">
-                            <div class="contact-animation">
-                                <div class="animated-character">
-                                    <i class="bi bi-house-heart fs-1 text-primary animated-icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <h3 class="h4 mb-4 text-primary fw-bold">Aksu Emlak</h3>
-                        <p class="text-muted mb-4">Size yardımcı olmaktan mutluluk duyarız!</p>
-                    </div>
-                    
-                    <div class="contact-info-list text-start">
-                        <div class="d-flex mb-4">
-                            <div class="contact-icon me-3">
-                                <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
-                            </div>
-                            <div>                                <h5 class="h6">Adres</h5>
-                                <p class="mb-0">Halkalı Küçükçekmece<br>İstanbul</p>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex mb-4">
-                            <div class="contact-icon me-3">
-                                <i class="bi bi-telephone-fill text-primary fs-3"></i>
-                            </div>
-                            <div>
-                                <h5 class="h6">Telefon</h5>
-                                <p class="mb-0">(0212) 693 90 88</p>
-                            </div>
-                        </div>
-                    </div>                        
-                        <div class="d-flex mb-4">
-                            <div class="contact-icon me-3">
-                                <i class="bi bi-envelope-fill text-primary fs-3"></i>
-                            </div>
-                            <div>
-                                <h5 class="h6">E-posta</h5>
-                                <p class="mb-0">aksu-emlak@hotmail.com.tr</p>
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex">
-                            <div class="contact-icon me-3">
-                                <i class="bi bi-clock-fill text-primary fs-3"></i>
-                            </div>
-                            <div>
-                                <h5 class="h6">Çalışma Saatleri</h5>
-                                <p class="mb-0">Pazartesi - Cumartesi: 09:00 - 18:00<br>Pazar: Kapalı</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-          <!-- İletişim Formu -->
-        <div class="col-lg-8">
+    <div class="row">
+        <!-- İletişim Formu -->
+        <div class="col-lg-8 mb-4 mb-lg-0">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <!-- Mesaj Görseli ve Başlık -->
@@ -188,6 +128,85 @@ require_once 'templates/header.php';
                         
                         <button type="submit" class="btn btn-primary px-4 py-2">Mesaj Gönder</button>
                     </form>
+                </div>
+            </div>
+        </div>        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <!-- Logo ve Animasyon -->
+                    <div class="contact-logo-section mb-4">
+                        <div class="contact-logo-wrapper">
+                            <img src="assets/img/logo.png" alt="Aksu Emlak" class="contact-logo mb-3">
+                            <div class="contact-animation">
+                                <div class="animated-character">
+                                    <i class="bi bi-house-heart fs-1 text-primary animated-icon"></i>
+                                </div>
+                            </div>
+                        </div>                        <h3 class="h4 mb-4 text-primary fw-bold">Aksu Emlak</h3>
+                        <p class="text-muted mb-4">Size yardımcı olmaktan mutluluk duyarız!</p>
+                    </div>
+                    
+                    <div class="contact-info-list text-start">
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">Adres</h5>
+                                <p class="mb-0">Halkalı Küçükçekmece<br>İstanbul</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-telephone-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">Telefon</h5>
+                                <p class="mb-0">(0212) 693 90 88</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-envelope-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">E-posta</h5>
+                                <p class="mb-0">aksu-emlak@hotmail.com.tr</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-clock-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">Çalışma Saatleri</h5>
+                                <p class="mb-0">Pazartesi - Cumartesi: 09:00 - 18:00<br>Pazar: Kapalı</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info-list text-start">
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
+                            </div>
+                            <div>                                <h5 class="h6">Adres</h5>
+                                <p class="mb-0">Halkalı Küçükçekmece<br>İstanbul</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-telephone-fill text-primary fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="h6">Telefon</h5>
+                                <p class="mb-0">(0212) 693 90 88</p>
+                            </div>
+                        </div>                    </div>
                 </div>
             </div>
         </div>

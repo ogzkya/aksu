@@ -354,28 +354,42 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const propertyData = <?= $mapDataJson ?>;
     const markers = [];
-    
-    propertyData.forEach(function(property) {
-     
-        let priceText    = '';
-        let markerColor  = '#e74c3c'; // 
+      propertyData.forEach(function(property) {
+        if (!property.latitude || !property.longitude) return;
+        
+        // Fiyat bilgisini formatla (anasayfa ile aynı format)
+        let priceText = '';
+        let markerClass = '';
         
         if (property.rent_price && property.rent_price > 0) {
-            priceText   = `${formatPrice(property.rent_price)} ₺/ay`;
-            markerColor = '#2ecc71'; // 
+            priceText = `${formatPrice(property.rent_price)} ₺/ay`;
+            markerClass = 'marker-price-rent';
+        } else if (property.sale_price && property.sale_price > 0) {
+            priceText = `${formatPrice(property.sale_price)} ₺`;
+            markerClass = 'marker-price-sale';
         } else {
-            priceText   = `${formatPrice(property.sale_price)} ₺`;
+            priceText = 'Fiyat Belirtilmemiş';
+            markerClass = 'marker-price-none';
         }
         
-      
+        // Anasayfa ile aynı marker stilini kullan
+        const markerHtml = `
+            <div class="marker-container">
+                <div class="marker-pin ${property.featured ? 'featured' : ''}">
+                    <i class="bi bi-house-fill"></i>
+                </div>
+                ${priceText ? `<div class="marker-price ${markerClass}">${priceText}</div>` : ''}
+            </div>
+        `;
+        
         const propertyIcon = L.divIcon({
             className: 'property-marker',
-            html: `<div class="marker-price" style="background-color: ${markerColor};">${priceText}</div>`,
-            iconSize: [80, 30],
-            iconAnchor: [40, 15]
+            html: markerHtml,
+            iconSize: [80, 60],
+            iconAnchor: [40, 60],
+            popupAnchor: [0, -60]
         });
         
-    
         const marker = L.marker([property.latitude, property.longitude], {
             icon: propertyIcon
         }).addTo(map);

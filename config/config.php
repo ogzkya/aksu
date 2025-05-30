@@ -1,9 +1,9 @@
 <?php
 return [    'db' => [
-        'host' => 'localhost', // Hosting sağlayıcınızın verdiği DB host bilgisi
-        'name' => 'atakent_aksu_db', // Canlı veritabanı adı (hosting panelinden oluşturmanız gerekecek)
-        'user' => 'atakent_user', // Canlı veritabanı kullanıcı adı (hosting panelinden oluşturmanız gerekecek)
-        'pass' => 'GUVENLİ_SIFRE_BURAYA', // Güçlü bir şifre belirleyin
+        'host' => 'localhost',
+        'name' => 'aksu_emlak_db', // GoDaddy veritabanı adı
+        'user' => 'aksu_db_root_user', // GoDaddy kullanıcı adı
+        'pass' => '.Xti+[)@e.pE', // GoDaddy şifreniz
         'charset' => 'utf8mb4'
     ],'app' => [
         'name' => 'Atakent Aksu Emlak',

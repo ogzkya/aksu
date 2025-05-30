@@ -445,11 +445,15 @@ require_once 'templates/header.php';
                     <div class="carousel-inner">                        <div class="carousel-item active">
                             <div class="testimonial-item text-center" data-aos="fade-up" data-aos-delay="100">
                                 <div class="testimonial-avatar mb-4">
-                                    <div class="avatar-wrapper position-relative">
-                                        <img src="assets/img/kadin1.png" alt="Ayşe Yılmaz" class="rounded-circle testimonial-img" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
-                                        <div class="avatar-border"></div>
-                                        <div class="quote-icon">
-                                            <i class="bi bi-quote text-primary"></i>
+                                    <div class="animated-avatar">
+                                        <div class="avatar-pulse"></div>
+                                        <div class="user-icon">
+                                            <i class="bi bi-person-heart fs-1 text-primary"></i>
+                                        </div>
+                                        <div class="satisfaction-animation">
+                                            <i class="bi bi-star-fill star-1"></i>
+                                            <i class="bi bi-star-fill star-2"></i>
+                                            <i class="bi bi-star-fill star-3"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -469,11 +473,15 @@ require_once 'templates/header.php';
                         </div>                        <div class="carousel-item">
                             <div class="testimonial-item text-center" data-aos="fade-up" data-aos-delay="100">
                                 <div class="testimonial-avatar mb-4">
-                                    <div class="avatar-wrapper position-relative">
-                                        <img src="assets/img/mehmet_demir.png" alt="Mehmet Demir" class="rounded-circle testimonial-img" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
-                                        <div class="avatar-border"></div>
-                                        <div class="quote-icon">
-                                            <i class="bi bi-quote text-primary"></i>
+                                    <div class="animated-avatar">
+                                        <div class="avatar-pulse"></div>
+                                        <div class="user-icon">
+                                            <i class="bi bi-person-workspace fs-1 text-primary"></i>
+                                        </div>
+                                        <div class="business-animation">
+                                            <i class="bi bi-building check-1"></i>
+                                            <i class="bi bi-check-circle check-2"></i>
+                                            <i class="bi bi-trophy check-3"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -493,11 +501,15 @@ require_once 'templates/header.php';
                         </div>                        <div class="carousel-item">
                             <div class="testimonial-item text-center" data-aos="fade-up" data-aos-delay="100">
                                 <div class="testimonial-avatar mb-4">
-                                    <div class="avatar-wrapper position-relative">
-                                        <img src="assets/img/kadin2.png" alt="Zeynep Kaya" class="rounded-circle testimonial-img" style="width: 100px; height: 100px; object-fit: cover;" loading="lazy">
-                                        <div class="avatar-border"></div>
-                                        <div class="quote-icon">
-                                            <i class="bi bi-quote text-primary"></i>
+                                    <div class="animated-avatar">
+                                        <div class="avatar-pulse"></div>
+                                        <div class="user-icon">
+                                            <i class="bi bi-person-check fs-1 text-primary"></i>
+                                        </div>
+                                        <div class="success-animation">
+                                            <i class="bi bi-house-heart anim-1"></i>
+                                            <i class="bi bi-check-circle-fill anim-2"></i>
+                                            <i class="bi bi-emoji-smile anim-3"></i>
                                         </div>
                                     </div>
                                 </div>
