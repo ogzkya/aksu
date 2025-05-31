@@ -378,37 +378,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const markers = [];
       propertyData.forEach(function(property) {
         if (!property.latitude || !property.longitude) return;
+          // Marker stilini ve içeriğini hazırla
+        let markerBgColor, markerTextColor, markerText;
         
-        // Fiyat bilgisini formatla (anasayfa ile aynı format)
-        let priceText = '';
-        let markerClass = '';
-        
+        // İlan tipine göre marker rengini ve metni belirle
         if (property.rent_price && property.rent_price > 0) {
-            priceText = `${formatPrice(property.rent_price)} ₺/ay`;
-            markerClass = 'marker-price-rent';
+            markerBgColor = '#35addc'; // Mavi
+            markerTextColor = '#ffffff'; // Beyaz
+            markerText = `${formatPrice(property.rent_price)} ₺/ay`;
         } else if (property.sale_price && property.sale_price > 0) {
-            priceText = `${formatPrice(property.sale_price)} ₺`;
-            markerClass = 'marker-price-sale';
+            markerBgColor = '#ffb400'; // Sarı/Turuncu
+            markerTextColor = '#333333'; // Koyu gri
+            markerText = `${formatPrice(property.sale_price)} ₺`;
         } else {
-            priceText = 'Fiyat Belirtilmemiş';
-            markerClass = 'marker-price-none';
-        }
-        
-        // Anasayfa ile aynı marker stilini kullan
+            markerBgColor = '#cccccc'; // Gri
+            markerTextColor = '#333333';
+            markerText = 'Belirtilmemiş';
+        }        
+        // Marker HTML içeriği
         const markerHtml = `
             <div class="marker-container">
-                <div class="marker-pin ${property.featured ? 'featured' : ''}">
+                <div class="marker-house-icon ${property.featured ? 'featured' : ''}">
                     <i class="bi bi-house-fill"></i>
                 </div>
-                ${priceText ? `<div class="marker-price ${markerClass}">${priceText}</div>` : ''}
+                <div class="marker-price-label ${property.featured ? 'featured' : ''}">${markerText}</div>
             </div>
         `;
         
+        // Marker ikonunu oluştur
         const propertyIcon = L.divIcon({
             className: 'property-marker',
             html: markerHtml,
-            iconSize: [80, 60],
-            iconAnchor: [40, 60],
+            iconSize: [120, 60],
+            iconAnchor: [60, 60],
             popupAnchor: [0, -60]
         });
         
@@ -462,54 +464,59 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         }
-        
-        // Ultra modern popup tasarımı
+          // Ekran görüntüsüne benzer popup tasarımı
         const popupContent = `
-            <div class="modern-property-popup">
-                <div class="popup-image-container">
+            <div class="custom-property-popup">
+                <div class="popup-image-top">
                     <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" 
-                         alt="${property.title || 'İlan görseli'}" 
-                         class="popup-property-image"
+                         alt="${property.title || 'İlan görseli'}"
                          onerror="this.onerror=null; this.src='assets/img/property-placeholder.jpg';"
                          loading="lazy">
-                    ${property.featured ? '<div class="featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : ''}
-                    <div class="image-overlay"></div>
+                    ${property.featured ? '<div class="popup-featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : ''}
                 </div>
                 
-                <div class="popup-content-area">
-                    <div class="popup-header">
-                        <h3 class="property-title">${property.title || 'İlan Detayı'}</h3>
-                        <div class="property-location">
-                            <i class="bi bi-geo-alt-fill"></i>
-                            <span>${getShortAddress(property) || 'Konum belirtilmemiş'}</span>
+                <div class="popup-content">
+                    <h3 class="popup-title">${property.title || 'İlan Detayı'}</h3>
+                    
+                    <div class="popup-location">
+                        <i class="bi bi-geo-alt"></i> 
+                        <span>${getShortAddress(property) || 'Konum belirtilmemiş'}</span>
+                    </div>
+                    
+                    ${formattedPopupSalePrice || formattedPopupRentPrice ? `
+                        <div class="popup-price-container">
+                            ${formattedPopupSalePrice ? `
+                                <div class="popup-price-box sale">
+                                    <span class="popup-price-label">SATILIK</span>
+                                    <span class="popup-price-value">${formattedPopupSalePrice} ₺</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${formattedPopupRentPrice ? `
+                                <div class="popup-price-box rent">
+                                    <span class="popup-price-label">KİRALIK</span>
+                                    <span class="popup-price-value">${formattedPopupRentPrice} ₺/ay</span>
+                                </div>
+                            ` : ''}
                         </div>
+                    ` : `<div class="popup-price-container"><div class="popup-price-box">Fiyat Belirtilmemiş</div></div>`}
+                    
+                    <div class="popup-category">
+                        <i class="bi bi-building"></i> 
+                        <span>Kategori: ${getCategoryName(property.category)}</span>
                     </div>
                     
-                    ${priceHtml}
-                    
-                    <div class="property-details">
-                        <div class="detail-item">
-                            <i class="bi bi-house-door-fill"></i>
-                            <span class="detail-label">Kategori</span>
-                            <span class="detail-value">${getCategoryName(property.category)}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="popup-actions">
-                        <a href="listing.php?id=${property.id}" class="modern-detail-btn">
-                            <i class="bi bi-eye-fill"></i>
-                            <span>Detayları İncele</span>
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
+                    <a href="listing.php?id=${property.id}" class="popup-details-button">
+                        <span>Detayları İncele</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         `;
-        
-        marker.bindPopup(popupContent, {
-            maxWidth: 320,
-            minWidth: 280,
-            className: 'modern-property-popup-container',
+          marker.bindPopup(popupContent, {
+            maxWidth: 300,
+            minWidth: 300,
+            className: 'custom-popup-container',
             closeButton: true,
             autoPan: true
         });

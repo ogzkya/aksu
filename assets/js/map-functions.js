@@ -120,22 +120,20 @@ function addPropertyMarkers(map, properties) {
             priceText = `${formatPrice(property.sale_price)} ₺`;
         } else {
             priceText = 'Fiyat Belirtilmemiş';
-        }
-        
-        // Özel marker ikonu
+        }          // Özel marker ikonu
         const markerIcon = L.divIcon({
             className: 'property-marker',
             html: `
                 <div class="marker-container">
-                    <div class="marker-pin ${property.featured ? 'featured' : ''}">
+                    <div class="marker-house-icon ${property.featured ? 'featured' : ''}">
                         <i class="bi bi-house-fill"></i>
                     </div>
-                    <div class="marker-price ${markerClass}">${priceText}</div>
+                    <div class="marker-price-label ${property.featured ? 'featured' : ''}">${priceText}</div>
                 </div>
             `,
-            iconSize: [80, 60],
-            iconAnchor: [40, 60],
-            popupAnchor: [0, -60]
+            iconSize: [100, 70],
+            iconAnchor: [50, 70],
+            popupAnchor: [0, -70]
         });
         
         // Marker ekle

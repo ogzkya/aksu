@@ -1,0 +1,33 @@
+/* Debug CSS - Popup Resim Boyutları */
+.popup-property-image {
+    border: 2px solid red !important;
+    box-sizing: border-box !important;
+}
+
+.popup-image-container {
+    border: 2px solid blue !important;
+    box-sizing: border-box !important;
+}
+
+.modern-property-popup {
+    border: 2px solid green !important;
+    box-sizing: border-box !important;
+}
+
+.modern-property-popup-container .leaflet-popup-content-wrapper {
+    border: 2px solid orange !important;
+    box-sizing: border-box !important;
+}
+
+/* Console log ekle */
+.popup-property-image::after {
+    content: attr(width) " x " attr(height);
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(255,0,0,0.8);
+    color: white;
+    padding: 2px 5px;
+    font-size: 10px;
+    z-index: 1000;
+}

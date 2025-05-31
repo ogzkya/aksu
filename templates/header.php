@@ -26,6 +26,8 @@
 <link rel="stylesheet" href="assets/css/map-markers.css">
 <link rel="stylesheet" href="assets/css/modern-styles.css">
 <link rel="stylesheet" href="assets/css/color-scheme.css">
+<link rel="stylesheet" href="assets/css/price-markers.css">
+<link rel="stylesheet" href="assets/css/custom-popup.css">
       
 </head>
 <body>

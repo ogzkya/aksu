@@ -164,14 +164,20 @@ function initializeStaticMap(containerId) {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19
         }).addTo(map);
-        
-        // İlk marker'ı ekle (varsa koordinatlar)
+          // İlk marker'ı ekle (varsa koordinatlar)
         if (initialZoom > 6) {
             const markerIcon = L.divIcon({
                 className: 'property-marker',
-                html: '<div class="marker-container"><div class="marker-pin"></div></div>',
-                iconSize: [30, 42],
-                iconAnchor: [15, 42]
+                html: `
+                    <div class="marker-container">
+                        <div class="marker-house-icon">
+                            <i class="bi bi-house-fill"></i>
+                        </div>
+                        <div class="marker-price-label">Konum</div>
+                    </div>
+                `,
+                iconSize: [120, 60],
+                iconAnchor: [60, 60]
             });
             
             L.marker([initialLat, initialLng], {
@@ -222,20 +228,19 @@ function addPropertyMarkers(map, properties) {
         } else {
             priceText = 'Fiyat Belirtilmemiş';
         }
-        
-        // Özel marker ikonu
+          // Özel marker ikonu
         const markerIcon = L.divIcon({
             className: 'property-marker',
             html: `
                 <div class="marker-container">
-                    <div class="marker-pin ${property.featured ? 'featured' : ''}">
+                    <div class="marker-house-icon ${property.featured ? 'featured' : ''}">
                         <i class="bi bi-house-fill"></i>
                     </div>
-                    <div class="marker-price ${markerClass}">${priceText}</div>
+                    <div class="marker-price-label ${markerClass}">${priceText}</div>
                 </div>
             `,
-            iconSize: [80, 60],
-            iconAnchor: [40, 60]
+            iconSize: [120, 60],
+            iconAnchor: [60, 60]
         });
         
         // Marker ekle

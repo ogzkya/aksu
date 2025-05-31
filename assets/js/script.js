@@ -211,16 +211,18 @@ propertyData.forEach(function(property) {
     } else {
         priceText = `${formatPrice(property.sale_price)} ₺`;
     }
-    
-    // Marker ikon stilini güncelle - Now includes icon + price
+      // Marker ikon stilini güncelle - Yeni ev ikonu tasarımı
     const propertyIcon = L.divIcon({
         className: 'property-marker',
         html: `<div class="marker-container">
-                <div class="marker-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                <div class="marker-price ${markerClass}">${priceText}</div>
+                <div class="marker-house-icon ${property.featured ? 'featured' : ''}">
+                    <i class="bi bi-house-fill"></i>
+                </div>
+                <div class="marker-price-label ${property.featured ? 'featured' : ''}">${priceText}</div>
                </div>`,
-        iconSize: [120, 50],
-        iconAnchor: [60, 50]
+        iconSize: [120, 60],
+        iconAnchor: [60, 60],
+        popupAnchor: [0, -60]
     });
     
     // Marker ekle

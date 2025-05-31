@@ -208,11 +208,9 @@ require_once 'templates/header.php';
                                 <span class="fw-bold"><?= htmlspecialchars($listing['year_built']) ?></span>
                             </div>
                         </div>
-                        <?php endif; ?>
-
-                        <?php if ($listing['energy_efficiency']): ?>
+                        <?php endif; ?>                        <?php if ($listing['energy_efficiency']): ?>
                         <div class="pe-4 mb-2 feature-item">
-                           <i class="bi bi-lightning-charge-fill fs-5 me-2 text-primary"></i> {/* İkon değiştirildi */}
+                           <i class="bi bi-lightning-charge-fill fs-5 me-2 text-primary"></i>
                             <div>
                                 <small class="text-muted d-block">Enerji Verimliliği</small>
                                 <span class="fw-bold">Sınıf <?= htmlspecialchars($listing['energy_efficiency']) ?></span>
@@ -401,24 +399,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Other': 'Diğer'
                 };
                 return categories[category] || 'Belirtilmemiş';
+            }            // Marker stilini ve içeriğini hazırla
+            let markerBgColor, markerTextColor, markerText;
+            const rentPrice = <?= $listing['rent_price'] ?? 'null' ?>;
+            const salePrice = <?= $listing['sale_price'] ?? 'null' ?>;
+            
+            // İlan tipine göre marker rengini ve metni belirle
+            if (rentPrice && rentPrice > 0) {
+                markerBgColor = '#35addc'; // Mavi
+                markerTextColor = '#ffffff'; // Beyaz
+                markerText = `${formatPrice(rentPrice)} ₺/ay`;
+            } else if (salePrice && salePrice > 0) {
+                markerBgColor = '#ffb400'; // Sarı/Turuncu
+                markerTextColor = '#333333'; // Koyu gri
+                markerText = `${formatPrice(salePrice)} ₺`;
+            } else {
+                markerBgColor = '#cccccc'; // Gri
+                markerTextColor = '#333333';
+                markerText = 'Belirtilmemiş';
             }
-
-            // Fiyat bilgisini ve sınıfını belirle
-             let priceText = '';
-             let markerClass = '';
-             const rentPrice = <?= $listing['rent_price'] ?? 'null' ?>;
-             const salePrice = <?= $listing['sale_price'] ?? 'null' ?>;
-
-             if (rentPrice && rentPrice > 0) {
-                 priceText = `${formatPrice(rentPrice)} ₺/ay`;
-                 markerClass = 'marker-price-rent';
-             } else if (salePrice && salePrice > 0) {
-                 priceText = `${formatPrice(salePrice)} ₺`;
-                 markerClass = 'marker-price-sale';
-             } else {
-                 priceText = 'Fiyat Yok';
-                  markerClass = 'marker-price-none';
-             }
 
             // Modern popup içeriği için fiyat hazırlama
             let formattedPopupSalePrice = salePrice ? formatPrice(salePrice) : null;
@@ -464,60 +463,68 @@ document.addEventListener('DOMContentLoaded', function() {
                             <span class="price-value">Fiyat Belirtilmemiş</span>
                         </div>
                     </div>
-                `;
-            }// Özel marker ikonu (ana sayfa ile uyumlu)
+                `;            }
+
+            // Özel marker ikonu (yeni tasarım)
             const propertyIcon = L.divIcon({
                 className: 'property-marker',
-                 html: `
+                html: `
                     <div class="marker-container">
-                        <div class="marker-pin <?= $listing['featured'] ? 'featured' : '' ?>">
-                           <i class="bi bi-house-fill"></i>
+                        <div class="marker-house-icon <?= $listing['featured'] ? 'featured' : '' ?>">
+                            <i class="bi bi-house-fill"></i>
                         </div>
-                        ${priceText !== 'Fiyat Yok' ? `<div class="marker-price ${markerClass}">${priceText}</div>` : ''}
+                        <div class="marker-price-label <?= $listing['featured'] ? 'featured' : '' ?>">${markerText}</div>
                     </div>
                 `,
-                iconSize: [80, 60],
-                iconAnchor: [40, 60],
+                iconSize: [120, 60],
+                iconAnchor: [60, 60],
                 popupAnchor: [0, -60]
-            });            // Ultra modern popup tasarımı
+            });// Ekran görüntüsüne benzer popup tasarımı
             const popupContent = `
-                <div class="modern-property-popup">
-                    <div class="popup-image-container">
-                        <img src="<?= htmlspecialchars($listing['main_image'] ?? 'assets/img/property-placeholder.jpg') ?>" 
-                             alt="<?= htmlspecialchars($listing['title'] ?? 'İlan görseli') ?>" 
-                             class="popup-property-image"
+                <div class="custom-property-popup">
+                    <div class="popup-image-top">
+                        <img src="<?= htmlspecialchars($listing['main_image'] ?? 'assets/img/property-placeholder.jpg') ?>"
+                             alt="<?= htmlspecialchars($listing['title'] ?? 'İlan görseli') ?>"
                              onerror="this.onerror=null; this.src='assets/img/property-placeholder.jpg';"
                              loading="lazy">
-                        <?= $listing['featured'] ? '<div class="featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : '' ?>
-                        <div class="image-overlay"></div>
+                        <?= $listing['featured'] ? '<div class="popup-featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : '' ?>
                     </div>
                     
-                    <div class="popup-content-area">
-                        <div class="popup-header">
-                            <h3 class="property-title"><?= htmlspecialchars($listing['title'] ?? 'İlan Detayı') ?></h3>
-                            <div class="property-location">
-                                <i class="bi bi-geo-alt-fill"></i>
-                                <span><?= htmlspecialchars(($listing['district'] ? $listing['district'] . ', ' : '') . ($listing['city'] ?? 'Konum belirtilmemiş')) ?></span>
+                    <div class="popup-content">
+                        <h3 class="popup-title"><?= htmlspecialchars($listing['title'] ?? 'İlan Detayı') ?></h3>
+                        
+                        <div class="popup-location">
+                            <i class="bi bi-geo-alt"></i>
+                            <span><?= htmlspecialchars(($listing['district'] ? $listing['district'] . ', ' : '') . ($listing['city'] ?? 'Konum belirtilmemiş')) ?></span>
+                        </div>
+                        
+                        ${formattedPopupSalePrice || formattedPopupRentPrice ? `
+                            <div class="popup-price-container">
+                                ${formattedPopupSalePrice ? `
+                                    <div class="popup-price-box sale">
+                                        <span class="popup-price-label">SATILIK</span>
+                                        <span class="popup-price-value">${formattedPopupSalePrice} ₺</span>
+                                    </div>
+                                ` : ''}
+                                
+                                ${formattedPopupRentPrice ? `
+                                    <div class="popup-price-box rent">
+                                        <span class="popup-price-label">KİRALIK</span>
+                                        <span class="popup-price-value">${formattedPopupRentPrice} ₺/ay</span>
+                                    </div>
+                                ` : ''}
                             </div>
+                        ` : `<div class="popup-price-container"><div class="popup-price-box">Fiyat Belirtilmemiş</div></div>`}
+                        
+                        <div class="popup-category">
+                            <i class="bi bi-building"></i> 
+                            <span>Kategori: ${getCategoryName('<?= $listing['category'] ?? '' ?>')}</span>
                         </div>
                         
-                        ${priceHtml}
-                        
-                        <div class="property-details">
-                            <div class="detail-item">
-                                <i class="bi bi-house-door-fill"></i>
-                                <span class="detail-label">Kategori</span>
-                                <span class="detail-value">${getCategoryName('<?= $listing['category'] ?? '' ?>')}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="popup-actions">
-                            <a href="listing.php?id=<?= $listing['id'] ?>" class="modern-detail-btn">
-                                <i class="bi bi-eye-fill"></i>
-                                <span>Bu Sayfayı Yenile</span>
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
+                        <a href="listing.php?id=<?= $listing['id'] ?>" class="popup-details-button">
+                            <span>Bu Sayfayı Yenile</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             `;
@@ -527,9 +534,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 icon: propertyIcon
             }).addTo(map)
               .bindPopup(popupContent, {
-                  maxWidth: 320,
-                  minWidth: 280,
-                  className: 'modern-property-popup-container',
+                  maxWidth: 300,
+                  minWidth: 300,
+                  className: 'custom-popup-container',
                   closeButton: true,
                   autoPan: true
               })

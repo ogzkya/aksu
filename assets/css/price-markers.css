@@ -1,0 +1,81 @@
+/* Yeni price marker stilleri */
+.property-price-marker {
+    background: none !important;
+    border: none !important;
+}
+
+.price-marker {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    min-width: 80px;
+    white-space: nowrap;
+    z-index: 1000;
+    position: relative;
+}
+
+/* Sarı marker (Satılık) */
+.price-marker.sale {
+    background-color: #ffb400;
+    color: #333333;
+}
+
+/* Mavi marker (Kiralık) */
+.price-marker.rent {
+    background-color: #35addc;
+    color: #ffffff;
+}
+
+/* Görüntünüzde gösterilen öne çıkan ilan markeri */
+.featured-marker {
+    position: relative;
+    padding-left: 20px;
+}
+
+.featured-marker:before {
+    content: "★";
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: inherit;
+    font-weight: bold;
+}
+
+/* Popup stil düzenlemeleri */
+.leaflet-popup-content-wrapper {
+    border-radius: 5px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    width: auto !important;
+}
+
+.modern-property-popup-container .leaflet-popup-content {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* İmaj boyutu düzeltmeleri */
+.popup-property-image {
+    max-width: 100% !important;
+    max-height: 160px !important;
+    object-fit: cover !important;
+    width: 100% !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .price-marker {
+        font-size: 12px;
+        min-width: 80px;
+        padding: 3px 6px;
+    }
+}
