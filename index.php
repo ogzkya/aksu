@@ -662,7 +662,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${markerPriceText ? `<div class="marker-price-label ${markerClass} ${property.featured ? 'featured' : ''}">${markerPriceText}</div>` : ''}
                     </div>
                 `;
-                  const markerIcon = L.divIcon({
+                
+                const markerIcon = L.divIcon({
                     className: 'property-marker',
                     html: markerHtml,
                     iconSize: [100, 70],
@@ -811,7 +812,6 @@ document.addEventListener('DOMContentLoaded', function() {
          counters.forEach(counter => {
              observer.observe(counter);
          });
-
 
     } catch (error) {
         console.error("Harita başlatılırken bir hata oluştu:", error);

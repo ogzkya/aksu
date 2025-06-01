@@ -22,8 +22,37 @@ $listings      = $listing->getAllListings($perPage, $offset, $filters);
 $totalListings = $listing->countListings($filters);
 $totalPages    = ceil($totalListings / $perPage);
 
-// Harita verileri
-$mapData   = $listing->getMapData();
+// Harita verileri - metodun varlığını kontrol et
+if (method_exists($listing, 'getFilteredMapData')) {
+    // Yeni filtrelenmiş metot varsa kullan
+    $mapData = $listing->getFilteredMapData($filters);
+    $debugInfo = "getFilteredMapData() kullanıldı";
+} else {
+    // Yoksa mevcut sonuçlardan oluştur
+    $allFilteredListings = $listing->getAllListings(1000, 0, $filters);
+    $mapData = array_filter($allFilteredListings, function($item) {
+        return !empty($item['latitude']) && !empty($item['longitude']) && 
+               ($item['sale_price'] > 0 || $item['rent_price'] > 0);
+    });
+    $debugInfo = "Fallback yöntemi kullanıldı";
+    
+    // Harita için gerekli alanları düzenle
+    $mapData = array_map(function($item) {
+        return [
+            'id' => $item['id'],
+            'title' => $item['title'],
+            'latitude' => $item['latitude'],
+            'longitude' => $item['longitude'],
+            'sale_price' => $item['sale_price'],
+            'rent_price' => $item['rent_price'],
+            'category' => $item['category'],
+            'featured' => $item['featured'] ?? 0,            'main_image' => $item['main_image'] ?? null,
+            'city' => $item['city'] ?? '',
+            'state' => $item['state'] ?? ''
+        ];
+    }, array_values($mapData));
+}
+
 $mapDataJson = json_encode($mapData);
 
 $pageTitle = "Arama Sonuçları";
@@ -128,12 +157,12 @@ require_once 'templates/header.php';
             <div class="mb-4">
                 <div id="search-map" style="height: 400px;"></div>
             </div>
-            
-            <!-- Sonuç Bilgisi -->
+              <!-- Sonuç Bilgisi -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="h5 mb-0">
                     <?= $totalListings ?> ilan bulundu
                     <?php if ($filters['city']) echo ' - "' . htmlspecialchars($filters['city']) . '"'; ?>
+                    <small class="text-muted">(<?= $debugInfo ?? 'Debug bilgisi yok' ?> - Harita: <?= count($mapData) ?> ilan)</small>
                 </h3>
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-outline-primary active" id="grid-view-btn">
@@ -362,63 +391,71 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         return categories[category] || 'Belirtilmemiş';
     }
-    
-    // Kısa adres döndüren fonksiyon
+      // Kısa adres döndüren fonksiyon
     function getShortAddress(property) {
         let address = '';
-        if (property.district) address += property.district;
         if (property.city) {
-            if (address) address += ', ';
             address += property.city;
+        }
+        if (property.state) {
+            if (address) address += ', ';
+            address += property.state;
         }
         return address || 'Konum belirtilmemiş';
     }
-    
-    const propertyData = <?= $mapDataJson ?>;
+      const propertyData = <?= $mapDataJson ?>;
     const markers = [];
-      propertyData.forEach(function(property) {
+      console.log('Harita verileri:', propertyData); // Debug için
+    console.log('Harita verisi sayısı:', propertyData ? propertyData.length : 0);
+    console.log('Mevcut filtreler:', <?= json_encode($filters) ?>);
+    
+    if (!propertyData || propertyData.length === 0) {
+        console.log('Filtrelenmiş sonuçlarda harita verisi bulunamadı');
+        // Haritayı Türkiye geneline odakla
+        map.setView([39.1, 35.6], 6);
+        return;
+    }
+    
+    propertyData.forEach(function(property) {
         if (!property.latitude || !property.longitude) return;
-          // Marker stilini ve içeriğini hazırla
-        let markerBgColor, markerTextColor, markerText;
         
-        // İlan tipine göre marker rengini ve metni belirle
-        if (property.rent_price && property.rent_price > 0) {
-            markerBgColor = '#35addc'; // Mavi
-            markerTextColor = '#ffffff'; // Beyaz
-            markerText = `${formatPrice(property.rent_price)} ₺/ay`;
-        } else if (property.sale_price && property.sale_price > 0) {
-            markerBgColor = '#ffb400'; // Sarı/Turuncu
-            markerTextColor = '#333333'; // Koyu gri
-            markerText = `${formatPrice(property.sale_price)} ₺`;
-        } else {
-            markerBgColor = '#cccccc'; // Gri
-            markerTextColor = '#333333';
-            markerText = 'Belirtilmemiş';
-        }        
-        // Marker HTML içeriği
+        // Marker üzerindeki fiyat için değerleri hazırla
+        let markerPriceText = '';
+        let markerClass = '';
+        let formattedPinRentPrice = formatPrice(property.rent_price);
+        let formattedPinSalePrice = formatPrice(property.sale_price);
+
+        if (formattedPinRentPrice) {
+            markerPriceText = `${formattedPinRentPrice} ₺/ay`;
+            markerClass = 'marker-price-rent';
+        } else if (formattedPinSalePrice) {
+            markerPriceText = `${formattedPinSalePrice} ₺`;
+            markerClass = 'marker-price-sale';
+        }
+        
+        // YENİ MARKER TASARIMI - EV İKONU + FİYAT ETİKETİ
         const markerHtml = `
             <div class="marker-container">
                 <div class="marker-house-icon ${property.featured ? 'featured' : ''}">
                     <i class="bi bi-house-fill"></i>
                 </div>
-                <div class="marker-price-label ${property.featured ? 'featured' : ''}">${markerText}</div>
+                ${markerPriceText ? `<div class="marker-price-label ${markerClass} ${property.featured ? 'featured' : ''}">${markerPriceText}</div>` : ''}
             </div>
         `;
         
-        // Marker ikonunu oluştur
-        const propertyIcon = L.divIcon({
+        const markerIcon = L.divIcon({
             className: 'property-marker',
             html: markerHtml,
-            iconSize: [120, 60],
-            iconAnchor: [60, 60],
-            popupAnchor: [0, -60]
+            iconSize: [100, 70],
+            iconAnchor: [50, 70],
+            popupAnchor: [0, -70]
         });
         
         const marker = L.marker([property.latitude, property.longitude], {
-            icon: propertyIcon
+            icon: markerIcon
         }).addTo(map);
         
-          // Modern popup içeriği için fiyat hazırlama
+        // Modern popup içeriği için fiyat hazırlama
         let formattedPopupSalePrice = formatPrice(property.sale_price);
         let formattedPopupRentPrice = formatPrice(property.rent_price);
         let priceHtml = '';
@@ -464,66 +501,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
         }
-          // Ekran görüntüsüne benzer popup tasarımı
+        
+        // Ultra modern popup tasarımı
         const popupContent = `
-            <div class="custom-property-popup">
-                <div class="popup-image-top">
+            <div class="modern-property-popup">
+                <div class="popup-image-container">
                     <img src="${property.main_image || 'assets/img/property-placeholder.jpg'}" 
-                         alt="${property.title || 'İlan görseli'}"
+                         alt="${property.title || 'İlan görseli'}" 
+                         class="popup-property-image"
                          onerror="this.onerror=null; this.src='assets/img/property-placeholder.jpg';"
                          loading="lazy">
-                    ${property.featured ? '<div class="popup-featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : ''}
+                    ${property.featured ? '<div class="featured-badge"><i class="bi bi-star-fill"></i> Öne Çıkan</div>' : ''}
+                    <div class="image-overlay"></div>
                 </div>
                 
-                <div class="popup-content">
-                    <h3 class="popup-title">${property.title || 'İlan Detayı'}</h3>
-                    
-                    <div class="popup-location">
-                        <i class="bi bi-geo-alt"></i> 
-                        <span>${getShortAddress(property) || 'Konum belirtilmemiş'}</span>
-                    </div>
-                    
-                    ${formattedPopupSalePrice || formattedPopupRentPrice ? `
-                        <div class="popup-price-container">
-                            ${formattedPopupSalePrice ? `
-                                <div class="popup-price-box sale">
-                                    <span class="popup-price-label">SATILIK</span>
-                                    <span class="popup-price-value">${formattedPopupSalePrice} ₺</span>
-                                </div>
-                            ` : ''}
-                            
-                            ${formattedPopupRentPrice ? `
-                                <div class="popup-price-box rent">
-                                    <span class="popup-price-label">KİRALIK</span>
-                                    <span class="popup-price-value">${formattedPopupRentPrice} ₺/ay</span>
-                                </div>
-                            ` : ''}
+                <div class="popup-content-area">
+                    <div class="popup-header">
+                        <h3 class="property-title">${property.title || 'İlan Detayı'}</h3>
+                        <div class="property-location">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>${getShortAddress(property) || 'Konum belirtilmemiş'}</span>
                         </div>
-                    ` : `<div class="popup-price-container"><div class="popup-price-box">Fiyat Belirtilmemiş</div></div>`}
-                    
-                    <div class="popup-category">
-                        <i class="bi bi-building"></i> 
-                        <span>Kategori: ${getCategoryName(property.category)}</span>
                     </div>
                     
-                    <a href="listing.php?id=${property.id}" class="popup-details-button">
-                        <span>Detayları İncele</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </a>
+                    ${priceHtml}
+                    
+                    <div class="property-details">
+                        <div class="detail-item">
+                            <i class="bi bi-house-door-fill"></i>
+                            <span class="detail-label">Kategori</span>
+                            <span class="detail-value">${getCategoryName(property.category)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="popup-actions">
+                        <a href="listing.php?id=${property.id}" class="modern-detail-btn">
+                            <i class="bi bi-eye-fill"></i>
+                            <span>Detayları İncele</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
-          marker.bindPopup(popupContent, {
-            maxWidth: 300,
-            minWidth: 300,
-            className: 'custom-popup-container',
+        
+        marker.bindPopup(popupContent, {
+            maxWidth: 320,
+            minWidth: 280,
+            className: 'modern-property-popup-container',
             closeButton: true,
             autoPan: true
         });
         markers.push(marker);
     });
-    
-    if (markers.length > 0) {
+      if (markers.length > 0) {
         const group = new L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.1));
     }

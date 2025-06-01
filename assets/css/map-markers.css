@@ -122,3 +122,246 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     z-index: 1;
 }
+
+/* Modern Property Popup Tasarımı */
+.modern-property-popup-container .leaflet-popup-content-wrapper {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden !important;
+    background: transparent !important;
+}
+
+.modern-property-popup-container .leaflet-popup-content {
+    margin: 0 !important;
+    width: 320px !important;
+    max-width: 320px !important;
+}
+
+.modern-property-popup-container .leaflet-popup-tip {
+    background: #ffffff !important;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modern-property-popup {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.popup-image-container {
+    position: relative;
+    height: 160px;
+    overflow: hidden;
+}
+
+.popup-property-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.popup-property-image:hover {
+    transform: scale(1.05);
+}
+
+.image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+}
+
+.featured-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, #ff6b35, #ff8c42);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.popup-content-area {
+    padding: 20px;
+}
+
+.popup-header {
+    margin-bottom: 16px;
+}
+
+.property-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 8px 0;
+    line-height: 1.3;    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.property-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.property-location i {
+    color: #ef4444;
+    font-size: 14px;
+}
+
+.modern-popup-prices {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    border: 1px solid #e2e8f0;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-item + .price-item {
+    margin-top: 12px;
+}
+
+.price-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 12px 0;
+}
+
+.price-label {
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.price-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.sale-price .price-value {
+    color: #dc2626;
+}
+
+.rent-price .price-value {
+    color: #059669;
+}
+
+.no-price .price-value {
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.property-details {
+    margin: 16px 0;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.detail-item i {
+    color: #3b82f6;
+    font-size: 14px;
+    width: 16px;
+}
+
+.detail-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.detail-value {
+    color: #1a202c;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.popup-actions {
+    margin-top: 20px;
+}
+
+.modern-detail-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+}
+
+.modern-detail-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.modern-detail-btn i:first-child {
+    font-size: 14px;
+}
+
+.modern-detail-btn i:last-child {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.modern-detail-btn:hover i:last-child {
+    transform: translateX(3px);
+}
+
+/* Responsive tasarım */
+@media (max-width: 480px) {
+    .modern-property-popup-container .leaflet-popup-content {
+        width: 280px !important;
+        max-width: 280px !important;
+    }
+    
+    .popup-content-area {
+        padding: 16px;
+    }
+    
+    .property-title {
+        font-size: 16px;
+    }
+}

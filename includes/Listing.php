@@ -33,10 +33,19 @@ class Listing {
             if (isset($filters['category']) && $filters['category']) {
                 $sql .= " AND category = ?";
                 $params[] = $filters['category'];
+            }            // Fiyat aralığı filtresi - satılık için
+            if (isset($filters['listing_type']) && $filters['listing_type'] === 'sale') {
+                if (isset($filters['min_price']) && is_numeric($filters['min_price'])) {
+                    $sql .= " AND sale_price >= ?";
+                    $params[] = $filters['min_price'];
+                }
+                if (isset($filters['max_price']) && is_numeric($filters['max_price'])) {
+                    $sql .= " AND sale_price <= ?";
+                    $params[] = $filters['max_price'];
+                }
             }
-
-             // Fiyat aralığı filtresi - satılık için (listing_type=rent seçilmediyse veya seçilmemişse)
-             if ((!isset($filters['listing_type']) || $filters['listing_type'] !== 'rent')) {
+            // Fiyat aralığı filtresi - listing_type belirtilmemişse (genel arama için satış fiyatı)
+            else if (!isset($filters['listing_type']) || $filters['listing_type'] === '') {
                 if (isset($filters['min_price']) && is_numeric($filters['min_price'])) {
                     $sql .= " AND sale_price >= ?";
                     $params[] = $filters['min_price'];
@@ -327,6 +336,81 @@ class Listing {
                 AND (sale_price > 0 OR rent_price > 0)"; /* Fiyatı olanları getir */
 
         return $this->db->fetchAll($sql);
+    }    // Filtrelenmiş harita verilerini getiren yeni metot
+    public function getFilteredMapData($filters = []) {
+        $sql = "SELECT id, title, latitude, longitude, city, state,
+                sale_price, rent_price, category, featured,
+                (SELECT image_url FROM listing_images WHERE listing_id = listings.id AND is_main = 1 LIMIT 1) as main_image
+                FROM listings
+                WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+                AND (sale_price > 0 OR rent_price > 0)";
+        
+        $params = [];
+
+        // Filtreleme koşulları - getAllListings ile aynı mantık
+        if (!empty($filters)) {
+            // Kiralık/Satılık filtresi
+            if (isset($filters['listing_type']) && $filters['listing_type']) {
+                if ($filters['listing_type'] == 'rent') {
+                    $sql .= " AND rent_price IS NOT NULL AND rent_price > 0";
+                } else if ($filters['listing_type'] == 'sale') {
+                    $sql .= " AND sale_price IS NOT NULL AND sale_price > 0";
+                }
+            }
+
+            // Kategori filtresi
+            if (isset($filters['category']) && $filters['category']) {
+                $sql .= " AND category = ?";
+                $params[] = $filters['category'];
+            }
+
+            // Şehir filtresi
+            if (isset($filters['city']) && $filters['city']) {
+                $sql .= " AND city LIKE ?";
+                $params[] = '%' . $filters['city'] . '%';
+            }            // Fiyat aralığı filtresi - satılık için
+            if (isset($filters['listing_type']) && $filters['listing_type'] === 'sale') {
+                if (isset($filters['min_price']) && $filters['min_price']) {
+                    $sql .= " AND sale_price >= ?";
+                    $params[] = (int)$filters['min_price'];
+                }
+                if (isset($filters['max_price']) && $filters['max_price']) {
+                    $sql .= " AND sale_price <= ?";
+                    $params[] = (int)$filters['max_price'];
+                }
+            }
+            // Fiyat aralığı filtresi - listing_type belirtilmemişse (genel arama için satış fiyatı)
+            else if (!isset($filters['listing_type']) || $filters['listing_type'] === '') {
+                if (isset($filters['min_price']) && $filters['min_price']) {
+                    $sql .= " AND sale_price >= ?";
+                    $params[] = (int)$filters['min_price'];
+                }
+                if (isset($filters['max_price']) && $filters['max_price']) {
+                    $sql .= " AND sale_price <= ?";
+                    $params[] = (int)$filters['max_price'];
+                }
+            }
+
+            // Fiyat aralığı filtresi - kiralık için
+            if (isset($filters['listing_type']) && $filters['listing_type'] === 'rent') {
+                if (isset($filters['min_rent']) && $filters['min_rent']) {
+                    $sql .= " AND rent_price >= ?";
+                    $params[] = (int)$filters['min_rent'];
+                }
+                if (isset($filters['max_rent']) && $filters['max_rent']) {
+                    $sql .= " AND rent_price <= ?";
+                    $params[] = (int)$filters['max_rent'];
+                }
+            }
+
+            // Oda sayısı filtresi
+            if (isset($filters['rooms']) && $filters['rooms']) {
+                $sql .= " AND rooms = ?";
+                $params[] = (int)$filters['rooms'];
+            }
+        }
+
+        return $this->db->fetchAll($sql, $params);
     }
 
     public function updateMainImage($listingId, $imageId) {
